@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Website AI Assistant</title>
+
+    <style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family: 'Segoe UI', sans-serif;
+
+    background:#f4f7fb;
+
+    color:#1e293b;
+
+    padding:20px;
+}
+
+/* HEADER */
+
+h2{
+
+    margin-bottom:20px;
+
+    font-size:32px;
+
+    color:#2563eb;
+
+    font-weight:700;
+}
+
+/* CARD */
+
+.card{
+
+    background:white;
+
+    border:none;
+
+    border-radius:16px;
+
+    padding:20px;
+
+    margin-bottom:20px;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,.08);
+}
+
+/* STATS */
+
+.stats-container{
+
+    display:flex;
+
+    gap:20px;
+
+    margin-bottom:25px;
+}
+
+.stat-card{
+
+    flex:1;
+
+    background:white;
+
+    border-radius:16px;
+
+    padding:20px;
+
+    text-align:center;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,.08);
+}
+
+.stat-number{
+
+    font-size:42px;
+
+    font-weight:700;
+
+    color:#2563eb;
+}
+
+/* BUTTONS */
+
+button{
+
+    background:#2563eb;
+
+    color:white;
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:10px 18px;
+
+    font-weight:600;
+
+    transition:.2s;
+}
+
+button:hover{
+
+    background:#1d4ed8;
+
+    transform:translateY(-2px);
+}
+
+/* INPUTS */
+
+input,
+textarea,
+select{
+
+    width:100%;
+
+    padding:10px;
+
+    border:1px solid #d1d5db;
+
+    border-radius:10px;
+
+    margin-top:5px;
+
+    margin-bottom:10px;
+}
+
+/* LAYOUT */
+
+.main-layout{
+
+    display:flex;
+
+    gap:20px;
+}
+
+.left-panel{
+
+    width:25%;
+}
+
+.right-panel{
+
+    width:75%;
+}
+
+css
+.crm-sidebar{
+
+    width:320px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:20px;
+}
+
+#leadPanel textarea{
+
+    width:100%;
+
+    min-height:160px;
+
+    resize:vertical;
+}
+
+#customerProfile{
+
+    line-height:1.8;
+
+    font-size:15px;
+
+    word-break:break-word;
+}
+
+#conversationViewer{
+
+    height:700px;
+
+    overflow-y:auto;
+
+    background:#e5ddd5;
+
+    border-radius:12px;
+
+    padding:20px;
+}
+
+.user-message,
+.assistant-message{
+
+    max-width:70%;
+
+    word-wrap:break-word;
+
+    overflow-wrap:anywhere;
+
+    white-space:pre-wrap;
+
+    line-height:1.5;
+}
+
+
+/* INBOX */
+
+.customer-card{
+
+    cursor:pointer;
+
+    padding:12px;
+
+    border-radius:10px;
+
+    margin-bottom:8px;
+
+    transition:.2s;
+}
+
+.customer-card:hover{
+
+    background:#eff6ff;
+}
+
+.customer-card.active{
+
+    background:#dbeafe;
+
+    border-left:5px solid #2563eb;
+}
+
+.customer-phone{
+
+    font-size:16px;
+
+    font-weight:700;
+}
+
+.customer-preview{
+
+    color:#64748b;
+
+    font-size:13px;
+}
+
+.customer-time{
+
+    font-size:11px;
+
+    color:#94a3b8;
+}
+
+/* BADGE */
+
+.unread-badge{
+
+    background:#ef4444;
+
+    color:white;
+
+    display:inline-block;
+
+    padding:3px 10px;
+
+    border-radius:50px;
+
+    margin-top:6px;
+
+    font-size:12px;
+}
+
+/* CHAT */
+
+#conversationViewer{
+
+    height:600px;
+
+    overflow-y:auto;
+
+    background:#e5ddd5;
+
+    border-radius:16px;
+
+    padding:20px;
+}
+
+/* USER MESSAGE */
+
+.user-message{
+
+    background:#dcf8c6;
+
+    padding:12px;
+
+    margin:10px;
+
+    border-radius:12px;
+
+    max-width:70%;
+
+    margin-left:auto;
+
+    box-shadow:
+        0 2px 5px rgba(0,0,0,.1);
+}
+
+/* BOT MESSAGE */
+
+.assistant-message{
+
+    background:white;
+
+    padding:12px;
+
+    margin:10px;
+
+    border-radius:12px;
+
+    max-width:70%;
+
+    box-shadow:
+        0 2px 5px rgba(0,0,0,.1);
+}
+
+.message-time{
+
+    margin-top:5px;
+
+    font-size:11px;
+
+    color:#64748b;
+}
+
+/* STATUS */
+
+#status{
+
+    margin-top:15px;
+
+    font-weight:600;
+
+    color:#2563eb;
+}
+
+.profile-grid{
+
+    display:grid;
+
+    grid-template-columns:1fr;
+
+    gap:10px;
+
+    margin-top:15px;
+}
+
+.profile-item{
+
+    background:#f8fafc;
+
+    border-radius:10px;
+
+    padding:10px;
+}
+
+.label{
+
+    display:block;
+
+    color:#64748b;
+
+    font-size:12px;
+
+    margin-bottom:4px;
+}
+
+.value{
+
+    font-weight:600;
+}
+
+.badge{
+
+    display:inline-block;
+
+    padding:6px 12px;
+
+    border-radius:30px;
+
+    font-size:12px;
+
+    font-weight:700;
+}
+
+.badge.qualified{
+
+    background:#dcfce7;
+
+    color:#166534;
+}
+
+.reason-box{
+
+    margin-top:15px;
+
+    background:#fff7ed;
+
+    border-left:4px solid #f97316;
+
+    border-radius:10px;
+
+    padding:12px;
+
+    word-break:break-word;
+}
+
+#leadTimeline{
+
+    max-height:400px;
+
+    overflow-y:auto;
+
+    padding-right:5px;
+}
+
+.crm-sidebar{
+
+    width:320px;
+
+    max-height:90vh;
+
+    overflow-y:auto;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:20px;
+}
+
+    </style>
+
+</head>
+<body>
+<div
+    style="
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+">
+
+    <div>
+
+        <h2>
+            🚀 Website AI Assistant
+        </h2>
+
+        <p style="color:#64748b">
+            Manage leads, customers, websites and AI settings
+        </p>
+
+    </div>
+
+</div>
+
+<div class="stats-container">
+
+    <div class="card">
+
+        <h3>Top Customers</h3>
+
+        <div id="topCustomers">
+            Loading...
+        </div>
+
+    </div>
+
+    <div class="card">
+
+<h3>
+⚙️ Business Settings
+</h3>
+
+    <input
+        id="businessName"
+        placeholder="Business Name"
+    >
+
+    <br><br>
+
+    <textarea
+        id="welcomeMessage"
+        placeholder="Welcome Message"
+    ></textarea>
+
+    <br><br>
+
+    <textarea
+        id="aiInstructions"
+        placeholder="AI Instructions"
+    ></textarea>
+
+    <br><br>
+
+    <button
+        onclick="saveBusinessSettings()"
+    >
+        Save Settings
+    </button>
+
+</div>
+
+    <div class="stat-card">
+        <div class="stat-number" id="websiteCount">0</div>
+        <div>Websites</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-number" id="customerCount">0</div>
+        <div>Customers</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-number" id="messageCount">0</div>
+        <div>Messages</div>
+    </div>
+    <div class="stat-card">
+        <div
+            class="stat-number"
+            id="todayMessages"
+        >
+            0
+        </div>
+
+        <div>
+            Today
+        </div>
+    </div>
+
+</div>
+
+
+<div class="card">
+
+    <label>WhatsApp Number</label><br>
+    <input id="userId" placeholder="testA"><br><br>
+
+    <label>Website URL</label><br>
+    <input id="websiteUrl"
+           placeholder="https://example.com"><br><br>
+
+    <button onclick="addWebsite()">
+        Add Website
+    </button>
+
+    <button onclick="reindexUser()">
+        Reindex
+    </button>
+
+</div>
+
+
+
+<div class="main-layout">
+
+    <!-- LEFT PANEL -->
+
+    <div class="left-panel">
+
+        <div class="card">
+
+            <h3>🏢 Business Information</h3>
+
+            <div id="businessInfo"></div>
+
+        </div>
+
+        <div class="card">
+
+            <h3>🌐 Indexed Websites</h3>
+
+            <ul id="websiteList"></ul>
+
+        </div>
+
+        <div class="card">
+
+            <h3>💬 Customer Inbox</h3>
+
+            <input
+                id="customerSearch"
+                placeholder="Search customer..."
+                onkeyup="searchCustomers()"
+            />
+
+            <ul id="customerList"></ul>
+
+        </div>
+
+    </div>
+
+
+    <!-- CHAT PANEL -->
+
+    <div class="right-panel">
+
+        <div class="card">
+
+            <h3 id="selectedCustomer">
+                Select Customer
+            </h3>
+
+            <div id="conversationViewer">
+
+                Select a customer to view chat history
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CRM SIDEBAR -->
+
+    <div class="crm-sidebar">
+
+        <div
+            class="card"
+            id="leadPanel"
+        >
+
+            <h3>🎯 Lead Management</h3>
+
+            <label>Status</label>
+
+            <select id="leadStatus">
+
+                <option>New</option>
+                <option>Interested</option>
+                <option>Qualified</option>
+                <option>Proposal Sent</option>
+                <option>Closed Won</option>
+                <option>Closed Lost</option>
+
+            </select>
+
+            <label>Notes</label>
+
+            <textarea
+                id="leadNotes"
+                rows="8"
+            ></textarea>
+
+            <button
+                style="width:100%;margin-top:10px;"
+                onclick="saveLead()"
+            >
+                Save Lead
+            </button>
+
+        </div>
+
+
+        <div
+            class="card"
+            id="customerProfilePanel"
+        >
+
+            <h3>👤 Customer Profile</h3>
+
+            <div id="customerProfile">
+
+                Select a customer
+
+            </div>
+
+        </div>
+        <div class="card">
+
+            <h3>📈 Lead Journey</h3>
+
+            <div id="leadTimeline">
+                No history
+            </div>
+
+        </div> 
+
+        <div class="card">
+
+            <h3>💰 Opportunities</h3>
+
+            <div id="opportunityPanel">
+
+                No opportunities
+
+            </div>
+
+        </div>
+
+        
+        <div class="card">
+
+            <h3>⏰ Follow-Up Reminders</h3>
+
+            <div id="reminderPanel">
+
+                Loading...
+
+            </div>
+
+        </div>
+        <div class="card">
+
+            <h3>🔥 Lead Health</h3>
+
+            <div id="leadHealthPanel">
+                Loading...
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="status"></div>
+
+
+
+<script>
+    
+let currentCustomer = null;
+async function addWebsite() {
+
+    document.getElementById("status").innerText =
+    "⏳ Indexing website...";
+
+    const userId =
+        document.getElementById("userId").value;
+
+    const url =
+        document.getElementById("websiteUrl").value;
+
+    const response = await fetch("/website", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            user_id: userId,
+            url: url,
+            crawl: false,
+            max_pages: 20
+        })
+    });
+
+    const data = await response.json();
+
+    if (data.status === "success") {
+        document.getElementById("status").innerText =
+            `✅ ${data.added_count} website added successfully`;
+
+        // ✅ CLEAR INPUT HERE
+        document.getElementById("websiteUrl").value = "";
+    } else {
+        document.getElementById("status").innerText =
+            `❌ ${data.message}`;
+    }
+
+    loadWebsites();
+}
+
+async function loadWebsites() {
+
+    const userId =
+        document.getElementById("userId").value;
+
+    if (!userId)
+        return;
+
+    const response =
+        await fetch(`/websites/${userId}`);
+
+    const data =
+        await response.json();
+
+    const list =
+        document.getElementById("websiteList");
+
+    list.innerHTML = "";
+
+    data.websites.forEach(site => {
+
+        const li =
+            document.createElement("li");
+
+        li.innerHTML = `
+            ${site}
+            <button onclick="deleteWebsite('${site}')">
+                Delete
+            </button>
+        `;
+
+        list.appendChild(li);
+    });
+}
+
+async function searchCustomers() {
+
+    const userId =
+        document.getElementById("userId").value;
+
+    const q =
+        document.getElementById("customerSearch").value;
+
+    const response =
+        await fetch(
+            `/customer-search/${userId}?q=${encodeURIComponent(q)}`
+        );
+
+    const data =
+        await response.json();
+
+    renderCustomers(data.customers);
+}
+
+async function deleteWebsite(url) {
+
+    const userId =
+        document.getElementById("userId").value;
+
+    const response = await fetch(
+        "/website",
+        {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                url: url
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    document.getElementById("status").innerText =
+        data.message || data.status;
+
+    loadWebsites();
+}
+
+async function reindexUser() {
+
+    const userId =
+        document.getElementById("userId").value;
+
+    document.getElementById("status").innerText =
+        "⏳ Reindexing...";
+
+    const response = await fetch(
+        `/reindex/${userId}`,
+        {
+            method: "POST"
+        }
+    );
+
+    const data = await response.json();
+
+    if (data.status === "success") {
+
+        document.getElementById("status").innerText =
+            "✅ Reindex completed";
+
+    } else {
+
+        document.getElementById("status").innerText =
+            `❌ ${data.message}`;
+    }
+}
+
+async function loadDashboardMetrics() {
+
+    const userId =
+        document.getElementById(
+            "userId"
+        ).value;
+
+    if (!userId)
+        return;
+
+    const response =
+        await fetch(
+            `/dashboard-metrics/${userId}`
+        );
+
+    const data =
+        await response.json();
+
+    document.getElementById(
+        "customerCount"
+    ).innerText =
+        data.customers;
+
+    document.getElementById(
+        "messageCount"
+    ).innerText =
+        data.messages;
+
+    document.getElementById(
+        "todayMessages"
+    ).innerText =
+        data.today_messages;
+}
+
+async function loadCustomers() {
+
+    const userId =
+        document.getElementById("userId").value;
+
+    if (!userId)
+        return;
+
+    const response =
+        await fetch(`/customer-details/${userId}`);
+
+    const data =
+        await response.json();
+
+    const list =
+        document.getElementById("customerList");
+
+    list.innerHTML = "";
+    let totalMessages = 0;
+    data.customers.forEach(customer => {
+        totalMessages += customer.message_count;
+        const li =
+            document.createElement("li");
+
+        li.className = "customer-card";
+
+        li.onclick = () =>
+            selectCustomer(customer.phone);
+
+        li.innerHTML = `
+
+            <div class="customer-phone">
+                ${customer.phone}
+            </div>
+
+            <div class="customer-preview">
+                ${customer.last_message || ""}
+            </div>
+
+            <div class="customer-time">
+                ${customer.last_seen || ""}
+            </div>
+
+            ${
+                customer.unread_count > 0
+                ?
+                `
+                <div class="unread-badge">
+                    ${customer.unread_count}
+                </div>
+                `
+                :
+                ""
+            }
+
+        `;
+
+        list.appendChild(li);
+    });
+    document.getElementById(
+        "messageCount"
+    ).innerText = totalMessages;
+}
+
+function filterCustomers() {
+
+    const search =
+        document
+        .getElementById(
+            "customerSearch"
+        )
+        .value
+        .toLowerCase();
+
+    const cards =
+        document.querySelectorAll(
+            ".customer-card"
+        );
+
+    cards.forEach(card => {
+
+        if (
+            card.innerText
+                .toLowerCase()
+                .includes(search)
+        ) {
+
+            card.style.display = "";
+
+        } else {
+
+            card.style.display = "none";
+        }
+
+    });
+}
+
+async function selectCustomer(customerPhone){
+
+    currentCustomer = customerPhone;
+
+    await loadLead(customerPhone);
+    await loadCustomerProfile(customerPhone);
+    await loadLeadTimeline(customerPhone);
+    await loadConversation(customerPhone);
+    await loadOpportunities(customerPhone);
+}
+
+async function loadConversation(
+    customerPhone
+){
+
+    currentCustomer = customerPhone;
+    
+    
+    document.getElementById(
+        "selectedCustomer"
+    ).innerText =
+        customerPhone;
+
+    document
+    .querySelectorAll(
+        ".customer-card"
+    )
+    .forEach(card =>
+        card.classList.remove("active")
+    );
+
+    document
+    .querySelectorAll(
+        ".customer-card"
+    )
+    .forEach(card => {
+
+        if (
+            card.innerText.includes(
+                customerPhone
+            )
+        ) {
+            card.classList.add("active");
+        }
+
+    });
+    
+    
+    const userId =
+        document.getElementById("userId").value;
+
+    const response =
+        await fetch(
+            `/conversation/${userId}/${encodeURIComponent(customerPhone)}`
+        );
+
+    const data =
+        await response.json();
+
+    const viewer =
+        document.getElementById(
+            "conversationViewer"
+        );
+
+    viewer.innerHTML = "";
+
+    data.messages.forEach(msg => {
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            msg.role === "user"
+                ? "user-message"
+                : "assistant-message";
+
+        div.innerHTML = `
+            <div>
+                ${msg.content}
+            </div>
+
+            <div class="message-time">
+                ${msg.created_at}
+            </div>
+        `;
+
+        viewer.appendChild(div);
+    });
+
+    viewer.scrollTop =
+        viewer.scrollHeight;
+}
+
+async function loadStats() {
+
+    const userId =
+        document.getElementById("userId").value;
+
+    if (!userId)
+        return;
+
+    const response =
+        await fetch(`/stats/${userId}`);
+
+    const data =
+        await response.json();
+
+    document.getElementById(
+        "websiteCount"
+    ).innerText = data.websites;
+
+    document.getElementById(
+        "customerCount"
+    ).innerText = data.customers;
+}
+
+async function loadBusinessInfo() {
+
+    const userId =
+        document.getElementById("userId").value;
+
+    if (!userId)
+        return;
+
+    const response =
+        await fetch(`/customer-number/${userId}`);
+
+    const data =
+        await response.json();
+
+    document.getElementById("businessInfo").innerHTML =
+        `
+        User ID: ${userId}<br>
+        WhatsApp: ${data.whatsapp_number || "Not Configured"}
+        `;
+}
+
+document
+.getElementById("userId")
+.addEventListener(
+    "change",
+    () => {
+
+        loadWebsites();
+        loadCustomers();
+        loadStats();
+        loadBusinessInfo();
+        loadTopCustomers();
+        loadBusinessSettings();
+        loadReminders();
+        loadLeadHealth();
+    }
+);
+
+setInterval(() => {
+
+    if (currentCustomer) {
+
+        loadConversation(
+            currentCustomer
+        );
+
+    }
+
+}, 5000);
+
+setInterval(() => {
+
+    const userId =
+        document.getElementById("userId").value;
+
+    if (!userId)
+        return;
+
+    loadCustomers();
+
+    loadStats();
+
+    loadDashboardMetrics();
+
+    loadTopCustomers();
+
+    loadReminders();
+
+}, 5000);
+
+
+async function saveLead(){
+
+    if(!currentCustomer)
+        return;
+
+    const status =
+        document.getElementById(
+            "leadStatus"
+        ).value;
+
+    const notes =
+        document.getElementById(
+            "leadNotes"
+        ).value;
+
+    const response =
+        await fetch(
+            "/lead",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                    "application/json"
+                },
+                body: JSON.stringify({
+                    customer_phone:
+                        currentCustomer,
+                    status:
+                        status,
+                    notes:
+                        notes
+                })
+            }
+        );
+
+    const data =
+        await response.json();
+    console.log(
+        "Saving:",
+        currentCustomer,
+        status
+    );
+    
+    await loadLead(currentCustomer);
+
+    if(data.status === "success"){
+
+        alert(
+            "Lead updated"
+        );
+    }
+}
+
+async function loadLead(
+    customerPhone
+){
+
+    const response =
+        await fetch(
+            `/lead/${encodeURIComponent(customerPhone)}`
+        );
+
+    const data =
+        await response.json();
+    console.log("Lead loaded", data);
+    document.getElementById(
+        "leadStatus"
+    ).value =
+        data.lead.status;
+
+    document.getElementById(
+        "leadNotes"
+    ).value =
+        data.lead.notes;
+
+}
+
+
+async function loadTopCustomers() {
+
+    const userId =
+        document.getElementById(
+            "userId"
+        ).value;
+
+    if (!userId)
+        return;
+
+    const response =
+        await fetch(
+            `/top-customers/${userId}`
+        );
+
+    const data =
+        await response.json();
+
+    const container =
+        document.getElementById(
+            "topCustomers"
+        );
+
+    container.innerHTML = "";
+
+    data.customers.forEach(
+        customer => {
+
+            container.innerHTML += `
+                <div
+                    style="
+                        padding:8px;
+                        border-bottom:1px solid #eee;
+                    "
+                >
+                    <b>
+                        ${customer.phone}
+                    </b>
+
+                    <br>
+
+                    Messages:
+                    ${customer.message_count}
+                </div>
+            `;
+        }
+    );
+}
+
+async function saveBusinessSettings(){
+
+    const userId =
+        document.getElementById("userId").value;
+
+    const response =
+        await fetch(
+            "/business-settings",
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    user_id:userId,
+                    business_name:
+                        document.getElementById(
+                            "businessName"
+                        ).value,
+                    welcome_message:
+                        document.getElementById(
+                            "welcomeMessage"
+                        ).value,
+                    ai_instructions:
+                        document.getElementById(
+                            "aiInstructions"
+                        ).value
+                })
+            }
+        );
+
+    const data =
+        await response.json();
+
+    alert("Settings saved");
+}
+
+function getLeadBadge(score){
+
+    if(score >= 80)
+        return "🔥 HOT";
+
+    if(score >= 50)
+        return "🟡 WARM";
+
+    return "❄️ COLD";
+}
+
+async function loadBusinessSettings(){
+
+    const userId =
+        document.getElementById("userId").value;
+
+    if(!userId)
+        return;
+
+    const response =
+        await fetch(
+            `/business-settings/${userId}`
+        );
+
+    const data =
+        await response.json();
+
+    document.getElementById(
+        "businessName"
+    ).value =
+        data.settings.business_name || "";
+
+    document.getElementById(
+        "welcomeMessage"
+    ).value =
+        data.settings.welcome_message || "";
+
+    document.getElementById(
+        "aiInstructions"
+    ).value =
+        data.settings.ai_instructions || "";
+}
+
+async function loadCustomerProfile(
+    customerPhone
+){
+
+    const userId =
+        document.getElementById(
+            "userId"
+        ).value;
+
+    const response =
+        await fetch(
+            `/customer-profile/${userId}/${encodeURIComponent(customerPhone)}`
+        );
+
+    const data =
+        await response.json();
+
+
+    let badge = "🔵 Cold";
+
+    if(
+        data.profile.lead_score >= 80
+    ){
+        badge = "🔥 Hot";
+    }
+    else if(
+        data.profile.lead_score >= 50
+    ){
+        badge = "🟡 Warm";
+    }
+
+    document.getElementById(
+        "customerProfile"
+    ).innerHTML = `
+
+    
+    <div class="profile-grid">
+
+        <div class="profile-item">
+            <span class="label">📱 Phone</span>
+            <span class="value">${customerPhone}</span>
+        </div>
+
+        <div class="profile-item">
+            <span class="label">🎯 Lead Status</span>
+            <span class="badge qualified">
+                ${data.profile.lead_status || "New"}
+            </span>
+            <div>
+                <b>⭐ Lead Score:</b>
+                ${data.profile.lead_score || 0}/100
+            </div>
+            <div>
+                <b>Lead Quality:</b>
+                ${getLeadBadge(data.profile.lead_score)}
+            </div>
+
+            <div>
+                <b>Lead Type:</b>
+                ${badge}
+            </div>
+        </div>
+
+        <div class="profile-item">
+            <span class="label">🤖 AI Confidence</span>
+            <span class="value">
+                ${data.profile.confidence || 0}%
+            </span>
+        </div>
+
+        <div class="profile-item">
+            <span class="label">👤 Updated By</span>
+            <span class="value">
+                ${data.profile.updated_by || "-"}
+            </span>
+        </div>
+
+        <div class="profile-item">
+            <span class="label">📅 First Seen</span>
+            <span class="value">
+                ${data.profile.first_seen || "-"}
+            </span>
+        </div>
+
+        <div class="profile-item">
+            <span class="label">🕒 Last Seen</span>
+            <span class="value">
+                ${data.profile.last_seen || "-"}
+            </span>
+        </div>
+
+        <div class="profile-item">
+            <span class="label">💬 Messages</span>
+            <span class="value">
+                ${data.profile.message_count || 0}
+            </span>
+        </div>
+
+    </div>
+
+    <div class="reason-box">
+
+        <strong>🧠 AI Reasoning</strong>
+
+        <br><br>
+
+        ${data.profile.reason || "-"}
+
+    </div>
+
+    <div class="reason-box">
+
+        <strong>📝 Notes</strong>
+
+        <br><br>
+
+        ${data.profile.notes || "-"}
+
+    </div>
+    `;
+}
+
+
+async function loadLeadTimeline(
+    customerPhone
+){
+
+    const response =
+        await fetch(
+            `/lead-timeline/${encodeURIComponent(customerPhone)}`
+        );
+
+    const data =
+        await response.json();
+
+    let html = "";
+
+    if(
+        !data.timeline ||
+        data.timeline.length === 0
+    ){
+
+        html = `
+        <div
+            style="
+                color:#64748b;
+                text-align:center;
+                padding:20px;
+            "
+        >
+            No History
+        </div>
+        `;
+    }
+    else{
+
+        data.timeline.forEach(item => {
+
+            const color =
+                item.updated_by === "AI"
+                ? "#10b981"
+                : "#2563eb";
+
+            const badge =
+                item.updated_by === "AI"
+                ? "🤖 AI"
+                : "👤 Manual";
+
+            html += `
+
+            <div
+                style="
+                    position:relative;
+                    padding-left:25px;
+                    margin-bottom:20px;
+                    border-left:3px solid ${color};
+                "
+            >
+
+                <div
+                    style="
+                        position:absolute;
+                        left:-8px;
+                        top:5px;
+                        width:12px;
+                        height:12px;
+                        border-radius:50%;
+                        background:${color};
+                    "
+                ></div>
+
+                <div
+                    style="
+                        font-weight:700;
+                        color:${color};
+                    "
+                >
+                    ${item.status}
+                </div>
+
+                <div
+                    style="
+                        font-size:12px;
+                        color:#64748b;
+                        margin-top:4px;
+                    "
+                >
+                    ${badge}
+                    •
+                    ${item.created_at}
+                </div>
+
+                <div
+                    style="
+                        margin-top:6px;
+                    "
+                >
+                    Confidence:
+                    <b>${item.confidence}%</b>
+                </div>
+
+                <div
+                    style="
+                        margin-top:6px;
+                        font-size:13px;
+                        color:#475569;
+                    "
+                >
+                    ${item.reason}
+                </div>
+
+            </div>
+            `;
+        });
+    }
+
+    document.getElementById(
+        "leadTimeline"
+    ).innerHTML = html;
+}
+
+
+async function loadOpportunities(
+    customerPhone
+){
+
+    const response =
+        await fetch(
+            `/opportunities/${encodeURIComponent(customerPhone)}`
+        );
+
+    const data =
+        await response.json();
+
+    let html = "";
+
+    if(
+        !data.opportunities ||
+        data.opportunities.length === 0
+    ){
+
+        html =
+            "<p>No opportunities found</p>";
+    }
+    else{
+
+        data.opportunities.forEach(
+            opp => {
+
+                html += `
+                <div
+                    style="
+                        border-left:4px solid #10b981;
+                        padding-left:10px;
+                        margin-bottom:15px;
+                    "
+                >
+                    <b>
+                        ${opp.type}
+                    </b>
+
+                    <br>
+
+                    Confidence:
+                    ${opp.confidence}%
+
+                    <br>
+
+                    ${opp.created_at}
+
+                    <br>
+
+                    <small>
+                        ${opp.reason}
+                    </small>
+
+                </div>
+                `;
+            }
+        );
+    }
+
+    document.getElementById(
+        "opportunityPanel"
+    ).innerHTML = html;
+}
+
+async function loadReminders(){
+
+    const response =
+        await fetch("/reminders");
+
+    const data =
+        await response.json();
+
+    let html = "";
+
+    data.reminders.forEach(reminder => {
+
+        const today =
+            new Date()
+                .toISOString()
+                .split("T")[0];
+
+        let badge = "🟢";
+
+        if(
+            reminder.due_date < today
+        ){
+            badge = "🔴";
+        }
+        else if(
+            reminder.due_date === today
+        ){
+            badge = "🟡";
+        }
+
+        html += `
+        <div
+            style="
+                padding:10px;
+                border-bottom:1px solid #eee;
+            "
+        >
+
+            ${badge}
+
+            <b>
+                ${reminder.customer_phone}
+            </b>
+
+            <br>
+
+            ${reminder.reminder_text}
+
+            <br>
+
+            <small>
+                Due:
+                ${reminder.due_date}
+            </small>
+
+        </div>
+        `;
+    });
+
+    document.getElementById(
+        "reminderPanel"
+    ).innerHTML = html;
+}
+
+async function loadLeadHealth(){
+
+    const response =
+        await fetch("/lead-categories");
+
+    const data =
+        await response.json();
+
+    let html = "";
+
+    html += `
+        <div>
+            🔥 Hot Leads:
+            ${data.hot.length}
+        </div>
+
+        <div>
+            🟡 Warm Leads:
+            ${data.warm.length}
+        </div>
+
+        <div>
+            🔵 Cold Leads:
+            ${data.cold.length}
+        </div>
+    `;
+
+    document.getElementById(
+        "leadHealthPanel"
+    ).innerHTML = html;
+}
+
+</script>
+
+</body>
+</html>"

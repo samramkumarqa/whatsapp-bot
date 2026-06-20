@@ -1,20 +1,33 @@
-from langchain_community.document_loaders import PyPDFDirectoryLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.vectorstores import Chroma
-from dotenv import load_dotenv
-load_dotenv()
+from langchain_chroma import Chroma
+from website_ingest import load_website_chunks
+from dedupe import remove_duplicate_chunks
+
+import os
+
 
 def ingest_docs():
-    loader   = PyPDFDirectoryLoader("docs/")
-    docs     = loader.load()
-    splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-    chunks   = splitter.split_documents(docs)
 
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    web_chunks = load_website_chunks()
 
-    Chroma.from_documents(chunks, embeddings, persist_directory="chroma_db")
-    print(f"✅ Indexed {len(chunks)} chunks from {len(docs)} pages.")
+    if not web_chunks:
+        print("⚠️ No website data found")
+        return
 
-if __name__ == "__main__":
-    ingest_docs()
+    # optional dedupe
+    web_chunks = remove_duplicate_chunks(web_chunks)
+
+    print(f"🌐 Web chunks: {len(web_chunks)}")
+
+    embeddings = HuggingFaceEmbeddings(
+        model_name="all-MiniLM-L6-v2"
+    )
+
+    vectorstore = Chroma(
+        persist_directory="chroma_db",
+        embedding_function=embeddings
+    )
+
+    vectorstore.add_documents(web_chunks)
+
+    print("✅ Incremental indexing completed")

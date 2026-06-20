@@ -1,0 +1,210 @@
+{
+  "https://www.selenium.dev/documentation/overview/components": {
+    "hash": "870ee2a5af56ecdc00281685fe48183d",
+    "chunk_count": 4
+  },
+  "https://www.selenium.dev/documentation/webdriver/bidi/logging": {
+    "hash": "6b472be5f18fd6d9afdf2429219f186a",
+    "chunk_count": 17
+  },
+  "https://www.selenium.dev/documentation/webdriver/bidi/w3c/browsing_context": {
+    "hash": "11debbe9be9776ac6e5b56b33a322e43",
+    "chunk_count": 736
+  },
+  "https://www.selenium.dev/documentation/webdriver/bidi/cdp/script": {
+    "hash": "cb5e66bfa47bab5da11e03a8fec85a20",
+    "chunk_count": 17
+  },
+  "https://www.selenium.dev/documentation/webdriver/interactions/windows": {
+    "hash": "1026dda5ea8a8d5b7376e3d8c4014df8",
+    "chunk_count": 27
+  },
+  "https://www.selenium.dev/documentation/webdriver/drivers/service": {
+    "hash": "04fdf452a257c9b2b0baa94072341555",
+    "chunk_count": 19
+  },
+  "https://www.selenium.dev/documentation/webdriver/elements/file_upload": {
+    "hash": "2198bbc9f3f51c51949ff24891aa944f",
+    "chunk_count": 7
+  },
+  "https://www.selenium.dev/documentation/webdriver/interactions/navigation": {
+    "hash": "5e91bd201d2d85186b6ba6e5cca34232",
+    "chunk_count": 23
+  },
+  "https://www.selenium.dev/documentation/webdriver/interactions/virtual_authenticator": {
+    "hash": "959a65ba386ac6a359e38523fd22259d",
+    "chunk_count": 380
+  },
+  "https://www.selenium.dev/documentation/webdriver/drivers/options": {
+    "hash": "b67c0119c89fd0877179c91860daf9b2",
+    "chunk_count": 222
+  },
+  "https://www.selenium.dev/documentation": {
+    "hash": "e60faf97c51e76057fbab4b3e82ecfd3",
+    "chunk_count": 5
+  },
+  "https://www.selenium.dev/documentation/webdriver/browsers/chrome": {
+    "hash": "5b31c00f56a057ea2e0309dc106989c5",
+    "chunk_count": 375
+  },
+  "https://www.selenium.dev/documentation/webdriver/interactions/frames": {
+    "hash": "4b8bbb45d2fe955862fd264a57792b6b",
+    "chunk_count": 8
+  },
+  "https://www.selenium.dev/documentation/webdriver/actions_api/keyboard": {
+    "hash": "8b2ca7bd7424dac39111cf33adf9932a",
+    "chunk_count": 84
+  },
+  "https://www.selenium.dev/documentation/webdriver/bidi/cdp": {
+    "hash": "168b5028e6e3f2566d6733f2dcaa2595",
+    "chunk_count": 4
+  },
+  "https://www.selenium.dev/documentation/webdriver/getting_started/install_library": {
+    "hash": "dd7919652632c928033d3103e449dfc6",
+    "chunk_count": 5
+  },
+  "https://www.selenium.dev/documentation/webdriver/elements/locators": {
+    "hash": "2d1aae492a5731ae895333a5ab65b191",
+    "chunk_count": 492
+  },
+  "https://fastapi.tiangolo.com/reference/openapi/docs": {
+    "hash": "9ab3ae1a3813cccc6a30a4262e4f39ab",
+    "chunk_count": 15
+  },
+  "https://www.selenium.dev/documentation/webdriver/interactions/print_page": {
+    "hash": "664a25c53def1a152a81b6e039316b2f",
+    "chunk_count": 71
+  },
+  "https://www.selenium.dev/documentation/webdriver/bidi/network": {
+    "hash": "f2ac972185f1f0874e237cfbc89b143f",
+    "chunk_count": 2
+  },
+  "https://www.selenium.dev/documentation/webdriver/bidi/w3c": {
+    "hash": "bc5833d94080fdcb3b200a7134520777",
+    "chunk_count": 1
+  },
+  "https://www.selenium.dev/documentation/webdriver/bidi": {
+    "hash": "c05d86a155f36cea1d139fad328e47a8",
+    "chunk_count": 4
+  },
+  "https://www.selenium.dev/documentation/webdriver/elements": {
+    "hash": "b60907e39b463a4a3d580524c88f5574",
+    "chunk_count": 1
+  },
+  "https://www.selenium.dev/documentation/webdriver": {
+    "hash": "ac85a9caec424131ee2e327f449fd765",
+    "chunk_count": 2
+  },
+  "https://www.selenium.dev/documentation/webdriver/browsers/firefox": {
+    "hash": "a09c289e3aaf56712967ea7544f503fb",
+    "chunk_count": 308
+  },
+  "https://www.selenium.dev/documentation/webdriver/interactions": {
+    "hash": "1e2ebcaa7637c1bce2223683bbb460f5",
+    "chunk_count": 10
+  },
+  "https://www.selenium.dev/documentation/webdriver/bidi/cdp/logging": {
+    "hash": "879bcd25f428e34e4b77eb03912267a1",
+    "chunk_count": 12
+  },
+  "https://www.selenium.dev/documentation/webdriver/elements/finders": {
+    "hash": "bfeb939536788eb8d42bd92eaa34948e",
+    "chunk_count": 16
+  },
+  "https://www.selenium.dev/documentation/webdriver/getting_started/using_selenium": {
+    "hash": "ca7a5c300d90055751c4e604ab1da4c2",
+    "chunk_count": 10
+  },
+  "https://www.selenium.dev/documentation/overview": {
+    "hash": "17dfcfd708a48f5db506b23b3c2bb345",
+    "chunk_count": 2
+  },
+  "https://fastapi.tiangolo.com": {
+    "hash": "be7752f7ab51e4d9ce6532962927d923",
+    "chunk_count": 19
+  },
+  "https://www.selenium.dev/documentation/webdriver/actions_api/pen": {
+    "hash": "cdc54a5e5b5f581965978ef3becdc31b",
+    "chunk_count": 56
+  },
+  "https://www.selenium.dev/documentation/webdriver/interactions/alerts": {
+    "hash": "180d21750ec1979fdb60bea6e7517fdb",
+    "chunk_count": 43
+  },
+  "https://www.selenium.dev/documentation/webdriver/bidi/script": {
+    "hash": "11d3afcf00c7bc470fa59f9c9def49c0",
+    "chunk_count": 1
+  },
+  "https://www.selenium.dev/documentation/webdriver/browsers/safari": {
+    "hash": "da5e0f4ac316dcc5e966d368c7034c05",
+    "chunk_count": 9
+  },
+  "https://www.selenium.dev/documentation/webdriver/getting_started/first_script": {
+    "hash": "f07041423442b7a7c372348a217681c3",
+    "chunk_count": 56
+  },
+  "https://www.selenium.dev/documentation/webdriver/browsers/internet_explorer": {
+    "hash": "cb6191a17cf274909013ed2512f6cbba",
+    "chunk_count": 150
+  },
+  "https://www.selenium.dev/documentation/webdriver/drivers": {
+    "hash": "78c54baba614ce071cca46a5d0eff990",
+    "chunk_count": 34
+  },
+  "https://www.selenium.dev/documentation/webdriver/browsers": {
+    "hash": "b9d23ce6e462f6080038594817f44a99",
+    "chunk_count": 1
+  },
+  "https://www.selenium.dev/documentation/webdriver/bidi/cdp/network": {
+    "hash": "33c188b9efa2eb19ebb47341fbc782b7",
+    "chunk_count": 107
+  },
+  "https://www.selenium.dev/documentation/webdriver/drivers/http_client": {
+    "hash": "b3fcbd964c51f008ebe9e05c2aefe56a",
+    "chunk_count": 8
+  },
+  "https://www.selenium.dev/documentation/overview/details": {
+    "hash": "ddcce3985270dd1adcf70cf1eaff75cf",
+    "chunk_count": 4
+  },
+  "https://www.selenium.dev/documentation/webdriver/getting_started": {
+    "hash": "99425c146e96ce9a868b278c365f80c5",
+    "chunk_count": 3
+  },
+  "https://www.selenium.dev/documentation/webdriver/actions_api": {
+    "hash": "d60b7e4f8173485beba26c69fb49ee3d",
+    "chunk_count": 6
+  },
+  "https://www.selenium.dev/documentation/webdriver/actions_api/mouse": {
+    "hash": "2fa3d8f9b43357d6b203fc90faf9e1f6",
+    "chunk_count": 415
+  },
+  "https://www.selenium.dev/documentation/webdriver/waits": {
+    "hash": "228a948f0efad05b0fb62472bab2d8b2",
+    "chunk_count": 8
+  },
+  "https://www.selenium.dev/documentation/webdriver/drivers/remote_webdriver": {
+    "hash": "9cc1ef1918531c6677dc3a48d316a5ba",
+    "chunk_count": 109
+  },
+  "https://www.selenium.dev/documentation/webdriver/elements/information": {
+    "hash": "f71c169d9396e5dde057e3aabe167128",
+    "chunk_count": 104
+  },
+  "https://www.selenium.dev/documentation/webdriver/browsers/edge": {
+    "hash": "55bb28e18e9a523acdc24b61cfa433c2",
+    "chunk_count": 348
+  },
+  "https://www.selenium.dev/documentation/webdriver/actions_api/wheel": {
+    "hash": "980035c090d33316722e1cbe864296ef",
+    "chunk_count": 116
+  },
+  "https://www.selenium.dev/documentation/webdriver/elements/interactions": {
+    "hash": "5edde6930e38de270ffa8f0e0a560128",
+    "chunk_count": 8
+  },
+  "https://www.selenium.dev/documentation/webdriver/interactions/cookies": {
+    "hash": "a2fff67b88e95b195c33c61f4b23fdeb",
+    "chunk_count": 103
+  }
+}
