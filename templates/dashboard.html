@@ -138,31 +138,44 @@ select{
 
 .main-layout{
 
-    display:flex;
+    display:grid;
+
+    grid-template-columns:
+        280px
+        1fr
+        360px;
 
     gap:20px;
+
+    align-items:start;
 }
 
 .left-panel{
-
-    width:25%;
+    width:auto;
 }
 
 .right-panel{
-
-    width:75%;
+    width:auto;
 }
 
-css
+
 .crm-sidebar{
 
-    width:320px;
+    width:auto;
+
+    max-height:calc(100vh - 120px);
+
+    overflow-y:auto;
 
     display:flex;
 
     flex-direction:column;
 
-    gap:20px;
+    gap:16px;
+
+    position:sticky;
+
+    top:20px;
 }
 
 #leadPanel textarea{
@@ -282,7 +295,7 @@ css
 
 #conversationViewer{
 
-    height:600px;
+    height:750px;
 
     overflow-y:auto;
 
@@ -431,19 +444,55 @@ css
     padding-right:5px;
 }
 
-.crm-sidebar{
+.top-section{
 
-    width:320px;
+    display:grid;
 
-    max-height:90vh;
+    grid-template-columns:
+        1fr
+        1fr;
 
-    overflow-y:auto;
+    gap:20px;
+
+    margin-bottom:20px;
+}
+
+.stats-container{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap:20px;
+
+    margin-bottom:20px;
+}
+
+.quick-actions{
 
     display:flex;
 
-    flex-direction:column;
+    gap:10px;
 
-    gap:20px;
+    flex-wrap:wrap;
+}
+
+#customerList{
+
+    max-height:700px;
+
+    overflow-y:auto;
+}
+
+.card h3{
+
+    margin-bottom:15px;
+}
+
+.crm-sidebar .card{
+
+    margin-bottom:0;
 }
 
     </style>
@@ -460,23 +509,83 @@ css
 
     <div>
 
-        <h2>
-            🚀 Website AI Assistant
-        </h2>
+<body>
 
-        <p style="color:#64748b">
-            Manage leads, customers, websites and AI settings
-        </p>
+<!-- HEADER -->
 
-    </div>
+<div style="margin-bottom:25px;">
+
+
+<h2>🚀 Website AI Assistant CRM</h2>
+
+<p style="color:#64748b">
+    Manage customers, leads, opportunities and WhatsApp conversations
+</p>
+
 
 </div>
 
+<!-- KPI SECTION -->
+
 <div class="stats-container">
+
+
+<div class="stat-card">
+    <div class="stat-number" id="customerCount">0</div>
+    <div>Customers</div>
+</div>
+
+<div class="stat-card">
+    <div class="stat-number" id="messageCount">0</div>
+    <div>Messages</div>
+</div>
+
+<div class="stat-card">
+    <div class="stat-number" id="todayMessages">0</div>
+    <div>Today</div>
+</div>
+
+<div class="stat-card">
+    <div class="stat-number" id="websiteCount">0</div>
+    <div>Websites</div>
+</div>
+
+</div>
+
+<!-- MAIN CRM LAYOUT -->
+
+<div class="main-layout">
+
+
+<!-- LEFT PANEL -->
+
+<div class="left-panel">
 
     <div class="card">
 
-        <h3>Top Customers</h3>
+        <h3>🏢 Business Information</h3>
+
+        <div id="businessInfo"></div>
+
+    </div>
+
+    <div class="card">
+
+        <h3>💬 Customer Inbox</h3>
+
+        <input
+            id="customerSearch"
+            placeholder="Search customer..."
+            onkeyup="searchCustomers()"
+        />
+
+        <ul id="customerList"></ul>
+
+    </div>
+
+    <div class="card">
+
+        <h3>⭐ Top Customers</h3>
 
         <div id="topCustomers">
             Loading...
@@ -484,250 +593,211 @@ css
 
     </div>
 
+</div>
+
+<!-- CHAT PANEL -->
+
+<div class="right-panel">
+
     <div class="card">
 
-<h3>
-⚙️ Business Settings
-</h3>
+        <h3 id="selectedCustomer">
+            Select Customer
+        </h3>
 
-    <input
-        id="businessName"
-        placeholder="Business Name"
-    >
+        <div id="conversationViewer">
 
-    <br><br>
+            Select a customer to view chat history
 
-    <textarea
-        id="welcomeMessage"
-        placeholder="Welcome Message"
-    ></textarea>
+        </div>
 
-    <br><br>
-
-    <textarea
-        id="aiInstructions"
-        placeholder="AI Instructions"
-    ></textarea>
-
-    <br><br>
-
-    <button
-        onclick="saveBusinessSettings()"
-    >
-        Save Settings
-    </button>
+    </div>
 
 </div>
 
-    <div class="stat-card">
-        <div class="stat-number" id="websiteCount">0</div>
-        <div>Websites</div>
+<!-- CRM SIDEBAR -->
+
+<div class="crm-sidebar">
+
+    <!-- CUSTOMER PROFILE -->
+
+    <div
+        class="card"
+        id="customerProfilePanel"
+    >
+
+        <h3>👤 Customer Profile</h3>
+
+        <div id="customerProfile">
+
+            Select a customer
+
+        </div>
+
+        <hr style="margin:15px 0">
+
+        <div id="leadHealthPanel">
+
+            Loading...
+
+        </div>
+
     </div>
 
-    <div class="stat-card">
-        <div class="stat-number" id="customerCount">0</div>
-        <div>Customers</div>
-    </div>
+    <!-- LEAD MANAGEMENT -->
 
-    <div class="stat-card">
-        <div class="stat-number" id="messageCount">0</div>
-        <div>Messages</div>
-    </div>
-    <div class="stat-card">
-        <div
-            class="stat-number"
-            id="todayMessages"
+    <div
+        class="card"
+        id="leadPanel"
+    >
+
+        <h3>🎯 Lead Management</h3>
+
+        <label>Status</label>
+
+        <select id="leadStatus">
+
+            <option>New</option>
+            <option>Interested</option>
+            <option>Qualified</option>
+            <option>Proposal Sent</option>
+            <option>Closed Won</option>
+            <option>Closed Lost</option>
+
+        </select>
+
+        <label>Notes</label>
+
+        <textarea
+            id="leadNotes"
+            rows="8"
+        ></textarea>
+
+        <button
+            style="width:100%;margin-top:10px;"
+            onclick="saveLead()"
         >
-            0
+            Save Lead
+        </button>
+
+    </div>
+
+    <!-- LEAD JOURNEY -->
+
+    <div class="card">
+
+        <h3>📈 Lead Journey</h3>
+
+        <div id="leadTimeline">
+            No history
         </div>
 
-        <div>
-            Today
+    </div>
+
+    <!-- OPPORTUNITIES -->
+
+    <div class="card">
+
+        <h3>💰 Opportunities</h3>
+
+        <div id="opportunityPanel">
+
+            No opportunities
+
         </div>
+
+    </div>
+
+    <!-- REMINDERS -->
+
+    <div class="card">
+
+        <h3>⏰ Follow-Up Reminders</h3>
+
+        <div id="reminderPanel">
+
+            Loading...
+
+        </div>
+
     </div>
 
 </div>
 
+
+</div>
+
+<!-- CONFIGURATION SECTION -->
 
 <div class="card">
 
-    <label>WhatsApp Number</label><br>
-    <input id="userId" placeholder="testA"><br><br>
 
-    <label>Website URL</label><br>
-    <input id="websiteUrl"
-           placeholder="https://example.com"><br><br>
+<h2>⚙️ Business Configuration</h2>
 
-    <button onclick="addWebsite()">
-        Add Website
-    </button>
+<br>
 
-    <button onclick="reindexUser()">
-        Reindex
-    </button>
+<label>WhatsApp Number</label>
+
+<input
+    id="userId"
+    placeholder="testA"
+>
+
+<br>
+
+<label>Website URL</label>
+
+<input
+    id="websiteUrl"
+    placeholder="https://example.com"
+>
+
+<button onclick="addWebsite()">
+    Add Website
+</button>
+
+<button onclick="reindexUser()">
+    Reindex
+</button>
+
+<hr style="margin:25px 0">
+
+<h3>🌐 Indexed Websites</h3>
+
+<ul id="websiteList"></ul>
+
+<hr style="margin:25px 0">
+
+<h3>⚙️ Business Settings</h3>
+
+<input
+    id="businessName"
+    placeholder="Business Name"
+>
+
+<textarea
+    id="welcomeMessage"
+    placeholder="Welcome Message"
+></textarea>
+
+<textarea
+    id="aiInstructions"
+    placeholder="AI Instructions"
+></textarea>
+
+<button
+    onclick="saveBusinessSettings()"
+>
+    Save Settings
+</button>
+
 
 </div>
 
+<div id="status"></div>
 
+</body>
 
-<div class="main-layout">
-
-    <!-- LEFT PANEL -->
-
-    <div class="left-panel">
-
-        <div class="card">
-
-            <h3>🏢 Business Information</h3>
-
-            <div id="businessInfo"></div>
-
-        </div>
-
-        <div class="card">
-
-            <h3>🌐 Indexed Websites</h3>
-
-            <ul id="websiteList"></ul>
-
-        </div>
-
-        <div class="card">
-
-            <h3>💬 Customer Inbox</h3>
-
-            <input
-                id="customerSearch"
-                placeholder="Search customer..."
-                onkeyup="searchCustomers()"
-            />
-
-            <ul id="customerList"></ul>
-
-        </div>
-
-    </div>
-
-
-    <!-- CHAT PANEL -->
-
-    <div class="right-panel">
-
-        <div class="card">
-
-            <h3 id="selectedCustomer">
-                Select Customer
-            </h3>
-
-            <div id="conversationViewer">
-
-                Select a customer to view chat history
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- CRM SIDEBAR -->
-
-    <div class="crm-sidebar">
-
-        <div
-            class="card"
-            id="leadPanel"
-        >
-
-            <h3>🎯 Lead Management</h3>
-
-            <label>Status</label>
-
-            <select id="leadStatus">
-
-                <option>New</option>
-                <option>Interested</option>
-                <option>Qualified</option>
-                <option>Proposal Sent</option>
-                <option>Closed Won</option>
-                <option>Closed Lost</option>
-
-            </select>
-
-            <label>Notes</label>
-
-            <textarea
-                id="leadNotes"
-                rows="8"
-            ></textarea>
-
-            <button
-                style="width:100%;margin-top:10px;"
-                onclick="saveLead()"
-            >
-                Save Lead
-            </button>
-
-        </div>
-
-
-        <div
-            class="card"
-            id="customerProfilePanel"
-        >
-
-            <h3>👤 Customer Profile</h3>
-
-            <div id="customerProfile">
-
-                Select a customer
-
-            </div>
-
-        </div>
-        <div class="card">
-
-            <h3>📈 Lead Journey</h3>
-
-            <div id="leadTimeline">
-                No history
-            </div>
-
-        </div> 
-
-        <div class="card">
-
-            <h3>💰 Opportunities</h3>
-
-            <div id="opportunityPanel">
-
-                No opportunities
-
-            </div>
-
-        </div>
-
-        
-        <div class="card">
-
-            <h3>⏰ Follow-Up Reminders</h3>
-
-            <div id="reminderPanel">
-
-                Loading...
-
-            </div>
-
-        </div>
-        <div class="card">
-
-            <h3>🔥 Lead Health</h3>
-
-            <div id="leadHealthPanel">
-                Loading...
-            </div>
-
-        </div>
 
     </div>
 
