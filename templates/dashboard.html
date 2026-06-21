@@ -12,6 +12,7 @@
 }
 
 body{
+    min-height:100vh;
 
     font-family: 'Segoe UI', sans-serif;
 
@@ -143,7 +144,7 @@ select{
     grid-template-columns:
         280px
         1fr
-        360px;
+        340px;
 
     gap:20px;
 
@@ -151,31 +152,54 @@ select{
 }
 
 .left-panel{
+
     width:auto;
 }
 
 .right-panel{
+
     width:auto;
 }
-
 
 .crm-sidebar{
 
     width:auto;
 
-    max-height:calc(100vh - 120px);
-
-    overflow-y:auto;
-
     display:flex;
 
     flex-direction:column;
 
-    gap:16px;
+    gap:20px;
 
-    position:sticky;
+    max-height:none;
 
-    top:20px;
+    overflow:visible;
+}
+
+@media (max-width: 1400px){
+
+    .main-layout{
+
+        grid-template-columns:
+            260px
+            1fr
+            300px;
+    }
+}
+
+@media (max-width: 1100px){
+
+    .main-layout{
+
+        grid-template-columns:1fr;
+    }
+
+    .left-panel,
+    .right-panel,
+    .crm-sidebar{
+
+        width:100%;
+    }
 }
 
 #leadPanel textarea{
@@ -198,7 +222,9 @@ select{
 
 #conversationViewer{
 
-    height:700px;
+    height:75vh;
+
+    min-height:600px;
 
     overflow-y:auto;
 
@@ -212,7 +238,7 @@ select{
 .user-message,
 .assistant-message{
 
-    max-width:70%;
+    max-width:85%;
 
     word-wrap:break-word;
 
@@ -495,62 +521,231 @@ select{
     margin-bottom:0;
 }
 
-    </style>
+.stat-icon{
+    font-size:24px;
+    margin-bottom:8px;
+}
 
-</head>
-<body>
-<div
-    style="
+.stat-label{
+    color:#64748b;
+    font-size:14px;
+}
+#customerList{
+    max-height:500px;
+    overflow-y:auto;
+}
+.chat-header{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:20px;
-">
+    margin-bottom:15px;
+}
+.crm-sidebar .card h3{
+    border-bottom:1px solid #e5e7eb;
+    padding-bottom:10px;
+    margin-bottom:15px;
+}
+.card{
+    transition:all .2s ease;
+}
 
-    <div>
+.card:hover{
+    transform:translateY(-2px);
+}
+.section-title{
+    font-size:20px;
+    margin-bottom:15px;
+    color:#1e293b;
+}
+.kpi-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap:20px;
+
+    margin-bottom:25px;
+}
+
+.kpi-card{
+
+    background:white;
+
+    border-radius:16px;
+
+    padding:20px;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,.08);
+}
+
+.kpi-title{
+
+    color:#64748b;
+
+    font-size:14px;
+}
+
+.kpi-value{
+
+    font-size:38px;
+
+    font-weight:700;
+
+    color:#2563eb;
+
+    margin-top:10px;
+}
+
+.badge.new{
+    background:#dbeafe;
+    color:#1e40af;
+}
+
+.badge.interested{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+.badge.qualified{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.badge.closed{
+    background:#e5e7eb;
+    color:#374151;
+}
+
+.timeline-item{
+
+    border-left:4px solid #2563eb;
+
+    padding-left:12px;
+
+    margin-bottom:15px;
+}
+
+.timeline-status{
+
+    font-weight:700;
+}
+
+.timeline-date{
+
+    color:#64748b;
+
+    font-size:12px;
+}
+
+.header-bar{
+    margin-bottom:20px;
+}
+
+.main-layout{
+    display:grid;
+    grid-template-columns:300px 1fr 350px;
+    gap:20px;
+}
+
+.center-panel{
+    min-width:0;
+}
+
+.crm-grid{
+    display:grid;
+    grid-template-columns:
+        repeat(4,1fr);
+    gap:20px;
+    margin-top:20px;
+}
+
+.crm-grid .card{
+    min-height:250px;
+}
+
+#conversationViewer{
+    height:700px;
+}
+
+.left-panel{
+    width:auto;
+}
+
+.right-panel{
+    width:auto;
+}
+
+.crm-grid .card{
+    min-height:280px;
+}
+#customerList{
+    max-height:650px;
+    overflow-y:auto;
+}
+
+    </style>
+
+</head>
 
 <body>
 
 <!-- HEADER -->
 
-<div style="margin-bottom:25px;">
+<div class="header-bar">
 
+    <div>
 
-<h2>🚀 Website AI Assistant CRM</h2>
+        <h2>🚀 Website AI Assistant CRM</h2>
 
-<p style="color:#64748b">
-    Manage customers, leads, opportunities and WhatsApp conversations
-</p>
+<div class="business-strip">
 
+    <span id="businessNameDisplay">
+        Business Name
+    </span>
+
+    |
+
+    <span id="whatsappNumberDisplay">
+        +14155238886
+    </span>
+
+</div>
+
+    </div>
 
 </div>
 
 <!-- KPI SECTION -->
 
-<div class="stats-container">
 
+<div class="kpi-grid">
 
-<div class="stat-card">
-    <div class="stat-number" id="customerCount">0</div>
-    <div>Customers</div>
+    <div class="kpi-card">
+        <div class="kpi-title">Customers</div>
+        <div class="kpi-value" id="customerCount">0</div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-title">Messages</div>
+        <div class="kpi-value" id="messageCount">0</div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-title">Qualified Leads</div>
+        <div class="kpi-value" id="qualifiedCount">0</div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-title">Opportunities</div>
+        <div class="kpi-value" id="opportunityCount">0</div>
+    </div>
+
 </div>
 
-<div class="stat-card">
-    <div class="stat-number" id="messageCount">0</div>
-    <div>Messages</div>
-</div>
 
-<div class="stat-card">
-    <div class="stat-number" id="todayMessages">0</div>
-    <div>Today</div>
-</div>
-
-<div class="stat-card">
-    <div class="stat-number" id="websiteCount">0</div>
-    <div>Websites</div>
-</div>
-
-</div>
 
 <!-- MAIN CRM LAYOUT -->
 
@@ -561,128 +756,98 @@ select{
 
 <div class="left-panel">
 
-    <div class="card">
+        <div class="card">
 
-        <h3>🏢 Business Information</h3>
+            <h3>💬 Customer Inbox</h3>
 
-        <div id="businessInfo"></div>
+            <input
+                id="customerSearch"
+                placeholder="Search customer..."
+                onkeyup="searchCustomers()"
+            />
 
-    </div>
+            <ul id="customerList"></ul>
 
-    <div class="card">
-
-        <h3>💬 Customer Inbox</h3>
-
-        <input
-            id="customerSearch"
-            placeholder="Search customer..."
-            onkeyup="searchCustomers()"
-        />
-
-        <ul id="customerList"></ul>
+        </div>
 
     </div>
+        <!-- Chat -->
 
-    <div class="card">
+    <div class="center-panel">
 
-        <h3>⭐ Top Customers</h3>
+        <div class="card">
 
-        <div id="topCustomers">
-            Loading...
+            <div class="chat-header">
+
+                <h3 id="selectedCustomer">
+                    Select Customer
+                </h3>
+
+                <span
+                    id="customerStatusBadge"
+                    class="badge"
+                >
+                    New
+                </span>
+
+            </div>
+
+            <div id="conversationViewer">
+
+                Select a customer
+
+            </div>
+
+        </div>
+
+    </div>
+  <!-- Customer Profile -->
+
+    <div class="right-panel">
+
+        <div class="card">
+
+            <h3>👤 Customer Profile</h3>
+
+            <div id="customerProfile">
+                Select a customer
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <h3>🎯 Lead Management</h3>
+
+            <select id="leadStatus">
+
+                <option>New</option>
+                <option>Interested</option>
+                <option>Qualified</option>
+                <option>Proposal Sent</option>
+                <option>Closed Won</option>
+                <option>Closed Lost</option>
+
+            </select>
+
+            <textarea
+                id="leadNotes"
+                rows="6"
+            ></textarea>
+
+            <button
+                onclick="saveLead()"
+                style="width:100%"
+            >
+                Save Lead
+            </button>
+
         </div>
 
     </div>
 
 </div>
-
-<!-- CHAT PANEL -->
-
-<div class="right-panel">
-
-    <div class="card">
-
-        <h3 id="selectedCustomer">
-            Select Customer
-        </h3>
-
-        <div id="conversationViewer">
-
-            Select a customer to view chat history
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- CRM SIDEBAR -->
-
-<div class="crm-sidebar">
-
-    <!-- CUSTOMER PROFILE -->
-
-    <div
-        class="card"
-        id="customerProfilePanel"
-    >
-
-        <h3>👤 Customer Profile</h3>
-
-        <div id="customerProfile">
-
-            Select a customer
-
-        </div>
-
-        <hr style="margin:15px 0">
-
-        <div id="leadHealthPanel">
-
-            Loading...
-
-        </div>
-
-    </div>
-
-    <!-- LEAD MANAGEMENT -->
-
-    <div
-        class="card"
-        id="leadPanel"
-    >
-
-        <h3>🎯 Lead Management</h3>
-
-        <label>Status</label>
-
-        <select id="leadStatus">
-
-            <option>New</option>
-            <option>Interested</option>
-            <option>Qualified</option>
-            <option>Proposal Sent</option>
-            <option>Closed Won</option>
-            <option>Closed Lost</option>
-
-        </select>
-
-        <label>Notes</label>
-
-        <textarea
-            id="leadNotes"
-            rows="8"
-        ></textarea>
-
-        <button
-            style="width:100%;margin-top:10px;"
-            onclick="saveLead()"
-        >
-            Save Lead
-        </button>
-
-    </div>
-
-    <!-- LEAD JOURNEY -->
+<div class="crm-grid">
 
     <div class="card">
 
@@ -694,30 +859,32 @@ select{
 
     </div>
 
-    <!-- OPPORTUNITIES -->
-
     <div class="card">
 
         <h3>💰 Opportunities</h3>
 
         <div id="opportunityPanel">
-
             No opportunities
-
         </div>
 
     </div>
-
-    <!-- REMINDERS -->
 
     <div class="card">
 
         <h3>⏰ Follow-Up Reminders</h3>
 
         <div id="reminderPanel">
-
             Loading...
+        </div>
 
+    </div>
+
+    <div class="card">
+
+        <h3>🔥 Lead Health</h3>
+
+        <div id="leadHealthPanel">
+            Loading...
         </div>
 
     </div>
@@ -725,14 +892,24 @@ select{
 </div>
 
 
-</div>
 
 <!-- CONFIGURATION SECTION -->
 
 <div class="card">
 
 
-<h2>⚙️ Business Configuration</h2>
+<h2>⚙️ Settings</h2>
+<details closed>
+
+<summary
+style="
+font-size:18px;
+font-weight:600;
+cursor:pointer;
+margin-bottom:20px;
+">
+Open Settings
+</summary>
 
 <br>
 
@@ -791,20 +968,13 @@ select{
     Save Settings
 </button>
 
+</details>
 
 </div>
 
 <div id="status"></div>
 
 </body>
-
-
-    </div>
-
-</div>
-
-<div id="status"></div>
-
 
 
 <script>
@@ -1654,65 +1824,17 @@ async function loadLeadTimeline(
                 : "👤 Manual";
 
             html += `
+            <div class="timeline-item">
 
-            <div
-                style="
-                    position:relative;
-                    padding-left:25px;
-                    margin-bottom:20px;
-                    border-left:3px solid ${color};
-                "
-            >
-
-                <div
-                    style="
-                        position:absolute;
-                        left:-8px;
-                        top:5px;
-                        width:12px;
-                        height:12px;
-                        border-radius:50%;
-                        background:${color};
-                    "
-                ></div>
-
-                <div
-                    style="
-                        font-weight:700;
-                        color:${color};
-                    "
-                >
+                <div class="timeline-status">
                     ${item.status}
                 </div>
 
-                <div
-                    style="
-                        font-size:12px;
-                        color:#64748b;
-                        margin-top:4px;
-                    "
-                >
-                    ${badge}
-                    •
+                <div class="timeline-date">
                     ${item.created_at}
                 </div>
 
-                <div
-                    style="
-                        margin-top:6px;
-                    "
-                >
-                    Confidence:
-                    <b>${item.confidence}%</b>
-                </div>
-
-                <div
-                    style="
-                        margin-top:6px;
-                        font-size:13px;
-                        color:#475569;
-                    "
-                >
+                <div class="timeline-reason">
                     ${item.reason}
                 </div>
 
@@ -1887,6 +2009,22 @@ async function loadLeadHealth(){
         "leadHealthPanel"
     ).innerHTML = html;
 }
+
+window.onload = async function () {
+
+    document.getElementById("userId").value = "+14155238886";
+
+    await loadCustomers();
+    await loadStats();
+    await loadBusinessInfo();
+    await loadTopCustomers();
+    await loadDashboardMetrics();
+    await loadWebsites();
+    await loadBusinessSettings();
+    await loadReminders();
+    await loadLeadHealth();
+
+};
 
 </script>
 
