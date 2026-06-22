@@ -39,21 +39,14 @@ h2{
 /* CARD */
 
 .card{
-
     background:white;
-
     border:none;
-
     border-radius:16px;
-
     padding:20px;
-
     margin-bottom:20px;
-
-    box-shadow:
-        0 4px 15px rgba(0,0,0,.08);
+    box-shadow:0 4px 15px rgba(0,0,0,.08);
+    transition:all .2s ease;
 }
-
 /* STATS */
 
 .stats-container{
@@ -135,31 +128,8 @@ select{
     margin-bottom:10px;
 }
 
-/* LAYOUT */
 
-.main-layout{
 
-    display:grid;
-
-    grid-template-columns:
-        280px
-        1fr
-        340px;
-
-    gap:20px;
-
-    align-items:start;
-}
-
-.left-panel{
-
-    width:auto;
-}
-
-.right-panel{
-
-    width:auto;
-}
 
 .crm-sidebar{
 
@@ -174,6 +144,38 @@ select{
     max-height:none;
 
     overflow:visible;
+}
+
+.main-layout{
+    display:grid;
+    grid-template-columns:
+        300px
+        1fr
+        350px;
+    gap:20px;
+    align-items:stretch;
+    height:750px;
+}
+.left-panel,
+.center-panel,
+.right-panel{
+    height:750px;
+}
+.left-panel .card{
+    height:100%;
+    display:flex;
+    flex-direction:column;
+}
+.center-panel .card{
+    height:100%;
+    display:flex;
+    flex-direction:column;
+}
+.right-panel .card{
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
 }
 
 @media (max-width: 1400px){
@@ -211,44 +213,24 @@ select{
     resize:vertical;
 }
 
-#customerProfile{
 
-    line-height:1.8;
-
-    font-size:15px;
-
-    word-break:break-word;
-}
-
-#conversationViewer{
-
-    height:75vh;
-
-    min-height:600px;
-
-    overflow-y:auto;
-
-    background:#e5ddd5;
-
-    border-radius:12px;
-
-    padding:20px;
-}
 
 .user-message,
 .assistant-message{
 
-    max-width:85%;
+    width:fit-content;
 
-    word-wrap:break-word;
+    max-width:70%;
 
-    overflow-wrap:anywhere;
+    padding:12px 14px;
 
-    white-space:pre-wrap;
-
-    line-height:1.5;
+    margin:8px 0;
 }
+.user-message a,
+.assistant-message a{
 
+    word-break:break-all;
+}
 
 /* INBOX */
 
@@ -317,25 +299,10 @@ select{
     font-size:12px;
 }
 
-/* CHAT */
-
-#conversationViewer{
-
-    height:750px;
-
-    overflow-y:auto;
-
-    background:#e5ddd5;
-
-    border-radius:16px;
-
-    padding:20px;
-}
-
 /* USER MESSAGE */
 
 .user-message{
-
+    width:fit-content;
     background:#dcf8c6;
 
     padding:12px;
@@ -343,7 +310,7 @@ select{
     margin:10px;
 
     border-radius:12px;
-
+    display:block;
     max-width:70%;
 
     margin-left:auto;
@@ -504,13 +471,6 @@ select{
     flex-wrap:wrap;
 }
 
-#customerList{
-
-    max-height:700px;
-
-    overflow-y:auto;
-}
-
 .card h3{
 
     margin-bottom:15px;
@@ -531,8 +491,9 @@ select{
     font-size:14px;
 }
 #customerList{
-    max-height:500px;
+    flex:1;
     overflow-y:auto;
+    min-height:0;
 }
 .chat-header{
     display:flex;
@@ -545,9 +506,7 @@ select{
     padding-bottom:10px;
     margin-bottom:15px;
 }
-.card{
-    transition:all .2s ease;
-}
+
 
 .card:hover{
     transform:translateY(-2px);
@@ -570,6 +529,9 @@ select{
 }
 
 .kpi-card{
+    text-align:center;
+
+    transition:.2s;
 
     background:white;
 
@@ -580,7 +542,10 @@ select{
     box-shadow:
         0 4px 15px rgba(0,0,0,.08);
 }
+.kpi-card:hover{
 
+    transform:translateY(-3px);
+}
 .kpi-title{
 
     color:#64748b;
@@ -644,21 +609,19 @@ select{
     margin-bottom:20px;
 }
 
-.main-layout{
-    display:grid;
-    grid-template-columns:300px 1fr 350px;
-    gap:20px;
-}
-
 .center-panel{
     min-width:0;
 }
 
 .crm-grid{
+
     display:grid;
+
     grid-template-columns:
-        repeat(4,1fr);
+        repeat(3,1fr);
+
     gap:20px;
+
     margin-top:20px;
 }
 
@@ -666,8 +629,37 @@ select{
     min-height:250px;
 }
 
+#customerProfile{
+
+    flex:1;
+    overflow-y:auto;
+    min-height:0;
+    padding-right:10px;
+    line-height:1.8;
+    max-height:250px;
+}
+.lead-health-card{
+    background:#f8fafc;
+    border-radius:12px;
+    padding:12px;
+    margin:15px 0;
+}
+.left-panel h3,
+.center-panel h3,
+.right-panel h3{
+
+    flex-shrink:0;
+}
+
 #conversationViewer{
-    height:700px;
+    flex:1;
+    overflow-y:auto;
+    background:#e5ddd5;
+    border-radius:16px;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
 }
 
 .left-panel{
@@ -675,17 +667,95 @@ select{
 }
 
 .right-panel{
-    width:auto;
+
+    position:sticky;
+
+    top:20px;
+
+    align-self:start;
 }
 
 .crm-grid .card{
     min-height:280px;
 }
-#customerList{
-    max-height:650px;
-    overflow-y:auto;
+
+.business-strip{
+
+    color:#64748b;
+
+    font-size:15px;
+
+    margin-top:8px;
+}
+.assistant-message p,
+.assistant-message ul,
+.assistant-message ol{
+
+    margin:0;
 }
 
+.profile-header{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.avatar{
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    background:#dbeafe;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+}
+.kpi-icon{
+    font-size:28px;
+    margin-bottom:10px;
+}
+.timeline-item{
+    position:relative;
+    padding-left:20px;
+    margin-bottom:15px;
+}
+
+.timeline-item::before{
+    content:"";
+    width:10px;
+    height:10px;
+    background:#2563eb;
+    border-radius:50%;
+    position:absolute;
+    left:-1px;
+    top:5px;
+}
+
+.section-divider{
+    border:none;
+    border-top:1px solid #e5e7eb;
+    margin:18px 0;
+}
+.chat-link{
+    color:#2563eb;
+    text-decoration:none;
+    word-break:break-all;
+}
+
+.chat-link:hover{
+    text-decoration:underline;
+}
+.message-content{
+
+    white-space:pre-wrap;
+
+    word-wrap:break-word;
+
+    overflow-wrap:anywhere;
+
+    line-height:1.6;
+}
     </style>
 
 </head>
@@ -724,21 +794,25 @@ select{
 <div class="kpi-grid">
 
     <div class="kpi-card">
+        <div class="kpi-icon">👥</div>
         <div class="kpi-title">Customers</div>
         <div class="kpi-value" id="customerCount">0</div>
     </div>
 
     <div class="kpi-card">
+        <div class="kpi-icon">💬</div>
         <div class="kpi-title">Messages</div>
         <div class="kpi-value" id="messageCount">0</div>
     </div>
 
     <div class="kpi-card">
+        <div class="kpi-icon">🎯</div>
         <div class="kpi-title">Qualified Leads</div>
         <div class="kpi-value" id="qualifiedCount">0</div>
     </div>
 
     <div class="kpi-card">
+        <div class="kpi-icon">💰</div>
         <div class="kpi-title">Opportunities</div>
         <div class="kpi-value" id="opportunityCount">0</div>
     </div>
@@ -779,14 +853,12 @@ select{
 
             <div class="chat-header">
 
-                <h3 id="selectedCustomer">
-                    Select Customer
-                </h3>
+                <div>
+                    <h3 id="selectedCustomer">Select Customer</h3>
+                    <small id="selectedCustomerPhone"></small>
+                </div>
 
-                <span
-                    id="customerStatusBadge"
-                    class="badge"
-                >
+                <span id="customerStatusBadge" class="badge">
                     New
                 </span>
 
@@ -807,17 +879,43 @@ select{
 
         <div class="card">
 
-            <h3>👤 Customer Profile</h3>
+            <div class="profile-header">
+
+            <div class="avatar">
+                👤
+            </div>
+
+            <div>
+
+                <h3 id="profileName">
+                    Customer
+                </h3>
+
+                <small id="profilePhone">
+                    WhatsApp
+                </small>
+
+            </div>
+
+        </div>
 
             <div id="customerProfile">
                 Select a customer
             </div>
 
-        </div>
+            <hr class="section-divider">
 
-        <div class="card">
+            <h3>🔥 Lead Health</h3>
+
+            <div id="leadHealthPanel" class="lead-health-card">
+                Loading...
+            </div>
+
+            <hr class="section-divider">
 
             <h3>🎯 Lead Management</h3>
+
+            <label>Status</label>
 
             <select id="leadStatus">
 
@@ -830,9 +928,11 @@ select{
 
             </select>
 
+            <label>Notes</label>
+
             <textarea
                 id="leadNotes"
-                rows="6"
+                rows="5"
             ></textarea>
 
             <button
@@ -843,6 +943,8 @@ select{
             </button>
 
         </div>
+
+        
 
     </div>
 
@@ -879,16 +981,6 @@ select{
 
     </div>
 
-    <div class="card">
-
-        <h3>🔥 Lead Health</h3>
-
-        <div id="leadHealthPanel">
-            Loading...
-        </div>
-
-    </div>
-
 </div>
 
 
@@ -899,7 +991,7 @@ select{
 
 
 <h2>⚙️ Settings</h2>
-<details closed>
+<details closed>    
 
 <summary
 style="
@@ -1018,6 +1110,14 @@ async function addWebsite() {
     }
 
     loadWebsites();
+}
+
+function convertLinks(text) {
+
+    return text.replace(
+        /(https?:\/\/[^\s]+)/g,
+        '<a href="$1" target="_blank" class="chat-link">$1</a>'
+    );
 }
 
 async function loadWebsites() {
@@ -1338,8 +1438,8 @@ async function loadConversation(
                 : "assistant-message";
 
         div.innerHTML = `
-            <div>
-                ${msg.content}
+            <div class="message-content">
+                ${convertLinks(msg.content)}
             </div>
 
             <div class="message-time">
