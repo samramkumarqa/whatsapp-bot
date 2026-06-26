@@ -236,27 +236,85 @@ select{
 
 .customer-card{
 
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:14px;
+
+    border-radius:14px;
+
     cursor:pointer;
 
-    padding:12px;
+    transition:.25s;
 
-    border-radius:10px;
+    margin-bottom:10px;
 
-    margin-bottom:8px;
-
-    transition:.2s;
 }
 
 .customer-card:hover{
 
-    background:#eff6ff;
-}
+    background:#f8fafc;
 
+}
+.customer-avatar{
+
+    width:50px;
+
+    height:50px;
+
+    border-radius:50%;
+
+    background:#2563eb;
+
+    color:white;
+
+    font-weight:700;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:18px;
+
+    flex-shrink:0;
+
+}
+.customer-details{
+
+    flex:1;
+
+    min-width:0;
+
+}
+.customer-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:4px;
+
+}
+.customer-name{
+
+    font-weight:700;
+
+    color:#1e293b;
+
+}
 .customer-card.active{
 
-    background:#dbeafe;
+    background:#eff6ff;
 
     border-left:5px solid #2563eb;
+
 }
 
 .customer-phone{
@@ -271,79 +329,110 @@ select{
     color:#64748b;
 
     font-size:13px;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
 }
 
 .customer-time{
 
+    color:#94a3b8;
+
     font-size:11px;
 
-    color:#94a3b8;
+    flex-shrink:0;
+
 }
 
 /* BADGE */
 
 .unread-badge{
 
-    background:#ef4444;
+    width:24px;
+
+    height:24px;
+
+    border-radius:50%;
+
+    background:#22c55e;
 
     color:white;
 
-    display:inline-block;
+    display:flex;
 
-    padding:3px 10px;
+    align-items:center;
 
-    border-radius:50px;
+    justify-content:center;
 
-    margin-top:6px;
+    font-size:11px;
 
-    font-size:12px;
+    font-weight:700;
+
+    flex-shrink:0;
+
 }
 
 /* USER MESSAGE */
 
 .user-message{
+
+    background:#d9fdd3;
+
+    padding:10px 14px;
+
+    margin:8px 0 8px auto;
+
+    border-radius:12px 12px 2px 12px;
+
     width:fit-content;
-    background:#dcf8c6;
 
-    padding:12px;
-
-    margin:10px;
-
-    border-radius:12px;
-    display:block;
-    max-width:70%;
-
-    margin-left:auto;
+    max-width:75%;
 
     box-shadow:
-        0 2px 5px rgba(0,0,0,.1);
+        0 1px 2px rgba(0,0,0,.12);
+
+    word-break:break-word;
+
+    overflow-wrap:anywhere;
 }
 
 /* BOT MESSAGE */
 
 .assistant-message{
 
-    background:white;
+    background:#ffffff;
 
-    padding:12px;
+    padding:10px 14px;
 
-    margin:10px;
+    margin:8px auto 8px 0;
 
-    border-radius:12px;
+    border-radius:12px 12px 12px 2px;
 
-    max-width:70%;
+    width:fit-content;
+
+    max-width:75%;
 
     box-shadow:
-        0 2px 5px rgba(0,0,0,.1);
+        0 1px 2px rgba(0,0,0,.12);
+
+    word-break:break-word;
+
+    overflow-wrap:anywhere;
 }
 
 .message-time{
 
-    margin-top:5px;
+    text-align:right;
+
+    margin-top:6px;
 
     font-size:11px;
 
-    color:#64748b;
+    color:#8696a0;
 }
 
 /* STATUS */
@@ -494,11 +583,25 @@ select{
     flex:1;
     overflow-y:auto;
     min-height:0;
+    padding-right:5px;
+}
+#customerList::-webkit-scrollbar{
+
+    width:6px;
+}
+
+#customerList::-webkit-scrollbar-thumb{
+
+    background:#cbd5e1;
+
+    border-radius:20px;
 }
 .chat-header{
     display:flex;
     justify-content:space-between;
     align-items:center;
+    padding-bottom:12px;
+    border-bottom:1px solid #e5e7eb;
     margin-bottom:15px;
 }
 .crm-sidebar .card h3{
@@ -606,7 +709,23 @@ select{
 }
 
 .header-bar{
-    margin-bottom:20px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:25px;
+
+    padding:20px;
+
+    background:white;
+
+    border-radius:16px;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,.08);
 }
 
 .center-panel{
@@ -634,7 +753,7 @@ select{
     flex:1;
     overflow-y:auto;
     min-height:0;
-    padding-right:10px;
+    padding-right:8px;
     line-height:1.8;
     max-height:250px;
 }
@@ -654,12 +773,19 @@ select{
 #conversationViewer{
     flex:1;
     overflow-y:auto;
-    background:#e5ddd5;
+    min-height:0;
+
+    background-color:#efeae2;
+
+    background-image:
+        radial-gradient(#d9d9d9 1px, transparent 1px);
+
+    background-size:18px 18px;
+
     border-radius:16px;
+
     padding:20px;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
+    scroll-behavior:smooth;
 }
 
 .left-panel{
@@ -678,14 +804,77 @@ select{
 .crm-grid .card{
     min-height:280px;
 }
+.crm-header{
 
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:18px 24px;
+
+    margin-bottom:25px;
+
+    background:white;
+
+    border-radius:18px;
+
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+
+}
+
+.crm-header-left{
+
+    display:flex;
+    align-items:center;
+    gap:18px;
+
+}
+
+.logo-circle{
+
+    width:58px;
+    height:58px;
+
+    border-radius:50%;
+
+    background:#2563eb;
+
+    color:white;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:28px;
+
+}
+
+.crm-title{
+
+    margin:0;
+    font-size:28px;
+    color:#2563eb;
+
+}
 .business-strip{
+
+    margin-top:6px;
 
     color:#64748b;
 
     font-size:15px;
 
-    margin-top:8px;
+    font-weight:500;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+}
+.separator{
+    margin:0 10px;
+    color:#cbd5e1;
 }
 .assistant-message p,
 .assistant-message ul,
@@ -695,12 +884,54 @@ select{
 }
 
 .profile-header{
-    display:flex;
-    gap:12px;
-    align-items:center;
-    margin-bottom:15px;
-}
 
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    margin-bottom:20px;
+
+    padding-bottom:15px;
+
+    border-bottom:1px solid #e5e7eb;
+
+}
+.profile-avatar{
+
+    width:60px;
+
+    height:60px;
+
+    border-radius:50%;
+
+    background:#2563eb;
+
+    color:white;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:22px;
+
+    font-weight:700;
+
+    flex-shrink:0;
+
+}
+.profile-status{
+
+    color:#64748b;
+
+    font-size:14px;
+
+    margin-top:4px;
+
+}
 .avatar{
     width:50px;
     height:50px;
@@ -756,6 +987,452 @@ select{
 
     line-height:1.6;
 }
+.header-actions{
+
+    display:flex;
+    gap:10px;
+}
+
+.secondary-btn{
+
+    background:#0f172a;
+}
+
+.secondary-btn:hover{
+
+    background:#020617;
+}
+.crm-header-right{
+
+    display:flex;
+    align-items:center;
+    gap:15px;
+
+}
+.header-btn{
+
+    width:42px;
+    height:42px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#f8fafc;
+
+    cursor:pointer;
+
+    font-size:18px;
+
+}
+.user-avatar{
+
+    width:46px;
+    height:46px;
+
+    border-radius:50%;
+
+    background:#2563eb;
+
+    color:white;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-weight:700;
+
+    font-size:16px;
+
+}
+.header-btn:hover{
+
+    background:#eff6ff;
+
+}
+.status-chip{
+
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:11px;
+}
+.hot{
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
+.warm{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+.cold{
+    background:#dbeafe;
+    color:#1e40af;
+}
+.inbox-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:15px;
+}
+
+.customer-count{
+
+    background:#2563eb;
+
+    color:white;
+
+    padding:4px 10px;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+    font-weight:700;
+}
+.search-wrapper{
+
+    margin-bottom:15px;
+}
+
+#customerSearch{
+
+    background:#f8fafc;
+
+    border:1px solid #e2e8f0;
+}
+.empty-chat{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    height:100%;
+
+    color:#64748b;
+
+    font-size:16px;
+}
+.lead-management{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.lead-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+.lead-stage-badge{
+    background:#dbeafe;
+    color:#1e40af;
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.save-lead-btn{
+    width:100%;
+    margin-top:10px;
+}
+/* ==========================
+   Opportunity Cards
+========================== */
+
+#opportunityPanel{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.opportunity-card{
+    background:#f8fafc;
+    border-left:5px solid #2563eb;
+    border-radius:12px;
+    padding:14px;
+    margin-bottom:12px;
+    transition:.2s;
+}
+
+.opportunity-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+
+.opportunity-title{
+    font-weight:700;
+    font-size:15px;
+    color:#1e293b;
+    margin-bottom:5px;
+}
+
+.opportunity-value{
+    font-size:24px;
+    font-weight:700;
+    color:#16a34a;
+    margin-top:5px;
+}
+
+.opportunity-stage{
+    margin-top:8px;
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.stage-qualified{
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+.stage-negotiation{
+
+    background:#fef3c7;
+
+    color:#92400e;
+}
+
+.stage-won{
+
+    background:#dcfce7;
+
+    color:#166534;
+}
+
+.stage-lost{
+
+    background:#fee2e2;
+
+    color:#b91c1c;
+}
+.reminder-item{
+
+    padding:12px;
+
+    border-radius:10px;
+
+    margin-bottom:10px;
+
+    border-left:5px solid;
+}
+
+.reminder-item.green{
+
+    background:#ecfdf5;
+    border-color:#22c55e;
+}
+
+.reminder-item.yellow{
+
+    background:#fefce8;
+    border-color:#eab308;
+}
+
+.reminder-item.red{
+
+    background:#fef2f2;
+    border-color:#ef4444;
+}
+
+.reminder-title{
+
+    font-weight:600;
+    margin-bottom:4px;
+}
+
+.reminder-date{
+
+    font-size:12px;
+    color:#64748b;
+}
+/* LEAD HEALTH */
+
+.health-score-card{
+
+    text-align:center;
+
+    margin-bottom:15px;
+}
+
+.health-score-number{
+
+    font-size:48px;
+
+    font-weight:700;
+
+    color:#2563eb;
+}
+
+.health-score-label{
+
+    font-size:14px;
+
+    font-weight:600;
+
+    margin-top:5px;
+}
+
+.health-progress{
+
+    width:100%;
+
+    height:14px;
+
+    background:#e5e7eb;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    margin-bottom:15px;
+}
+
+.health-progress-fill{
+
+    height:100%;
+
+    width:0%;
+
+    transition:all .4s ease;
+}
+
+.health-cold{
+
+    background:#3b82f6;
+}
+
+.health-warm{
+
+    background:#f59e0b;
+}
+
+.health-hot{
+
+    background:#ef4444;
+}
+
+.health-reason{
+
+    background:#f8fafc;
+
+    padding:12px;
+
+    border-radius:10px;
+
+    font-size:13px;
+
+    color:#475569;
+
+    line-height:1.6;
+}
+.search-box{
+
+    margin-bottom:15px;
+
+    border-radius:30px;
+
+    padding:12px 18px;
+
+    background:#f8fafc;
+
+}
+.chat-user-info{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+}
+
+.chat-avatar{
+
+    width:46px;
+
+    height:46px;
+
+    border-radius:50%;
+
+    background:#2563eb;
+
+    color:white;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-weight:700;
+
+    font-size:18px;
+
+    position:relative;
+}
+
+.chat-avatar::after{
+
+    content:"";
+
+    width:12px;
+
+    height:12px;
+
+    background:#22c55e;
+
+    border-radius:50%;
+
+    border:2px solid white;
+
+    position:absolute;
+
+    bottom:2px;
+
+    right:2px;
+}
+
+.chat-customer-name{
+
+    font-size:18px;
+
+    font-weight:700;
+}
+
+.chat-presence{
+
+    color:#64748b;
+
+    font-size:13px;
+}
+.typing{
+
+    color:#22c55e;
+
+    font-style:italic;
+
+    animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+
+    0%{opacity:.3;}
+
+    50%{opacity:1;}
+
+    100%{opacity:.3;}
+}
     </style>
 
 </head>
@@ -764,25 +1441,67 @@ select{
 
 <!-- HEADER -->
 
-<div class="header-bar">
+<!-- HEADER -->
 
-    <div>
+<div class="crm-header">
 
-        <h2>🚀 Website AI Assistant CRM</h2>
+    <div class="crm-header-left">
 
-<div class="business-strip">
+        <div class="logo-circle">
+            🤖
+        </div>
 
-    <span id="businessNameDisplay">
-        Business Name
-    </span>
+        <div>
 
-    |
+            <h2 class="crm-title">
+                Website AI Assistant
+            </h2>
 
-    <span id="whatsappNumberDisplay">
-        +14155238886
-    </span>
+            <div class="business-strip">
+
+                <span id="businessNameDisplay">
+                    Business Name
+                </span>
+
+                <span class="separator">|</span>
+
+                <span id="whatsappNumberDisplay">
+                    +14155238886
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="crm-header-right">
+
+        <button class="header-btn">
+            🔔
+        </button>
+
+        <button class="header-btn">
+            ⚙️
+        </button>
+
+        <div class="user-avatar">
+            RS
+        </div>
+
+    </div>
 
 </div>
+
+    <div class="header-actions">
+
+        <button class="header-btn">
+            ➕ Add Lead
+        </button>
+
+        <button class="header-btn secondary-btn">
+            📊 Reports
+        </button>
 
     </div>
 
@@ -832,13 +1551,27 @@ select{
 
         <div class="card">
 
-            <h3>💬 Customer Inbox</h3>
+            <div class="inbox-header">
 
-            <input
-                id="customerSearch"
-                placeholder="Search customer..."
-                onkeyup="searchCustomers()"
-            />
+                <h3>💬 Customer Inbox</h3>
+
+                <span class="customer-count"
+                    id="customerCountBadge">
+                    0
+                </span>
+
+            </div>
+
+            <div class="search-wrapper">
+
+                <input
+                    id="customerSearch"
+                    class="search-box"
+                    placeholder="🔍 Search customer..."
+                    onkeyup="searchCustomers()"
+                />
+
+            </div>
 
             <ul id="customerList"></ul>
 
@@ -853,12 +1586,39 @@ select{
 
             <div class="chat-header">
 
-                <div>
-                    <h3 id="selectedCustomer">Select Customer</h3>
-                    <small id="selectedCustomerPhone"></small>
+                <div class="chat-user-info">
+
+                    <div
+                        id="chatAvatar"
+                        class="chat-avatar"
+                    >
+                        C
+                    </div>
+
+                    <div>
+
+                        <div
+                            id="selectedCustomer"
+                            class="chat-customer-name"
+                        >
+                            Select Customer
+                        </div>
+
+                        <div
+                            id="chatPresence"
+                            class="chat-presence"
+                        >
+                            Offline
+                        </div>
+
+                    </div>
+
                 </div>
 
-                <span id="customerStatusBadge" class="badge">
+                <span
+                    id="customerStatusBadge"
+                    class="badge"
+                >
                     New
                 </span>
 
@@ -866,7 +1626,9 @@ select{
 
             <div id="conversationViewer">
 
-                Select a customer
+                <div class="empty-chat">
+                    Select a customer to view conversation
+                </div>  
 
             </div>
 
@@ -881,37 +1643,41 @@ select{
 
             <div class="profile-header">
 
-            <div class="avatar">
-                👤
+                <div id="profileAvatar" class="profile-avatar">
+                    --
+                </div>
+
+                <div>
+
+                    <h3 id="profileName">
+                        Customer
+                    </h3>
+
+                    <div id="profileStatus" class="profile-status">
+                        New Lead
+                    </div>
+
+                </div>
+
             </div>
-
-            <div>
-
-                <h3 id="profileName">
-                    Customer
-                </h3>
-
-                <small id="profilePhone">
-                    WhatsApp
-                </small>
-
-            </div>
-
-        </div>
 
             <div id="customerProfile">
+
                 Select a customer
+
             </div>
 
-            <hr class="section-divider">
+            <hr style="margin:15px 0">
 
             <h3>🔥 Lead Health</h3>
 
-            <div id="leadHealthPanel" class="lead-health-card">
+            <div id="leadHealthPanel">
+
                 Loading...
+
             </div>
 
-            <hr class="section-divider">
+            <hr style="margin:15px 0">
 
             <h3>🎯 Lead Management</h3>
 
@@ -930,10 +1696,7 @@ select{
 
             <label>Notes</label>
 
-            <textarea
-                id="leadNotes"
-                rows="5"
-            ></textarea>
+            <textarea id="leadNotes" rows="5"></textarea>
 
             <button
                 onclick="saveLead()"
@@ -941,6 +1704,10 @@ select{
             >
                 Save Lead
             </button>
+
+        </div>
+
+            </div>
 
         </div>
 
@@ -965,8 +1732,20 @@ select{
 
         <h3>💰 Opportunities</h3>
 
-        <div id="opportunityPanel">
-            No opportunities
+        <div class="opportunity-card">
+
+            <div class="opportunity-title">
+                Website Development Project
+            </div>
+
+            <div class="opportunity-value">
+                ₹2,50,000
+            </div>
+
+            <span class="opportunity-stage stage-proposal">
+                Proposal Sent
+            </span>
+
         </div>
 
     </div>
@@ -1281,51 +2060,95 @@ async function loadCustomers() {
     const list =
         document.getElementById("customerList");
 
-    list.innerHTML = "";
-    let totalMessages = 0;
-    data.customers.forEach(customer => {
-        totalMessages += customer.message_count;
-        const li =
-            document.createElement("li");
+    renderCustomers(data.customers);
 
-        li.className = "customer-card";
+    const totalMessages =
+        data.customers.reduce(
+            (sum,c)=>sum+c.message_count,
+            0
+        );
 
-        li.onclick = () =>
-            selectCustomer(customer.phone);
+    document.getElementById(
+        "messageCount"
+    ).innerText = totalMessages;
+}
 
-        li.innerHTML = `
+function renderCustomers(customers){
 
-            <div class="customer-phone">
-                ${customer.phone}
+    const list =
+        document.getElementById("customerList");
+
+    list.innerHTML="";
+
+    customers.forEach(customer=>{
+
+        const li=document.createElement("li");
+
+        li.className="customer-card";
+
+        li.onclick=()=>selectCustomer(customer.phone);
+
+        const initials =
+            customer.name
+            ? customer.name.substring(0,2).toUpperCase()
+            : customer.phone.substring(0,2);
+
+        li.innerHTML=`
+
+        <div class="customer-avatar">
+
+            ${initials}
+
+        </div>
+
+        <div class="customer-details">
+
+            <div class="customer-header">
+
+                <div class="customer-name">
+
+                    ${customer.name || customer.phone}
+
+                </div>
+
+                <div class="customer-time">
+
+                    ${customer.last_seen || ""}
+
+                </div>
+
             </div>
 
             <div class="customer-preview">
+
                 ${customer.last_message || ""}
+
             </div>
 
-            <div class="customer-time">
-                ${customer.last_seen || ""}
-            </div>
+        </div>
 
-            ${
-                customer.unread_count > 0
-                ?
-                `
-                <div class="unread-badge">
-                    ${customer.unread_count}
-                </div>
-                `
-                :
-                ""
-            }
+        ${
+            customer.unread_count>0
+            ?
+
+            `<div class="unread-badge">
+
+                ${customer.unread_count}
+
+            </div>`
+
+            :
+
+            ""
+
+        }
 
         `;
 
         list.appendChild(li);
+
     });
-    document.getElementById(
-        "messageCount"
-    ).innerText = totalMessages;
+
 }
 
 function filterCustomers() {
@@ -1383,6 +2206,18 @@ async function loadConversation(
         "selectedCustomer"
     ).innerText =
         customerPhone;
+
+    const avatar =
+        customerPhone.substring(0,2).toUpperCase();
+
+    document.getElementById(
+        "chatAvatar"
+    ).innerText = avatar;
+
+    document.getElementById(
+        "chatPresence"
+    ).innerHTML =
+        "<span style='color:#22c55e'>● Online</span>";
 
     document
     .querySelectorAll(
@@ -1771,7 +2606,17 @@ async function loadCustomerProfile(
 
     const data =
         await response.json();
+    const customerName =
+        data.profile.name || customerPhone;
 
+    document.getElementById("profileName").innerText =
+        customerName;
+
+    document.getElementById("profileAvatar").innerText =
+        customerName.substring(0,2).toUpperCase();
+
+    document.getElementById("profileStatus").innerText =
+        data.profile.lead_status || "New Lead";
 
     let badge = "🔵 Cold";
 
@@ -2125,6 +2970,130 @@ window.onload = async function () {
     await loadLeadHealth();
 
 };
+
+function renderOpportunity(opportunity){
+
+    return `
+    <div class="opportunity-card">
+
+        <div class="opportunity-title">
+            ${opportunity.title}
+        </div>
+
+        <div class="opportunity-value">
+            ₹${opportunity.amount}
+        </div>
+
+        <span class="opportunity-stage ${getStageClass(opportunity.stage)}">
+            ${opportunity.stage}
+        </span>
+
+    </div>
+    `;
+}
+
+function getStageClass(stage){
+
+    switch(stage){
+
+        case "Qualified":
+            return "stage-qualified";
+
+        case "Proposal Sent":
+            return "stage-proposal";
+
+        case "Closed Won":
+            return "stage-won";
+
+        case "Closed Lost":
+            return "stage-lost";
+
+        default:
+            return "stage-qualified";
+    }
+}
+
+function renderReminders(reminders){
+
+    const panel =
+        document.getElementById(
+            "reminderPanel"
+        );
+
+    if(!reminders.length){
+
+        panel.innerHTML =
+            "No reminders";
+
+        return;
+    }
+
+    panel.innerHTML =
+        reminders.map(r => `
+
+        <div class="reminder-item ${r.color}">
+
+            <div class="reminder-title">
+                ${r.title}
+            </div>
+
+            <div class="reminder-date">
+                ${r.date}
+            </div>
+
+        </div>
+
+        `).join("");
+
+}
+
+function renderLeadHealth(score, reason) {
+
+    const scoreEl =
+        document.getElementById("leadScoreValue");
+
+    const tempEl =
+        document.getElementById("leadTemperature");
+
+    const barEl =
+        document.getElementById("leadHealthBar");
+
+    const reasonEl =
+        document.getElementById("leadHealthReason");
+
+    scoreEl.textContent = score;
+
+    barEl.style.width = score + "%";
+
+    reasonEl.textContent = reason || "No reason available";
+
+    barEl.classList.remove(
+        "health-cold",
+        "health-warm",
+        "health-hot"
+    );
+
+    if(score >= 75){
+
+        tempEl.textContent = "🔥 Hot Lead";
+
+        barEl.classList.add("health-hot");
+
+    }
+    else if(score >= 40){
+
+        tempEl.textContent = "🌤 Warm Lead";
+
+        barEl.classList.add("health-warm");
+
+    }
+    else{
+
+        tempEl.textContent = "❄ Cold Lead";
+
+        barEl.classList.add("health-cold");
+    }
+}
 
 </script>
 
