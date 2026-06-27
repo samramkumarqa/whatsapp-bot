@@ -3,13 +3,16 @@ from datetime import datetime
 from unread_manager import get_unread
 from lead_manager import get_lead
 DB_FILE = "conversations.db"
+CONVERSATION_DB = "conversations.db"
+CRM_DB = "data/app.db"
 
 
 def get_customer_stats(user_id):
 
-    conn = sqlite3.connect(DB_FILE)
+    conv_conn = sqlite3.connect(CONVERSATION_DB)
+    crm_conn = sqlite3.connect(CRM_DB)
 
-    cursor = conn.execute(
+    cursor = conv_conn.execute(
         """
         SELECT
             phone,
@@ -37,13 +40,9 @@ def get_customer_stats(user_id):
             else conversation_id
         )
 
-        # Get unread count
-        unread_count = get_unread(
-            conversation_id
-        )
+        unread_count = get_unread(conversation_id)
 
-        # Get last message
-        last_message_cursor = conn.execute(
+        last_message_cursor = conv_conn.execute(
             """
             SELECT content
             FROM conversations
@@ -54,9 +53,7 @@ def get_customer_stats(user_id):
             (conversation_id,)
         )
 
-        last_message_row = (
-            last_message_cursor.fetchone()
-        )
+        last_message_row = last_message_cursor.fetchone()
 
         last_message = (
             last_message_row[0]
@@ -64,21 +61,34 @@ def get_customer_stats(user_id):
             else ""
         )
 
+        lead_cursor = crm_conn.execute(
+            """
+            SELECT
+                lead_score,
+                status
+            FROM leads
+            WHERE customer_phone = ?
+            """,
+            (customer_phone,)
+        )
+
+        lead_row = lead_cursor.fetchone()
+
+        lead_score = lead_row[0] if lead_row else 0
+        lead_status = lead_row[1] if lead_row else "New"
+
         customers.append({
-
             "phone": customer_phone,
-
             "message_count": row[1],
-
             "last_seen": row[2],
-
             "unread_count": unread_count,
-
-            "last_message": last_message
-
+            "last_message": last_message,
+            "lead_score": lead_score,
+            "status": lead_status
         })
 
-    conn.close()
+    conv_conn.close()
+    crm_conn.close()
 
     return customers
 
