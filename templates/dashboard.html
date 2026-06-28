@@ -239,31 +239,37 @@ select{
 
 .customer-card{
 
-    display:flex;
+    border-bottom:1px solid #f1f5f9;
 
-    align-items:center;
+    border-radius:0;
 
-    gap:12px;
+    margin:0;
+}
+@keyframes fadeCustomer{
 
-    padding:16px;
+    from{
 
-    border-radius:14px;
+        opacity:0;
 
-    cursor:pointer;
+        transform:translateY(10px);
 
-    transition:.25s;
+    }
 
-    margin-bottom:10px;
+    to{
+
+        opacity:1;
+
+        transform:none;
+
+    }
 
 }
-
 .customer-card:hover{
 
     background:#f8fafc;
 
-    transform:translateY(-2px);
-
-    box-shadow:0 6px 18px rgba(0,0,0,.08);
+    transform:translateY(-1px);
+    border-color:#dbeafe;
 
 }
 .customer-avatar{
@@ -356,13 +362,102 @@ select{
 
     background:#eff6ff;
 
-    border-left:4px solid #2563eb;
+    border-left:5px solid #2563eb;
 
+    padding-left:10px;
+
+    box-shadow:
+
+    0 8px 18px rgba(37,99,235,.12);
+}
+.customer-avatar-wrapper{
+
+    position:relative;
+}
+.presence-dot{
+
+    position:absolute;
+
+    right:0;
+    bottom:0;
+
+    width:12px;
+    height:12px;
+
+    border-radius:50%;
+
+    background:#22c55e;
+
+    border:2px solid white;
+}
+.customer-main{
+
+    flex:1;
+
+    min-width:0;
+}
+.customer-top{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:6px;
+}
+.customer-middle{
+
+    display:flex;
+
+    gap:8px;
+
+    align-items:center;
+
+    margin-bottom:6px;
+}
+.lead-pill{
+
+    font-size:11px;
+
+    padding:3px 8px;
+
+    border-radius:20px;
+
+    font-weight:600;
+}
+.lead-pill.hot{
+
+    background:#fee2e2;
+
+    color:#dc2626;
+}
+.lead-pill.warm{
+
+    background:#fef3c7;
+
+    color:#d97706;
 }
 
-.customer-preview{
+.lead-pill.cold{
 
-    margin-top:8px;
+    background:#dbeafe;
+
+    color:#2563eb;
+}
+.lead-score{
+
+    background:#e2e8f0;
+
+    padding:2px 8px;
+
+    border-radius:30px;
+
+    font-size:11px;
+
+    font-weight:700;
+}
+.customer-preview{
 
     color:#64748b;
 
@@ -434,75 +529,76 @@ select{
 
 .unread-badge{
 
-    width:24px;
+    min-width:22px;
 
-    height:24px;
+    height:22px;
 
-    border-radius:50%;
+    padding:0 7px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    border-radius:50px;
 
     background:#22c55e;
 
     color:white;
 
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
     font-size:12px;
 
     font-weight:700;
-
-
 }
+.customer-card:hover .customer-avatar{
 
+    transform:scale(1.08);
+
+    transition:.25s;
+}
 /* USER MESSAGE */
 
 .user-message{
 
-    background:#d9fdd3;
+    align-self:flex-end;
 
-    padding:10px 14px;
+    max-width:72%;
 
-    margin:8px 0 8px auto;
+    background:#dcf8c6;
 
-    border-radius:12px 12px 2px 12px;
+    border-radius:18px 18px 4px 18px;
 
-    width:fit-content;
+    padding:12px 14px;
 
-    max-width:75%;
+    box-shadow:0 2px 6px rgba(0,0,0,.08);
 
-    box-shadow:
-        0 1px 2px rgba(0,0,0,.12);
-
-    word-break:break-word;
-
-    overflow-wrap:anywhere;
+    animation:slideUser .2s ease;
 }
 
 /* BOT MESSAGE */
 
 .assistant-message{
 
-    background:#ffffff;
+    align-self:flex-start;
 
-    padding:10px 14px;
+    max-width:72%;
 
-    margin:8px auto 8px 0;
+    background:white;
 
-    border-radius:12px 12px 12px 2px;
+    border-radius:18px 18px 18px 4px;
 
-    width:fit-content;
+    padding:12px 14px;
 
-    max-width:75%;
+    box-shadow:0 2px 6px rgba(0,0,0,.08);
 
-    box-shadow:
-        0 1px 2px rgba(0,0,0,.12);
+    animation:slideBot .2s ease;
+}
+.message-content{
+
+    line-height:1.6;
 
     word-break:break-word;
-
-    overflow-wrap:anywhere;
 }
 
 .message-time{
@@ -557,7 +653,19 @@ select{
 
     margin-bottom:4px;
 }
+.customer-right{
 
+    display:flex;
+
+    align-items:center;
+}
+.left-panel .card{
+
+    display:flex;
+    flex-direction:column;
+
+    height:calc(100vh - 230px);
+}
 .value{
 
     font-weight:600;
@@ -678,12 +786,24 @@ select{
     border-radius:20px;
 }
 .chat-header{
+
     display:flex;
+
     justify-content:space-between;
+
     align-items:center;
-    padding-bottom:12px;
+
+    padding:18px 22px;
+
     border-bottom:1px solid #e5e7eb;
-    margin-bottom:15px;
+
+    background:white;
+
+    position:sticky;
+
+    top:0;
+
+    z-index:10;
 }
 .crm-sidebar .card h3{
     border-bottom:1px solid #e5e7eb;
@@ -910,21 +1030,20 @@ select{
 }
 
 #conversationViewer{
-    flex:1;
+
+    background:#f5f7fb;
+
+    padding:22px;
+
+    height:650px;
+
     overflow-y:auto;
-    min-height:0;
 
-    background-color:#efeae2;
+    display:flex;
 
-    background-image:
-        radial-gradient(#d9d9d9 1px, transparent 1px);
+    flex-direction:column;
 
-    background-size:18px 18px;
-
-    border-radius:16px;
-
-    padding:16px;
-    scroll-behavior:smooth;
+    gap:14px;
 }
 
 .left-panel{
@@ -1376,13 +1495,15 @@ html{
 }
 .inbox-header{
 
-    display:flex;
+    position:sticky;
 
-    justify-content:space-between;
+    top:0;
 
-    align-items:center;
+    background:white;
 
-    margin-bottom:15px;
+    z-index:20;
+
+    padding-bottom:10px;
 }
 
 .customer-count{
@@ -1413,6 +1534,8 @@ html{
 .empty-chat{
 
     display:flex;
+
+    flex-direction:column;
 
     justify-content:center;
 
@@ -1799,14 +1922,30 @@ html{
 }
 .search-box{
 
-    margin-bottom:15px;
-
-    border-radius:30px;
+    width:100%;
 
     padding:12px 18px;
 
-    background:#f8fafc;
+    border-radius:30px;
 
+    border:none;
+
+    background:#f1f5f9;
+
+    font-size:14px;
+
+    outline:none;
+
+    transition:.25s;
+}
+
+.search-box:focus{
+
+    background:white;
+
+    box-shadow:
+
+    0 0 0 3px rgba(59,130,246,.15);
 }
 .chat-user-info{
 
@@ -1814,14 +1953,14 @@ html{
 
     align-items:center;
 
-    gap:12px;
+    gap:14px;
 }
 
 .chat-avatar{
 
-    width:46px;
+    width:52px;
 
-    height:46px;
+    height:52px;
 
     border-radius:50%;
 
@@ -1839,7 +1978,6 @@ html{
 
     font-size:18px;
 
-    position:relative;
 }
 
 .chat-avatar::after{
@@ -1865,14 +2003,14 @@ html{
 
 .chat-customer-name{
 
-    font-size:18px;
+    font-size:17px;
 
     font-weight:700;
 }
 
 .chat-presence{
 
-    color:#64748b;
+    color:#22c55e;
 
     font-size:13px;
 }
@@ -1960,7 +2098,12 @@ html{
     color:#1e293b;
 
 }
+.message-icon{
 
+    margin-right:6px;
+
+    opacity:.5;
+}
 .gauge-text{
 
     color:#64748b;
@@ -2002,6 +2145,81 @@ html{
     border-radius:18px;
 
     padding:20px;
+
+}
+.empty-inbox{
+
+    text-align:center;
+
+    padding:50px 20px;
+
+    color:#94a3b8;
+}
+.ai-label{
+
+    font-size:11px;
+
+    color:#2563eb;
+
+    font-weight:700;
+
+    margin-bottom:6px;
+}
+.chat-day{
+
+    align-self:center;
+
+    background:white;
+
+    padding:6px 16px;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+    color:#64748b;
+
+    box-shadow:0 1px 3px rgba(0,0,0,.08);
+
+    margin:8px 0;
+}
+@keyframes slideUser{
+
+    from{
+
+        opacity:0;
+
+        transform:translateX(20px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:none;
+
+    }
+
+}
+
+@keyframes slideBot{
+
+    from{
+
+        opacity:0;
+
+        transform:translateX(-20px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:none;
+
+    }
 
 }
     </style>
@@ -2205,7 +2423,11 @@ html{
 
                 <div class="empty-chat">
 
-                    Select a customer to view conversation
+                    <div style="font-size:64px;">💬</div>
+
+                    <h3>Select a conversation</h3>
+
+                    <p>Choose a customer from the inbox.</p>
 
                 </div>
 
@@ -2701,7 +2923,26 @@ function renderCustomers(customers) {
     const list =
         document.getElementById("customerList");
 
-    list.innerHTML = "";
+    list.innerHTML="";
+
+    if(customers.length===0){
+
+        list.innerHTML=`
+
+        <div class="empty-inbox">
+
+            <div style="font-size:42px;">💬</div>
+
+            <h3>No conversations</h3>
+
+            <p>Customers will appear here.</p>
+
+        </div>
+
+        `;
+
+        return;
+    }
 
     customers.forEach(customer => {
 
@@ -2720,83 +2961,98 @@ function renderCustomers(customers) {
                 : customer.phone.substring(0, 2);
 
         // Lead score
-        const score =
-            customer.lead_score || 0;
+        const score = customer.lead_score || 0;
 
         let leadClass = "cold";
-        let leadText = "Cold";
+        let leadLabel = "Cold";
+        let leadIcon = "❄️";
 
         if (score >= 80) {
             leadClass = "hot";
-            leadText = "Hot";
+            leadLabel = "Hot";
+            leadIcon = "🔥";
         }
         else if (score >= 50) {
             leadClass = "warm";
-            leadText = "Warm";
+            leadLabel = "Warm";
+            leadIcon = "🟡";
         }
 
         li.innerHTML = `
 
-            <div class="customer-avatar ${leadClass}">
+        <div class="customer-avatar-wrapper">
+
+            <div class="customer-avatar">
 
                 ${initials}
 
             </div>
 
-            <div class="customer-content">
+            <span class="presence-dot"></span>
 
-                <div class="customer-row">
+        </div>
 
-                    <div class="customer-name">
+        <div class="customer-main">
 
-                        ${customer.name || "Unknown Customer"}
+            <div class="customer-top">
 
-                    </div>
+                <div class="customer-name">
 
-                    <div class="customer-time">
-
-                        ${customer.last_seen || ""}
-
-                    </div>
+                    ${customer.name || customer.phone}
 
                 </div>
 
-                <div class="customer-phone">
+                <div class="customer-time">
 
-                    ${customer.phone}
-
-                </div>
-
-                <div class="customer-preview">
-
-                    ${customer.last_message || "No messages yet"}
-
-                </div>
-
-                <div class="customer-footer">
-
-                    <span class="lead-chip ${leadClass}">
-
-                        ${leadText}
-
-                    </span>
-
-                    ${
-                        customer.unread_count > 0
-                            ? `
-                            <span class="unread-badge">
-
-                                ${customer.unread_count}
-
-                            </span>
-                            `
-                            : ""
-                    }
+                    ${formatTime(customer.last_seen)}
 
                 </div>
 
             </div>
 
+            <div class="customer-middle">
+
+                <span class="lead-pill ${leadClass}">
+                    ${leadIcon} ${leadLabel}
+                </span>
+
+                <span class="lead-score">
+                    ${score}
+                </span>
+
+            </div>
+
+            <div class="customer-preview">
+
+                <span class="message-icon">
+
+                💬
+
+                </span>
+
+                ${customer.last_message || "No messages"}
+
+            </div>
+
+        </div>
+
+        ${
+        customer.unread_count>0
+        ?
+        `
+        <div class="customer-right">
+
+            <div class="unread-badge">
+
+                ${customer.unread_count}
+
+            </div>
+
+        </div>
+        `
+        :
+        ""
+        }
         `;
 
         list.appendChild(li);
@@ -2849,6 +3105,30 @@ async function selectCustomer(customerPhone){
         loadConversation(customerPhone),
         loadOpportunities(customerPhone)
     ]);
+}
+
+function formatTime(dateString){
+
+    if(!dateString)
+        return "";
+
+    const date = new Date(dateString);
+
+    const now = new Date();
+
+    const diff =
+        Math.floor((now-date)/60000);
+
+    if(diff < 1)
+        return "Now";
+
+    if(diff < 60)
+        return diff+"m";
+
+    if(diff < 1440)
+        return Math.floor(diff/60)+"h";
+
+    return date.toLocaleDateString();
 }
 
 async function loadConversation(
@@ -2913,8 +3193,27 @@ async function loadConversation(
         );
 
     viewer.innerHTML = "";
+    let lastDate = "";
 
     data.messages.forEach(msg => {
+
+        const currentDate =
+            msg.created_at.split(" ")[0];
+
+        if(currentDate !== lastDate){
+
+            lastDate = currentDate;
+
+            viewer.innerHTML += `
+
+            <div class="chat-day">
+
+                ${currentDate}
+
+            </div>
+
+            `;
+        }
 
         const div =
             document.createElement("div");
@@ -2925,13 +3224,34 @@ async function loadConversation(
                 : "assistant-message";
 
         div.innerHTML = `
-            <div class="message-content">
-                ${convertLinks(msg.content)}
-            </div>
 
-            <div class="message-time">
-                ${msg.created_at}
-            </div>
+        ${
+        msg.role==="assistant"
+        ?
+
+        `<div class="ai-label">
+
+        🤖 AI Assistant
+
+        </div>`
+
+        :
+
+        ""
+        }
+
+        <div class="message-content">
+
+        ${convertLinks(msg.content)}
+
+        </div>
+
+        <div class="message-time">
+
+        ${msg.created_at}
+
+        </div>
+
         `;
 
         viewer.appendChild(div);
