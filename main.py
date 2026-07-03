@@ -435,6 +435,8 @@ async def receive_message(
         }
 
 
+
+
 @app.post("/reindex/{user_id}")
 async def reindex(user_id: str):
 
@@ -737,6 +739,27 @@ async def get_number(
     return {
         "status": "success",
         "whatsapp_number": number
+    }
+
+@app.get("/conversation-last/{user_id}/{customer_phone}")
+async def conversation_last(user_id: str, customer_phone: str):
+
+    import sqlite3
+    conn = sqlite3.connect(CONVERSATION_DB)
+
+    row = conn.execute(
+        """
+        SELECT MAX(created_at)
+        FROM conversations
+        WHERE phone=?
+        """,
+        (f"{user_id}:{customer_phone}",)
+    ).fetchone()
+
+    conn.close()
+
+    return {
+        "last_message": row[0] or ""
     }
 
 @app.get("/customers/{user_id}")
@@ -1067,3 +1090,4 @@ async def lead_categories():
         "warm": warm,
         "cold": cold
     }
+

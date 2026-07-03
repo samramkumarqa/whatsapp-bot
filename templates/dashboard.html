@@ -129,7 +129,309 @@ select{
 }
 
 
+#conversationViewer{
 
+display:flex;
+
+flex-direction:column;
+
+gap:18px;
+
+padding:24px;
+
+height:700px;
+
+overflow-y:auto;
+
+background:#f8fafc;
+
+}
+
+/* Day Divider */
+
+.chat-day{
+
+align-self:center;
+
+background:#e2e8f0;
+
+color:#475569;
+
+font-size:12px;
+
+font-weight:600;
+
+padding:6px 16px;
+
+border-radius:20px;
+
+}
+
+/* Row */
+
+.message-row{
+
+display:flex;
+
+align-items:flex-end;
+
+gap:12px;
+
+animation:slideMessage .25s ease;
+
+}
+
+@keyframes slideMessage{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(15px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:none;
+
+    }
+
+}
+
+.message-row.user{
+
+justify-content:flex-end;
+
+}
+
+.message-row.assistant{
+
+justify-content:flex-start;
+
+}
+
+/* Avatar */
+
+.message-avatar{
+
+width:42px;
+
+height:42px;
+
+border-radius:50%;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:18px;
+
+flex-shrink:0;
+
+}
+
+.user-avatar{
+
+background:#2563eb;
+
+color:white;
+
+}
+
+.ai-avatar{
+
+background:#10b981;
+
+color:white;
+
+}
+
+
+.message-bubble{
+
+max-width:72%;
+
+display:flex;
+
+flex-direction:column;
+
+gap:10px;
+
+padding:14px 18px;
+
+border-radius:18px;
+
+box-shadow:0 2px 10px rgba(0,0,0,.08);
+
+word-break:break-word;
+
+}
+
+/* User */
+
+/* Animation */
+
+@keyframes fadeIn{
+
+from{
+
+    opacity:0;
+
+    transform:translateY(10px);
+
+}
+
+to{
+
+    opacity:1;
+
+    transform:none;
+
+}
+
+}
+/* Scrollbar */
+
+#conversationViewer::-webkit-scrollbar{
+
+width:8px;
+
+}
+
+#conversationViewer::-webkit-scrollbar-thumb{
+
+background:#cbd5e1;
+
+border-radius:20px;
+
+}
+.user-message{
+
+background:#2563eb;
+
+color:white;
+
+border-bottom-right-radius:6px;
+
+}
+
+/* AI */
+
+.assistant-message{
+
+background:white;
+
+color:#1e293b;
+
+border-bottom-left-radius:6px;
+
+border:1px solid #e2e8f0;
+
+}
+
+/* AI Label */
+
+.ai-label{
+
+font-size:12px;
+
+font-weight:700;
+
+color:#10b981;
+
+text-transform:uppercase;
+
+letter-spacing:.5px;
+
+}
+
+/* Content */
+
+.message-content{
+
+font-size:15px;
+
+line-height:1.7;
+
+white-space:pre-wrap;
+
+}
+
+.user-message .message-content{
+
+color:white;
+
+}
+
+/* Footer */
+
+.message-footer{
+
+display:flex;
+
+justify-content:flex-end;
+
+align-items:center;
+
+gap:8px;
+
+font-size:11px;
+
+opacity:.75;
+
+}
+
+.user-message .message-footer{
+
+color:rgba(255,255,255,.85);
+
+}
+
+.assistant-message .message-footer{
+
+color:#64748b;
+
+}
+
+/* Status */
+
+.message-status{
+
+font-size:12px;
+
+}
+
+/* Links */
+
+.chat-link{
+
+color:#2563eb;
+
+font-weight:600;
+
+text-decoration:none;
+
+}
+
+.user-message .chat-link{
+
+color:#dbeafe;
+
+}
+
+.message-bubble{
+
+transform:translateY(-1px);
+
+transition:.2s;
+
+box-shadow:0 6px 16px rgba(0,0,0,.12);
+}
 
 .crm-sidebar{
 
@@ -219,16 +521,6 @@ select{
 
 
 .user-message,
-.assistant-message{
-
-    width:fit-content;
-
-    max-width:78%;
-
-    padding:12px 14px;
-
-    margin:8px 0;
-}
 .user-message a,
 .assistant-message a{
 
@@ -556,49 +848,6 @@ select{
     transform:scale(1.08);
 
     transition:.25s;
-}
-/* USER MESSAGE */
-
-.user-message{
-
-    align-self:flex-end;
-
-    max-width:72%;
-
-    background:#dcf8c6;
-
-    border-radius:18px 18px 4px 18px;
-
-    padding:12px 14px;
-
-    box-shadow:0 2px 6px rgba(0,0,0,.08);
-
-    animation:slideUser .2s ease;
-}
-
-/* BOT MESSAGE */
-
-.assistant-message{
-
-    align-self:flex-start;
-
-    max-width:72%;
-
-    background:white;
-
-    border-radius:18px 18px 18px 4px;
-
-    padding:12px 14px;
-
-    box-shadow:0 2px 6px rgba(0,0,0,.08);
-
-    animation:slideBot .2s ease;
-}
-.message-content{
-
-    line-height:1.6;
-
-    word-break:break-word;
 }
 
 .message-time{
@@ -1029,22 +1278,7 @@ select{
     flex-shrink:0;
 }
 
-#conversationViewer{
 
-    background:#f5f7fb;
-
-    padding:22px;
-
-    height:650px;
-
-    overflow-y:auto;
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:14px;
-}
 
 .left-panel{
     width:auto;
@@ -1391,25 +1625,12 @@ select{
 html{
     scroll-behavior:smooth;
 }
-.chat-link{
-    color:#2563eb;
-    text-decoration:none;
-    word-break:break-all;
-}
+
 
 .chat-link:hover{
     text-decoration:underline;
 }
-.message-content{
 
-    white-space:pre-wrap;
-
-    word-wrap:break-word;
-
-    overflow-wrap:anywhere;
-
-    line-height:1.6;
-}
 .header-actions{
 
     display:flex;
@@ -1448,26 +1669,7 @@ html{
     font-size:18px;
 
 }
-.user-avatar{
 
-    width:46px;
-    height:46px;
-
-    border-radius:50%;
-
-    background:#2563eb;
-
-    color:white;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    font-weight:700;
-
-    font-size:16px;
-
-}
 .header-btn:hover{
 
     background:#eff6ff;
@@ -2123,6 +2325,46 @@ html{
     margin-top:24px;
 }
 
+.ai-header{
+
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+margin-bottom:8px;
+
+}
+
+.copy-btn{
+
+
+border:none;
+
+background:#f1f5f9;
+
+padding:5px 10px;
+
+border-radius:8px;
+
+cursor:pointer;
+
+font-size:12px;
+
+transition:.2s;
+
+}
+
+.copy-btn:hover{
+
+
+background:#e2e8f0;
+
+}
+
+
 .crm-section-title{
     display:flex;
     align-items:center;
@@ -2155,34 +2397,8 @@ html{
 
     color:#94a3b8;
 }
-.ai-label{
 
-    font-size:11px;
 
-    color:#2563eb;
-
-    font-weight:700;
-
-    margin-bottom:6px;
-}
-.chat-day{
-
-    align-self:center;
-
-    background:white;
-
-    padding:6px 16px;
-
-    border-radius:20px;
-
-    font-size:12px;
-
-    color:#64748b;
-
-    box-shadow:0 1px 3px rgba(0,0,0,.08);
-
-    margin:8px 0;
-}
 @keyframes slideUser{
 
     from{
@@ -2220,6 +2436,121 @@ html{
         transform:none;
 
     }
+
+}
+
+.message-content strong{
+    font-weight:700;
+}
+
+.message-content em{
+    font-style:italic;
+}
+
+.message-content ul,
+.message-content ol{
+    margin:10px 0;
+    padding-left:22px;
+}
+
+.message-content li{
+    margin:4px 0;
+}
+
+.inline-code{
+
+    background:#f3f4f6;
+
+    padding:2px 6px;
+
+    border-radius:6px;
+
+    font-family:monospace;
+
+    font-size:13px;
+}
+
+.code-block{
+
+    background:#111827;
+
+    color:#f9fafb;
+
+    padding:14px;
+
+    border-radius:10px;
+
+    overflow-x:auto;
+
+    margin-top:10px;
+
+    margin-bottom:10px;
+
+    font-family:monospace;
+
+    font-size:13px;
+}
+
+.typing-bubble{
+
+display:flex;
+
+align-items:center;
+
+gap:6px;
+
+background:white;
+
+padding:14px 18px;
+
+border-radius:18px;
+
+border-bottom-left-radius:6px;
+
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+
+}
+
+.typing-bubble span{
+
+width:8px;
+
+height:8px;
+
+border-radius:50%;
+
+background:#94a3b8;
+
+animation:typingBounce 1.3s infinite;
+
+}
+
+.typing-bubble span:nth-child(2) {
+animation-delay:.2s;
+}
+
+.typing-bubble span:nth-child(3) {
+    animation-delay: .4s;
+}
+
+
+@keyframes typingBounce{
+
+0%,80%,100%{
+
+    transform:translateY(0);
+
+    opacity:.4;
+
+}
+
+40%{
+
+    transform:translateY(-5px);
+
+    opacity:1;
+
+}
 
 }
     </style>
@@ -2696,6 +3027,9 @@ html{
 <script>
     
 let currentCustomer = null;
+let customerCache = {};
+let lastConversationHash = "";
+let lastCustomerHash = "";
 async function addWebsite() {
 
     document.getElementById("status").innerText =
@@ -2918,87 +3252,114 @@ async function loadCustomers() {
     ).innerText = totalMessages;
 }
 
-function renderCustomers(customers) {
+
+function renderCustomers(customers){
 
     const list =
         document.getElementById("customerList");
 
-    list.innerHTML="";
+    const existingCards = {};
 
-    if(customers.length===0){
+    list.querySelectorAll(".customer-card")
+        .forEach(card=>{
 
-        list.innerHTML=`
+            existingCards[
+                card.dataset.phone
+            ] = card;
 
-        <div class="empty-inbox">
+        });
 
-            <div style="font-size:42px;">💬</div>
+    customers.forEach(customer=>{
 
-            <h3>No conversations</h3>
+        const key = customer.phone;
 
-            <p>Customers will appear here.</p>
+        const previous =
+            customerCache[key];
 
-        </div>
+        const changed =
+            JSON.stringify(previous)
+            !==
+            JSON.stringify(customer);
 
-        `;
+        if(!existingCards[key]){
 
-        return;
+            const card =
+                createCustomerCard(customer);
+
+            list.appendChild(card);
+
+        }
+        else if(changed){
+
+            const newCard =
+                createCustomerCard(customer);
+
+            existingCards[key].replaceWith(newCard);
+
+        }
+
+        customerCache[key] = customer;
+
+    });
+
+}
+
+
+function createCustomerCard(customer){
+
+    const li =
+        document.createElement("li");
+
+    li.className = "customer-card";
+
+    li.dataset.phone =
+        customer.phone;
+
+    if(customer.phone===currentCustomer){
+
+        li.classList.add("active");
+
     }
 
-    customers.forEach(customer => {
+    li.onclick=()=>selectCustomer(customer.phone);
 
-        const li = document.createElement("li");
+    const initials =
+        customer.name
+        ? customer.name.substring(0,2).toUpperCase()
+        : customer.phone.substring(0,2);
 
-        li.className = "customer-card";
+    let leadBadge="";
 
-        // Store phone for reliable selection
-        li.dataset.phone = customer.phone;
+    if(customer.lead_score>=80){
 
-        li.onclick = () => selectCustomer(customer.phone);
+        leadBadge =
+            `<span class="lead-chip hot">🔥</span>`;
 
-        const initials =
-            customer.name
-                ? customer.name.substring(0, 2).toUpperCase()
-                : customer.phone.substring(0, 2);
+    }
+    else if(customer.lead_score>=50){
 
-        // Lead score
-        const score = customer.lead_score || 0;
+        leadBadge =
+            `<span class="lead-chip warm">🟡</span>`;
 
-        let leadClass = "cold";
-        let leadLabel = "Cold";
-        let leadIcon = "❄️";
+    }
 
-        if (score >= 80) {
-            leadClass = "hot";
-            leadLabel = "Hot";
-            leadIcon = "🔥";
-        }
-        else if (score >= 50) {
-            leadClass = "warm";
-            leadLabel = "Warm";
-            leadIcon = "🟡";
-        }
+    li.innerHTML=`
 
-        li.innerHTML = `
+        <div class="customer-avatar">
 
-        <div class="customer-avatar-wrapper">
-
-            <div class="customer-avatar">
-
-                ${initials}
-
-            </div>
-
-            <span class="presence-dot"></span>
+            ${initials}
 
         </div>
 
-        <div class="customer-main">
+        <div class="customer-details">
 
-            <div class="customer-top">
+            <div class="customer-header">
 
                 <div class="customer-name">
 
                     ${customer.name || customer.phone}
+
+                    ${leadBadge}
 
                 </div>
 
@@ -3010,27 +3371,9 @@ function renderCustomers(customers) {
 
             </div>
 
-            <div class="customer-middle">
-
-                <span class="lead-pill ${leadClass}">
-                    ${leadIcon} ${leadLabel}
-                </span>
-
-                <span class="lead-score">
-                    ${score}
-                </span>
-
-            </div>
-
             <div class="customer-preview">
 
-                <span class="message-icon">
-
-                💬
-
-                </span>
-
-                ${customer.last_message || "No messages"}
+                ${customer.last_message || ""}
 
             </div>
 
@@ -3039,27 +3382,25 @@ function renderCustomers(customers) {
         ${
         customer.unread_count>0
         ?
-        `
-        <div class="customer-right">
 
-            <div class="unread-badge">
+        `<div class="unread-badge">
 
-                ${customer.unread_count}
+            ${customer.unread_count}
 
-            </div>
+        </div>`
 
-        </div>
-        `
         :
+
         ""
+
         }
-        `;
 
-        list.appendChild(li);
+    `;
 
-    });
+    return li;
 
 }
+
 
 function filterCustomers() {
 
@@ -3123,59 +3464,344 @@ function formatTime(dateString){
         return "Now";
 
     if(diff < 60)
-        return diff+"m";
+        return diff + "m";
 
     if(diff < 1440)
-        return Math.floor(diff/60)+"h";
+        return Math.floor(diff/60) + "h";
 
-    return date.toLocaleDateString();
-}
+    const yesterday =
+        new Date();
 
-async function loadConversation(
-    customerPhone
-){
-
-    currentCustomer = customerPhone;
-    
-    
-    document.getElementById(
-        "selectedCustomer"
-    ).innerText =
-        customerPhone;
-
-    const avatar =
-        customerPhone.substring(0,2).toUpperCase();
-
-    document.getElementById(
-        "chatAvatar"
-    ).innerText = avatar;
-
-    document.getElementById(
-        "chatPresence"
-    ).innerHTML =
-        "<span style='color:#22c55e'>● Online</span>";
-
-    document
-    .querySelectorAll(
-        ".customer-card"
-    )
-    .forEach(card =>
-        card.classList.remove("active")
+    yesterday.setDate(
+        yesterday.getDate()-1
     );
 
-    document
-    .querySelectorAll(".customer-card")
-    .forEach(card => {
+    if(
+        date.toDateString() ===
+        yesterday.toDateString()
+    ){
+        return "Yesterday";
+    }
 
-        if (card.dataset.phone === customerPhone) {
-
-            card.classList.add("active");
-
+    return date.toLocaleDateString(
+        "en-IN",
+        {
+            day:"numeric",
+            month:"short"
         }
+    );
+
+}
+
+function updateChatHeader(customerPhone) {
+
+    document.getElementById("selectedCustomer").innerText =
+        customerPhone;
+
+    document.getElementById("chatAvatar").innerText =
+        customerPhone.substring(0,2).toUpperCase();
+
+const lastSeen = 30; // seconds
+
+if (lastSeen < 60) {
+    document.getElementById("chatPresence").innerHTML =
+        "<span style='color:#22c55e'>Online</span>";
+} else {
+    document.getElementById("chatPresence").innerHTML =
+        "<span>Last seen 8m ago</span>";
+}
+
+}
+
+
+function highlightSelectedCustomer(customerPhone){
+
+    document
+        .querySelectorAll(".customer-card")
+        .forEach(card=>{
+
+            card.classList.remove("active");
+
+        });
+
+    const selected =
+        document.querySelector(
+            `.customer-card[data-phone="${customerPhone}"]`
+        );
+
+    if(selected){
+
+        selected.classList.add("active");
+
+        selected.scrollIntoView({
+
+            behavior:"smooth",
+
+            block:"nearest"
+
+        });
+
+    }
+}
+
+
+
+function renderDayDivider(viewer,date){
+
+    const divider =
+        document.createElement("div");
+
+    divider.className="chat-day";
+
+    divider.innerText=date;
+
+    viewer.appendChild(divider);
+
+}
+
+function renderUserMessage(msg){
+
+    const div =
+        document.createElement("div");
+
+    div.className="message-row user";
+
+    div.innerHTML=`
+
+        <div class="message-bubble user-message">
+
+            <div class="message-content">
+
+                ${renderMarkdown(msg.content)}
+
+            </div>
+
+            <div class="message-footer">
+
+                <span class="message-time">
+
+                    ${formatTime(msg.created_at)}
+
+                </span>
+
+                <span class="message-status">
+
+                    ${msg.status || "✓"}
+
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="message-avatar user-avatar">
+
+            👤
+
+        </div>
+
+    `;
+
+    return div;
+
+}
+
+function renderMarkdown(text) {
+
+    if (!text) return "";
+
+    let html = text;
+
+    // Escape HTML
+    html = html
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    // Code blocks
+    html = html.replace(
+        /```([\s\S]*?)```/g,
+        '<pre class="code-block"><code>$1</code></pre>'
+    );
+
+    // Inline code
+    html = html.replace(
+        /`([^`]+)`/g,
+        '<code class="inline-code">$1</code>'
+    );
+
+    // Bold
+    html = html.replace(
+        /\*\*(.*?)\*\*/g,
+        "<strong>$1</strong>"
+    );
+
+    // Italic
+    html = html.replace(
+        /\*(.*?)\*/g,
+        "<em>$1</em>"
+    );
+
+    // Numbered lists
+    html = html.replace(
+        /^(\d+\..+)$/gm,
+        "<li>$1</li>"
+    );
+
+    html = html.replace(
+        /(<li>.*<\/li>)/gs,
+        "<ol>$1</ol>"
+    );
+
+    // Bullet lists
+    html = html.replace(
+        /^-\s+(.*)$/gm,
+        "<li>$1</li>"
+    );
+
+    html = html.replace(
+        /(<li>.*<\/li>)/gs,
+        "<ul>$1</ul>"
+    );
+
+    // Line breaks
+    html = html.replace(/\n/g, "<br>");
+
+    // Existing URL support
+    html = convertLinks(html);
+
+    return html;
+
+}
+
+
+function renderAssistantMessage(msg, animate = false){
+
+    const div =
+        document.createElement("div");
+
+    div.className = "message-row assistant";
+
+    div.innerHTML = `
+
+        <div class="message-avatar ai-avatar">
+
+            🤖
+
+        </div>
+
+        <div class="message-bubble assistant-message">
+
+            <div class="ai-header">
+
+                <span class="ai-label">
+                    AI Assistant
+                </span>
+
+                <button
+                    class="copy-btn"
+                    onclick="copyMessage(this)"
+                >
+                    📋 Copy
+                </button>
+
+            </div>
+
+            <div class="message-content"></div>
+
+            <div class="message-footer">
+
+                <span class="message-time">
+
+                    ${formatTime(msg.created_at)}
+
+                </span>
+
+            </div>
+
+        </div>
+
+    `;
+
+    const content =
+        div.querySelector(".message-content");
+
+    if(animate){
+
+        typeWriter(content, msg.content);
+
+    }
+    else{
+
+        content.innerHTML =
+            renderMarkdown(msg.content);
+
+    }
+
+    return div;
+}
+
+
+
+
+function copyMessage(button){
+
+const message =
+
+    button
+        .closest(".message-bubble")
+        .querySelector(".message-content")
+        .innerText;
+
+navigator.clipboard.writeText(message);
+
+button.innerHTML="✅ Copied";
+
+setTimeout(()=>{
+
+    button.innerHTML="📋 Copy";
+
+},1500);
+
+}
+
+
+function scrollConversation(force=false){
+
+const viewer =
+    document.getElementById("conversationViewer");
+
+const distance =
+
+    viewer.scrollHeight -
+
+    viewer.scrollTop -
+
+    viewer.clientHeight;
+
+if(force || distance<120){
+
+    viewer.scrollTo({
+
+        top:viewer.scrollHeight,
+
+        behavior:"smooth"
 
     });
-    
-    
+
+}
+
+}
+
+
+async function loadConversation(customerPhone) {
+
+    currentCustomer = customerPhone;
+
+    updateChatHeader(customerPhone);
+
+    highlightSelectedCustomer(customerPhone);
+
     const userId =
         document.getElementById("userId").value;
 
@@ -3188,11 +3814,11 @@ async function loadConversation(
         await response.json();
 
     const viewer =
-        document.getElementById(
-            "conversationViewer"
-        );
+        document.getElementById("conversationViewer");
 
+    // Always rebuild conversation
     viewer.innerHTML = "";
+
     let lastDate = "";
 
     data.messages.forEach(msg => {
@@ -3200,66 +3826,37 @@ async function loadConversation(
         const currentDate =
             msg.created_at.split(" ")[0];
 
-        if(currentDate !== lastDate){
+        if (currentDate !== lastDate) {
 
             lastDate = currentDate;
 
-            viewer.innerHTML += `
-
-            <div class="chat-day">
-
-                ${currentDate}
-
-            </div>
-
-            `;
+            renderDayDivider(
+                viewer,
+                currentDate
+            );
         }
 
-        const div =
-            document.createElement("div");
+        if (msg.role === "user") {
 
-        div.className =
-            msg.role === "user"
-                ? "user-message"
-                : "assistant-message";
+            viewer.appendChild(
+                renderUserMessage(msg)
+            );
 
-        div.innerHTML = `
+        } else {
 
-        ${
-        msg.role==="assistant"
-        ?
+            viewer.appendChild(
+                renderAssistantMessage(msg)
+            );
 
-        `<div class="ai-label">
-
-        🤖 AI Assistant
-
-        </div>`
-
-        :
-
-        ""
         }
 
-        <div class="message-content">
-
-        ${convertLinks(msg.content)}
-
-        </div>
-
-        <div class="message-time">
-
-        ${msg.created_at}
-
-        </div>
-
-        `;
-
-        viewer.appendChild(div);
     });
 
-    viewer.scrollTop =
-        viewer.scrollHeight;
+    scrollConversation();
+
 }
+
+
 
 async function loadStats() {
 
@@ -3324,13 +3921,11 @@ document
 
 setInterval(() => {
 
-    if (currentCustomer) {
+    if (!currentCustomer)
+        return;
 
-        loadConversation(
-            currentCustomer
-        );
-
-    }
+    //loadConversation(currentCustomer);
+    checkConversationUpdates();
 
 }, 5000);
 
@@ -3342,7 +3937,18 @@ setInterval(() => {
     if (!userId)
         return;
 
-    loadCustomers();
+    checkCustomerUpdates();
+    //loadCustomers();
+
+}, 15000);
+
+setInterval(() => {
+
+    const userId =
+        document.getElementById("userId").value;
+
+    if (!userId)
+        return;
 
     loadStats();
 
@@ -3352,7 +3958,7 @@ setInterval(() => {
 
     loadReminders();
 
-}, 5000);
+}, 60000);
 
 
 async function saveLead(){
@@ -3721,6 +4327,8 @@ async function loadCustomerProfile(customerPhone) {
 }
 
 
+
+
 async function loadLeadTimeline(
     customerPhone
 ){
@@ -3972,6 +4580,88 @@ window.onload = async function () {
 
 };
 
+function showTypingIndicator(){
+
+const viewer =
+    document.getElementById("conversationViewer");
+
+if(document.getElementById("typingIndicator"))
+    return;
+
+const div =
+    document.createElement("div");
+
+div.id="typingIndicator";
+
+div.className="message-row assistant";
+
+div.innerHTML=`
+
+    <div class="message-avatar ai-avatar">
+
+        🤖
+
+    </div>
+
+    <div class="typing-bubble">
+
+        <span></span>
+
+        <span></span>
+
+        <span></span>
+
+    </div>
+
+`;
+
+viewer.appendChild(div);
+
+scrollConversation();
+
+}
+
+
+function typeWriter(element, text, speed = 12){
+
+let index = 0;
+
+element.innerHTML = "";
+
+const timer = setInterval(() => {
+
+    element.innerHTML =
+        renderMarkdown(
+            text.substring(0, index)
+        );
+
+    index++;
+
+    scrollConversation();
+
+    if(index > text.length){
+
+        clearInterval(timer);
+
+    }
+
+}, speed);
+
+}
+
+
+function hideTypingIndicator(){
+
+const indicator =
+    document.getElementById("typingIndicator");
+
+if(indicator){
+
+    indicator.remove();
+
+}
+
+}
 
 
 function getStageClass(stage){
@@ -3993,6 +4683,53 @@ function getStageClass(stage){
         default:
             return "stage-qualified";
     }
+}
+
+async function checkCustomerUpdates(){
+
+    const userId =
+        document.getElementById("userId").value;
+
+    const response =
+        await fetch(`/customers-last/${userId}`);
+
+    const data =
+        await response.json();
+
+    if(data.last_update !== lastCustomerHash){
+
+        lastCustomerHash = data.last_update;
+
+        await loadCustomers();
+
+    }
+
+}
+
+async function checkConversationUpdates(){
+
+    if(!currentCustomer)
+        return;
+
+    const userId =
+        document.getElementById("userId").value;
+
+    const response =
+        await fetch(
+            `/conversation-last/${userId}/${encodeURIComponent(currentCustomer)}`
+        );
+
+    const data =
+        await response.json();
+
+    if(data.last_message !== lastConversationHash){
+
+        lastConversationHash = data.last_message;
+
+        await loadConversation(currentCustomer);
+
+    }
+
 }
 
 </script>
