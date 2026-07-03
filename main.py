@@ -745,7 +745,7 @@ async def get_number(
 async def conversation_last(user_id: str, customer_phone: str):
 
     import sqlite3
-    conn = sqlite3.connect(CONVERSATION_DB)
+    conn = sqlite3.connect("conversations.db")
 
     row = conn.execute(
         """
@@ -792,6 +792,26 @@ async def customers(user_id: str):
     return {
         "status": "success",
         "customers": customers
+    }
+
+@app.get("/customers-last/{user_id}")
+async def customers_last(user_id: str):
+    import sqlite3
+    conn = sqlite3.connect("conversations.db")
+
+    row = conn.execute(
+        """
+        SELECT MAX(created_at)
+        FROM conversations
+        WHERE phone LIKE ?
+        """,
+        (f"{user_id}:%",)
+    ).fetchone()
+
+    conn.close()
+
+    return {
+        "last_update": row[0] or ""
     }
 
 @app.get("/stats/{user_id}")
