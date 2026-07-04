@@ -1,6 +1,4 @@
 from lead_ai import calculate_lead_score
-print(calculate_lead_score("Qualified", 100))
-print(calculate_lead_score("Interested", 100))
 import sqlite3
 
 DB_FILE = "data/app.db"
@@ -225,6 +223,134 @@ def save_opportunity(
     )
 
     conn.commit()
+    conn.close()
+
+def update_lead_intelligence(
+    customer_phone,
+    analysis
+):
+    """
+    Save AI Lead Intelligence into CRM.
+    """
+
+    conn = sqlite3.connect(DB_FILE)
+
+    conn.execute(
+        """
+        INSERT INTO leads
+        (
+            customer_phone,
+            status,
+            confidence,
+            reason,
+            updated_by,
+            lead_score,
+
+            intent,
+            buying_stage,
+            sentiment,
+            objection,
+            priority,
+            probability,
+            next_action,
+            follow_up_days,
+            summary,
+            tags
+        )
+
+        VALUES
+        (
+            ?,?,?,?,?,?,
+            ?,?,?,?,?,?,
+            ?,?,?,?
+        )
+
+        ON CONFLICT(customer_phone)
+        DO UPDATE SET
+
+            status=excluded.status,
+            confidence=excluded.confidence,
+            reason=excluded.reason,
+            updated_by='AI',
+            lead_score=excluded.lead_score,
+
+            intent=excluded.intent,
+            buying_stage=excluded.buying_stage,
+            sentiment=excluded.sentiment,
+            objection=excluded.objection,
+            priority=excluded.priority,
+            probability=excluded.probability,
+            next_action=excluded.next_action,
+            follow_up_days=excluded.follow_up_days,
+            summary=excluded.summary,
+            tags=excluded.tags
+        """,
+        (
+            customer_phone,
+
+            analysis["buying_stage"],
+
+            analysis["confidence"],
+
+            analysis["summary"],
+
+            "AI",
+
+            analysis["lead_score"],
+
+            analysis["intent"],
+
+            analysis["buying_stage"],
+
+            analysis["sentiment"],
+
+            analysis["objection"],
+
+            analysis["priority"],
+
+            analysis["probability"],
+
+            analysis["next_action"],
+
+            analysis["follow_up_days"],
+
+            analysis["summary"],
+
+            ",".join(analysis["tags"])
+        )
+    )
+
+    conn.execute(
+        """
+        INSERT INTO lead_history
+        (
+            customer_phone,
+            status,
+            confidence,
+            reason,
+            updated_by
+        )
+
+        VALUES
+        (
+            ?,?,?,?,?
+        )
+        """,
+        (
+            customer_phone,
+
+            analysis["buying_stage"],
+
+            analysis["confidence"],
+
+            analysis["summary"],
+
+            "AI"
+        )
+    )
+
+    conn.commit()
+
     conn.close()
 
 def auto_update_lead(

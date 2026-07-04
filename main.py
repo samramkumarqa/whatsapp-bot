@@ -78,6 +78,7 @@ from reminder_manager import (
 from reminder_manager import (
     get_reminders
 )
+from lead_intelligence import refresh_customer_intelligence
 
 LEAD_PRIORITY = {
 
@@ -250,109 +251,23 @@ async def receive_message(
             "user",
             user_text
         )
+
+        from lead_intelligence import refresh_customer_intelligence
+
+        analysis = refresh_customer_intelligence(
+            business_user_id,
+            from_number
+        )
+
+        logger.info(
+            f"Lead Intelligence: {analysis}"
+        )
+
         increment_unread(
             conversation_id
         )
 
         try:
-
-            ai_result = detect_lead_status(user_text)
-            from opportunity_ai import detect_opportunity
-            from opportunity_manager import add_opportunity
-
-            opp = detect_opportunity(
-                user_text
-            )
-
-            if (
-                opp["type"] != "None"
-                and
-                opp["confidence"] >= 70
-            ):
-
-                add_opportunity(
-                    from_number,
-                    opp["type"],
-                    opp["confidence"],
-                    opp["reason"]
-                )
-
-                logger.info(
-                    f"Opportunity Found: {opp}"
-                )
-
-            opportunity = detect_opportunity(
-                user_text
-            )
-
-            if (
-                opportunity["type"]
-                != "None"
-            ):
-
-                save_opportunity(
-                    from_number,
-                    opportunity["type"],
-                    opportunity["confidence"],
-                    opportunity["reason"]
-                )
-
-                logger.info(
-                    f"Opportunity Detected: "
-                    f"{opportunity['type']}"
-                )
-
-
-            ai_status = ai_result.get("status", "New")
-            confidence = ai_result.get("confidence", 50)
-            reason = ai_result.get("reason", "")
-
-            current_lead = get_lead(from_number)
-
-            current_status = current_lead.get(
-                "status",
-                "New"
-            )
-
-            current_updated_by = current_lead.get(
-                "updated_by",
-                "Manual"
-            )
-
-            should_update = False
-
-            # Higher lead stage
-            if (
-                LEAD_PRIORITY.get(ai_status, 0)
-                >
-                LEAD_PRIORITY.get(current_status, 0)
-            ):
-                should_update = True
-
-            # Same stage but old record was manual
-            elif (
-                ai_status == current_status
-                and current_updated_by != "AI"
-            ):
-                should_update = True
-
-            if should_update:
-
-                logger.info(
-                    f"AI_RESULT => "
-                    f"status={ai_status}, "
-                    f"confidence={confidence}, "
-                    f"reason={reason}"
-                )
-
-                update_lead(
-                    from_number,
-                    ai_status,
-                    f"AI Auto Update: {user_text}",
-                    confidence,
-                    reason,
-                    "AI"
-                )
 
             if ai_status == "Interested":
 
@@ -534,7 +449,10 @@ async def local_chat(
             "user",
             message
         )
-        
+        refresh_customer_intelligence(
+            user_id=phone,
+            customer_phone=phone
+        )
 
         # Run RAG
         reply = await handle_rag(
