@@ -3,6 +3,32 @@ import sqlite3
 
 DB_FILE = "data/app.db"
 
+DEFAULT_LEAD = {
+    "customer_phone": "",
+    "status": "New",
+    "notes": "",
+    "confidence": 0,
+    "reason": "",
+    "updated_by": "Manual",
+
+    "lead_score": 0,
+    "intent": "",
+    "buying_stage": "",
+    "sentiment": "",
+    "objection": "",
+
+    "probability": 0,
+    "priority": "Medium",
+
+    "next_action": "",
+    "follow_up_days": 1,
+
+    "summary": "",
+    "ai_summary": "",
+
+    "tags": ""
+}
+
 def init_leads():
 
     conn = sqlite3.connect(DB_FILE)
@@ -53,45 +79,26 @@ def init_leads():
 def get_lead(customer_phone):
 
     conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
 
-    cursor = conn.execute(
+    row = conn.execute(
         """
-        SELECT
-            status,
-            notes,
-            confidence,
-            reason,
-            updated_by,
-            lead_score
+        SELECT *
         FROM leads
-        WHERE customer_phone=?
+        WHERE customer_phone = ?
         """,
         (customer_phone,)
-    )
-
-    row = cursor.fetchone()
+    ).fetchone()
 
     conn.close()
 
     if row:
-        return {
-            "status": row[0],
-            "notes": row[1],
-            "confidence": row[2],
-            "reason": row[3],
-            "updated_by": row[4],
-            "lead_score": row[5]
-        }
+        return dict(row)
 
-    return {
-        "status": "New",
-        "notes": "",
-        "confidence": 0,
-        "reason": "",
-        "updated_by": "Manual",
-        "lead_score": 0
-    }
+    lead = DEFAULT_LEAD.copy()
+    lead["customer_phone"] = customer_phone
 
+    return lead
 
 
 def update_lead(

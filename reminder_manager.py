@@ -203,3 +203,22 @@ def reminder_exists(customer_phone):
     conn.close()
 
     return exists
+
+def get_customer_reminders(customer_phone):
+
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
+
+    rows = conn.execute(
+        """
+        SELECT *
+        FROM reminders
+        WHERE customer_phone=?
+        ORDER BY reminder_date DESC
+        """,
+        (customer_phone,)
+    ).fetchall()
+
+    conn.close()
+
+    return [dict(r) for r in rows]

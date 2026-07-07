@@ -1,45 +1,32 @@
 import sqlite3
-from datetime import datetime
 from unread_manager import get_unread
 from lead_manager import get_lead
-DB_FILE = "conversations.db"
+
 CONVERSATION_DB = "conversations.db"
 CRM_DB = "data/app.db"
 
 
 def get_stats(user_id):
 
-    import sqlite3
+    business_phone = get_business_phone(user_id)
 
-    conn = sqlite3.connect("data/app.db")
+    if not business_phone:
+
+        return {
+            "customers": 0
+        }
+    conn = sqlite3.connect(CRM_DB)
 
     cursor = conn.execute(
         """
-        SELECT whatsapp_number
-        FROM customer_numbers
-        WHERE user_id = ?
+        SELECT COUNT(*)
+        FROM customer_mapping
+        WHERE business_phone = ?
         """,
-        (user_id,)
-    )
+        (business_phone,)
+)
 
-    row = cursor.fetchone()
-
-    customer_count = 0
-
-    if row:
-
-        business_phone = row[0]
-
-        cursor = conn.execute(
-            """
-            SELECT COUNT(*)
-            FROM customer_mapping
-            WHERE business_phone = ?
-            """,
-            (business_phone,)
-        )
-
-        customer_count = cursor.fetchone()[0]
+    customer_count = cursor.fetchone()[0]
 
     conn.close()
 
@@ -141,7 +128,7 @@ def get_conversation(
         f"{user_id}:{customer_phone}"
     )
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect(CONVERSATION_DB)
 
     cursor = conn.execute(
         """
@@ -170,7 +157,7 @@ def get_conversation(
 
 def get_dashboard_metrics(user_id):
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect(CONVERSATION_DB)
 
     customer_count = conn.execute(
         """
@@ -208,14 +195,9 @@ def get_dashboard_metrics(user_id):
         "today_messages": today_count
     }
 
-def get_customer_profile(
-    user_id,
-    customer_phone
-):
+def get_customer_profile(user_id, customer_phone):
 
-    import sqlite3
-
-    conn = sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect(CONVERSATION_DB)
 
     cursor = conn.execute(
         """
@@ -226,9 +208,7 @@ def get_customer_profile(
         FROM conversations
         WHERE phone = ?
         """,
-        (
-            f"{user_id}:{customer_phone}",
-        )
+        (f"{user_id}:{customer_phone}",)
     )
 
     row = cursor.fetchone()
@@ -237,43 +217,24 @@ def get_customer_profile(
 
     lead = get_lead(customer_phone)
 
-    return {
+    profile = {
+        "customer_phone": customer_phone,
         "first_seen": row[0],
         "last_seen": row[1],
-        "message_count": row[2],
-
-        "lead_status": lead.get(
-            "status",
-            "New"
-        ),
-
-        "confidence": lead.get(
-            "confidence",
-            0
-        ),
-
-        "reason": lead.get(
-            "reason",
-            ""
-        ),
-
-        "updated_by": lead.get(
-            "updated_by",
-            "Manual"
-        ),
-
-        "notes": lead.get(
-            "notes",
-            ""
-        )
+        "message_count": row[2]
     }
+
+    # Merge all lead intelligence automatically
+    profile.update(lead)
+
+    return profile
 
 def get_top_customers(
     user_id,
     limit=5
 ):
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect(CONVERSATION_DB)
 
     cursor = conn.execute(
         """
@@ -314,3 +275,154 @@ def get_top_customers(
         })
 
     return customers
+
+def get_sales_funnel(user_id):
+
+    business_phone = get_business_phone(user_id)
+
+    if not business_phone:
+
+        return {
+            "total_leads": 0,
+            "conversion_rate": 0,
+            "funnel": {
+                "New": 0,
+                "Interested": 0,
+                "Qualified": 0,
+                "Proposal Sent": 0,
+                "Won": 0,
+                "Lost": 0
+            }
+        }
+
+    conn = sqlite3.connect(CRM_DB)
+
+    cursor = conn.execute(
+        """
+        SELECT
+            l.status,
+            COUNT(*)
+        FROM leads l
+        INNER JOIN customer_mapping cm
+            ON l.customer_phone = cm.customer_phone
+        WHERE cm.business_phone = ?
+        GROUP BY l.status
+        """,
+        (business_phone,)
+    )
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    funnel = {
+        "New": 0,
+        "Interested": 0,
+        "Qualified": 0,
+        "Proposal Sent": 0,
+        "Won": 0,
+        "Lost": 0
+    }
+
+    for status, count in rows:
+
+        if status in funnel:
+            funnel[status] = count
+
+    total = sum(funnel.values())
+
+    won = funnel["Won"]
+
+    conversion_rate = (
+        round((won / total) * 100, 1)
+        if total
+        else 0
+    )
+
+    return {
+        "total_leads": total,
+        "conversion_rate": conversion_rate,
+        "funnel": funnel
+    }
+
+def get_lead_score_dashboard(user_id):
+
+    business_phone = get_business_phone(user_id)
+
+    if not business_phone:
+
+        return {
+            "hot": 0,
+            "warm": 0,
+            "cold": 0,
+            "average_score": 0
+        }
+
+    conn = sqlite3.connect(CRM_DB)
+
+    cursor = conn.execute(
+        """
+        SELECT
+            l.lead_score
+        FROM leads l
+        INNER JOIN customer_mapping cm
+            ON l.customer_phone = cm.customer_phone
+        WHERE cm.business_phone = ?
+        """,
+        (business_phone,)
+    )
+
+    scores = [
+        row[0] or 0
+        for row in cursor.fetchall()
+    ]
+
+    conn.close()
+
+    hot = sum(
+        1 for score in scores
+        if score >= 80
+    )
+
+    warm = sum(
+        1 for score in scores
+        if 50 <= score < 80
+    )
+
+    cold = sum(
+        1 for score in scores
+        if score < 50
+    )
+
+    average = (
+        round(sum(scores) / len(scores), 1)
+        if scores
+        else 0
+    )
+
+    return {
+        "hot": hot,
+        "warm": warm,
+        "cold": cold,
+        "average_score": average
+    }
+
+def get_business_phone(user_id):
+
+    conn = sqlite3.connect(CRM_DB)
+
+    row = conn.execute(
+        """
+        SELECT whatsapp_number
+        FROM customer_numbers
+        WHERE user_id = ?
+        """,
+        (user_id,)
+    ).fetchone()
+
+    conn.close()
+
+    if row:
+        return row[0]
+
+    return None

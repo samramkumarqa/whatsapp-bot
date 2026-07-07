@@ -59,7 +59,9 @@ from analytics import (
     get_conversation,
     get_customer_profile,
     get_stats,
-    get_top_customers
+    get_top_customers,
+    get_sales_funnel,
+    get_lead_score_dashboard
 )
 
 # ==========================================================
@@ -128,6 +130,14 @@ from unread_manager import (
 )
 
 # ==========================================================
+# Activity Manager
+# ==========================================================
+from activity_manager import init_activity, add_activity, get_activity, get_activity_timeline
+# ==========================================================
+# Timeline Manager
+# ==========================================================
+from timeline_manager import get_customer_timeline
+# ==========================================================
 # Environment & Initialization
 # ==========================================================
 
@@ -147,6 +157,7 @@ init_leads()
 init_opportunities()
 init_reminders()
 init_tags()
+init_activity()
 
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
@@ -387,6 +398,23 @@ async def receive_message(
                     from_number,
                     f"[{priority}] {next_action}",
                     follow_up_days
+                )
+                add_activity(
+
+                    from_number,
+
+                    "Reminder",
+
+                    "Follow-up Scheduled",
+
+                    f"""
+
+                {next_action}
+
+                After {follow_up_days} day(s)
+
+                Priority : {priority}
+                """
                 )
 
         except Exception as e:
@@ -902,21 +930,12 @@ async def lead_details(
 @app.get("/customer-profile/{user_id}/{customer_phone}")
 async def customer_profile(user_id: str, customer_phone: str):
 
-    profile = get_customer_profile(
-        user_id,
-        customer_phone
-    )
-
-    lead = get_lead(
-        customer_phone
-    )
-
     return {
         "status": "success",
-        "profile": {
-            **profile,
-            **lead
-        }
+        "profile": get_customer_profile(
+            user_id,
+            customer_phone
+        )
     }
 
 @app.post("/lead")
@@ -931,6 +950,24 @@ async def save_lead(request: LeadRequest):
         confidence=current_lead.get("confidence", 50),
         reason="Updated manually",
         updated_by="Manual"
+    )
+
+    add_activity(
+
+        request.customer_phone,
+
+        "Manual",
+
+        "Lead Updated Manually",
+
+        f"""
+
+    Status : {request.status}
+
+    Notes :
+
+    {request.notes}
+    """
     )
 
     return {
@@ -985,3 +1022,56 @@ def schedule_reindex(user_id: str):
             user_id
         )
     )
+
+@app.get("/activity/{customer_phone}")
+
+async def activity(customer_phone):
+
+    return {
+
+        "status":"success",
+
+        "activity":get_activity(customer_phone)
+    }
+
+@app.get("/customer-timeline/{customer_phone}")
+async def customer_timeline(customer_phone: str):
+
+    return {
+        "status": "success",
+        "timeline": get_customer_timeline(
+            customer_phone
+        )
+    }
+
+@app.get("/customer-timeline/{customer_phone}")
+async def customer_timeline(customer_phone: str):
+
+    return {
+        "status": "success",
+        "timeline": get_activity_timeline(customer_phone)
+    }
+
+@app.get("/timeline/{customer_phone}")
+async def customer_timeline(customer_phone: str):
+
+    return {
+        "status": "success",
+        "timeline": get_customer_timeline(customer_phone)
+    }
+
+@app.get("/sales-funnel/{user_id}")
+async def sales_funnel(user_id: str):
+
+    return {
+        "status": "success",
+        **get_sales_funnel(user_id)
+    }
+
+@app.get("/lead-score-dashboard/{user_id}")
+async def lead_score_dashboard(user_id: str):
+
+    return {
+        "status": "success",
+        **get_lead_score_dashboard(user_id)
+    }

@@ -7,7 +7,8 @@ load_dotenv()
 import logging
 logger = logging.getLogger(__name__)
 from analytics import get_conversation
-from lead_manager import update_lead_intelligence
+from lead_manager import update_lead_intelligence, get_lead
+from activity_manager import add_activity
 
 
 AI_VERSION = "v1"
@@ -349,6 +350,12 @@ def refresh_customer_intelligence(
         customer_phone
     )
 
+    if not messages:
+        logger.info(
+            f"No conversation found for {customer_phone}"
+        )
+        return DEFAULT_RESPONSE.copy()
+
     conversation_text = ""
 
     for msg in messages:
@@ -367,17 +374,87 @@ def refresh_customer_intelligence(
         conversation_text
     )
 
+    # Don't overwrite existing intelligence if AI failed
+    if analysis.get("summary") == "AI analysis failed.":
+
+        logger.warning(
+            f"AI analysis failed for {customer_phone}. Skipping CRM update."
+        )
+
+        return analysis
+
+    # Get existing lead before updating
+    old_lead = get_lead(
+        customer_phone
+    )
+
     update_lead_intelligence(
         customer_phone,
         analysis
     )
 
-    save_tags(
-        customer_phone,
-        analysis.get("tags", [])
+    # Check whether important AI fields changed
+    changed = (
+
+        old_lead.get("lead_score") != analysis["lead_score"]
+
+        or old_lead.get("intent") != analysis["intent"]
+
+        or old_lead.get("buying_stage") != analysis["buying_stage"]
+
+        or old_lead.get("sentiment") != analysis["sentiment"]
+
+        or old_lead.get("next_action") != analysis["next_action"]
+
+        or old_lead.get("summary") != analysis["summary"]
     )
+
+    if changed:
+
+        details = "\n".join([
+            f"AI Version: {analysis.get('ai_version', AI_VERSION)}",
+            f"Lead Score: {analysis['lead_score']}",
+            f"Intent: {analysis['intent']}",
+            f"Buying Stage: {analysis['buying_stage']}",
+            f"Sentiment: {analysis['sentiment']}",
+            f"Next Action: {analysis['next_action']}",
+            f"Summary: {analysis['summary']}"
+        ])
+
+        add_activity(
+            customer_phone,
+            "AI",
+            "Customer Intelligence Updated",
+            details
+        )
+
+    # Save tags only if changed
+    old_tags = get_tags(
+        customer_phone
+    )
+
+    new_tags = analysis.get(
+        "tags",
+        []
+    )
+
+    if sorted(old_tags) != sorted(new_tags):
+
+        save_tags(
+            customer_phone,
+            new_tags
+        )
+
+        add_activity(
+            customer_phone,
+            "Tags",
+            "Customer Tags Updated",
+            ", ".join(new_tags)
+        )
+
     logger.info(
         f"Updated AI tags for {customer_phone}: "
-        f"{analysis.get('tags', [])}"
+        f"{new_tags}"
     )
+
     return analysis
