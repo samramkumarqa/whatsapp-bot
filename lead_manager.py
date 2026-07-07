@@ -193,6 +193,46 @@ def get_lead_timeline(customer_phone):
         for row in rows
     ]
 
+def get_lead_categories():
+
+    conn = sqlite3.connect(DB_FILE)
+
+    cursor = conn.execute("""
+        SELECT
+            customer_phone,
+            status,
+            lead_score
+        FROM leads
+    """)
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    hot = []
+    warm = []
+    cold = []
+
+    for phone, status, score in rows:
+
+        lead = {
+            "customer_phone": phone,
+            "status": status,
+            "lead_score": score
+        }
+
+        if score >= 80:
+            hot.append(lead)
+        elif score >= 50:
+            warm.append(lead)
+        else:
+            cold.append(lead)
+
+    return {
+        "hot": hot,
+        "warm": warm,
+        "cold": cold
+    }
 
 def save_opportunity(
     customer_phone,

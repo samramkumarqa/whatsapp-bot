@@ -22,6 +22,24 @@ def init_reminders():
     conn.commit()
     conn.close()
 
+def complete_reminder(customer_phone):
+
+    conn = sqlite3.connect(DB_FILE)
+
+    conn.execute(
+        """
+        UPDATE reminders
+
+        SET completed=1
+
+        WHERE customer_phone=?
+        AND completed=0
+        """,
+        (customer_phone,)
+    )
+
+    conn.commit()
+    conn.close()
 
 def create_reminder(
     customer_phone,
@@ -89,3 +107,99 @@ def get_reminders():
         }
         for r in rows
     ]
+
+def upsert_reminder(
+    customer_phone,
+    reminder_text,
+    days
+):
+    """
+    Create or update an active reminder.
+    """
+
+    conn = sqlite3.connect(DB_FILE)
+
+    due_date = (
+        datetime.now() +
+        timedelta(days=days)
+    ).strftime("%Y-%m-%d")
+
+    cursor = conn.execute(
+        """
+        SELECT id
+        FROM reminders
+        WHERE customer_phone=?
+        AND completed=0
+        """,
+        (customer_phone,)
+    )
+
+    row = cursor.fetchone()
+
+    if row:
+
+        conn.execute(
+            """
+            UPDATE reminders
+
+            SET
+
+                reminder_text=?,
+                due_date=?,
+                updated_at=CURRENT_TIMESTAMP
+
+            WHERE id=?
+            """,
+            (
+                reminder_text,
+                due_date,
+                row[0]
+            )
+        )
+
+    else:
+
+        conn.execute(
+            """
+            INSERT INTO reminders
+            (
+                customer_phone,
+                reminder_text,
+                due_date
+            )
+
+            VALUES
+            (
+                ?,?,?
+            )
+            """,
+            (
+                customer_phone,
+                reminder_text,
+                due_date
+            )
+        )
+
+    conn.commit()
+    conn.close()
+
+def reminder_exists(customer_phone):
+
+    conn = sqlite3.connect(DB_FILE)
+
+    cursor = conn.execute(
+        """
+        SELECT id
+        FROM reminders
+        WHERE customer_phone=?
+        AND completed=0
+        LIMIT 1
+        """,
+        (customer_phone,)
+    )
+
+    exists = cursor.fetchone() is not None
+
+    conn.close()
+
+    return exists

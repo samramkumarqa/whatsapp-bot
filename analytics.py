@@ -7,6 +7,46 @@ CONVERSATION_DB = "conversations.db"
 CRM_DB = "data/app.db"
 
 
+def get_stats(user_id):
+
+    import sqlite3
+
+    conn = sqlite3.connect("data/app.db")
+
+    cursor = conn.execute(
+        """
+        SELECT whatsapp_number
+        FROM customer_numbers
+        WHERE user_id = ?
+        """,
+        (user_id,)
+    )
+
+    row = cursor.fetchone()
+
+    customer_count = 0
+
+    if row:
+
+        business_phone = row[0]
+
+        cursor = conn.execute(
+            """
+            SELECT COUNT(*)
+            FROM customer_mapping
+            WHERE business_phone = ?
+            """,
+            (business_phone,)
+        )
+
+        customer_count = cursor.fetchone()[0]
+
+    conn.close()
+
+    return {
+        "customers": customer_count
+    }
+
 def get_customer_stats(user_id):
 
     conv_conn = sqlite3.connect(CONVERSATION_DB)

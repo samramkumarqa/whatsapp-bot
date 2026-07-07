@@ -93,3 +93,18 @@ def clear_history(phone):
 
     conn.commit()
     conn.close()
+
+def get_last_customer_update(user_id):
+    import sqlite3
+    conn = sqlite3.connect("conversations.db")
+
+    row = conn.execute(
+        """
+        SELECT MAX(created_at)
+        FROM conversations
+        WHERE phone LIKE ?
+        """,
+        (f"{user_id}:%",)
+    ).fetchone()
+
+    conn.close()

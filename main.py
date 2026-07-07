@@ -1,84 +1,164 @@
-from fastapi import FastAPI, Request, Form, HTTPException
+
+# ==========================================================
+# Standard Library
+# ==========================================================
+
+import asyncio
+import logging
+import os
+
+# ==========================================================
+# Third Party
+# ==========================================================
+
 from dotenv import load_dotenv
-from twilio.request_validator import RequestValidator
-from rag_handler import handle_rag
-from whatsapp import send_message
-from ingest import ingest_docs
-from website_ingest import load_website_chunks
-from pydantic import BaseModel
-from conversations import init_db
-from crawler import discover_links
-from incremental_ingest import incremental_ingest
+from fastapi import FastAPI, Form, HTTPException, Request
 from fastapi.templating import Jinja2Templates
-from fastapi import Request
-from customer_mapping import init_customer_mapping
-from unread_manager import increment_unread
-from unread_manager import clear_unread
+from pydantic import BaseModel
+from twilio.request_validator import RequestValidator
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_chroma import Chroma
+
+
+# ==========================================================
+# Conversation
+# ==========================================================
+
 from conversations import (
     add_message,
+    clear_history,
     get_history,
-    clear_history
-)
-from lead_ai import detect_lead_status
-from lead_manager import (
-    get_lead,
-    update_lead
-)
-from website_manager import (
-    get_websites,
-    add_website as save_website,
-    delete_website
+    init_db,
+    get_last_customer_update
 )
 
+# ==========================================================
+# AI / RAG
+# ==========================================================
+
+from rag_handler import handle_rag
+from whatsapp import send_message
+from lead_intelligence import refresh_customer_intelligence
+
+# ==========================================================
+# Website / Knowledge Base
+# ==========================================================
+
+from crawler import discover_links
+from incremental_ingest import incremental_ingest
+from ingest import ingest_docs
+from website_ingest import load_website_chunks
+from website_manager import (
+    add_website as save_website,
+    delete_website,
+    get_websites,
+)
+
+from analytics import (
+    get_customer_stats,
+    get_conversation,
+    get_customer_profile,
+    get_stats,
+    get_top_customers
+)
+
+# ==========================================================
+# Customer Mapping
+# ==========================================================
+
 from customer_mapping import (
-    save_mapping,
-    save_customer_number,
+    get_business_phone,
+    get_business_settings,
     get_customer_by_number,
     get_number_by_customer,
-    get_business_phone,
+    init_business_settings,
+    init_customer_mapping,
     save_business_settings,
-    get_business_settings,
-    init_business_settings
+    save_customer_number,
+    save_mapping,
+    get_customers
 )
-from customer_mapping import (
-    init_business_settings
-)
-from lead_manager import init_leads
-init_leads()
 
-init_business_settings()
+# ==========================================================
+# Leads
+# ==========================================================
+
+from lead_ai import detect_lead_status
+
+from lead_manager import (
+    get_lead,
+    get_lead_timeline,
+    init_leads,
+    save_opportunity,
+    update_lead,
+    get_lead_categories
+)
+
+# ==========================================================
+# Opportunities
+# ==========================================================
+
+from opportunity_ai import detect_opportunity
+
 from opportunity_manager import (
-    init_opportunities
+    add_opportunity,
+    get_opportunities,
+    init_opportunities,
 )
+
+# ==========================================================
+# Reminders
+# ==========================================================
+
 from reminder_manager import (
-    init_reminders
+    create_reminder,
+    get_reminders,
+    init_reminders,
+    reminder_exists,
+    upsert_reminder,
 )
-import os
-import logging
-import asyncio
+
+# ==========================================================
+# Unread Messages
+# ==========================================================
+
+from unread_manager import (
+    clear_unread,
+    increment_unread,
+)
+
+# ==========================================================
+# Environment & Initialization
+# ==========================================================
 
 load_dotenv()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+)
+
+logger = logging.getLogger(__name__)
+
 init_db()
 init_customer_mapping()
+init_business_settings()
+init_leads()
 init_opportunities()
 init_reminders()
 
-from pydantic import BaseModel
-from lead_manager import get_lead_timeline
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
-from opportunity_ai import detect_opportunity
-from lead_manager import save_opportunity
+validator = RequestValidator(
+    os.getenv("TWILIO_AUTH_TOKEN")
+)
 
-from opportunity_manager import (
-    get_opportunities
+templates = Jinja2Templates(
+    directory="templates"
 )
-from reminder_manager import (
-        create_reminder
-    )
-from reminder_manager import (
-    get_reminders
-)
-from lead_intelligence import refresh_customer_intelligence
+
+app = FastAPI()
+
 
 LEAD_PRIORITY = {
 
@@ -137,6 +217,7 @@ class WebsiteRequest(BaseModel):
     crawl: bool = False
     max_pages: int = 50
 
+
 @app.post("/webhook")
 async def receive_message(
     request: Request,
@@ -151,9 +232,11 @@ async def receive_message(
         "Body": Body
     }
 
-    # Twilio validation
+    # -----------------------------
+    # Validate Twilio
+    # -----------------------------
     if DEBUG:
-        logger.warning("⚠️ DEBUG MODE: Skipping Twilio validation")
+        logger.warning("⚠ DEBUG MODE - Twilio validation skipped")
         is_valid = True
     else:
         is_valid = validator.validate(
@@ -166,10 +249,6 @@ async def receive_message(
         )
 
     if not is_valid:
-        logger.warning(
-            f"Invalid Twilio signature from {request.client.host}"
-        )
-
         raise HTTPException(
             status_code=401,
             detail="Invalid Twilio Signature"
@@ -183,47 +262,41 @@ async def receive_message(
 
     try:
 
-        from_number = From.replace(
-            "whatsapp:",
-            ""
-        )
-
-        to_number = To.replace(
-            "whatsapp:",
-            ""
-        )
-
+        from_number = From.replace("whatsapp:", "")
+        to_number = To.replace("whatsapp:", "")
         user_text = Body.strip()
 
-        # Save customer -> business mapping
+        # -----------------------------
+        # Save mapping
+        # -----------------------------
         save_mapping(
             customer_phone=from_number,
             business_phone=to_number
         )
 
-        # Find business owner from Twilio number
         business_user_id = get_customer_by_number(
             to_number
         )
 
         if not business_user_id:
 
-            logger.warning(
-                f"No business mapped to {to_number}"
-            )
-
             await send_message(
                 from_number,
                 "This business is not configured yet."
             )
 
-            return {"status": "success"}
+            return {
+                "status": "success"
+            }
 
         logger.info(
-            f"Incoming customer={from_number} business={to_number}"
+            f"Incoming customer={from_number} "
+            f"business={to_number}"
         )
 
+        # -----------------------------
         # Reset command
+        # -----------------------------
         if user_text.lower() == "reset":
 
             clear_history(
@@ -235,9 +308,10 @@ async def receive_message(
                 "✅ Conversation history cleared."
             )
 
-            return {"status": "success"}
+            return {
+                "status": "success"
+            }
 
-        # Unique conversation per customer + business
         conversation_id = (
             f"{business_user_id}:{from_number}"
         )
@@ -246,97 +320,91 @@ async def receive_message(
             conversation_id
         )
 
+        # -----------------------------
+        # Save user message
+        # -----------------------------
         add_message(
             conversation_id,
             "user",
             user_text
         )
 
-        from lead_intelligence import refresh_customer_intelligence
-
-        analysis = refresh_customer_intelligence(
-            business_user_id,
-            from_number
-        )
-
-        logger.info(
-            f"Lead Intelligence: {analysis}"
-        )
-
         increment_unread(
             conversation_id
         )
 
-        try:
-
-            if ai_status == "Interested":
-
-                create_reminder(
-                    from_number,
-                    "Follow up with interested lead",
-                    2
-                )
-
-            elif ai_status == "Qualified":
-
-                create_reminder(
-                    from_number,
-                    "Send proposal or demo",
-                    1
-                )
-
-            elif ai_status == "Proposal Sent":
-
-                create_reminder(
-                    from_number,
-                    "Check proposal status",
-                    3
-                )
-
-
-                saved = get_lead(from_number)
-
-                logger.info(
-                    f"DB_AFTER_SAVE => {saved}"
-                )
-
-                logger.info(
-                    f"Lead updated "
-                    f"{current_status} "
-                    f"-> "
-                    f"{ai_status}"
-                )
-
-            print(
-                f"AI Lead Status = {ai_status}"
-            )
-
-        except Exception as e:
-
-            logger.exception(
-                f"Lead AI failed: {e}"
-            )
-
-            ai_status = None
-
+        # -----------------------------
+        # Generate AI Reply
+        # -----------------------------
         reply = await handle_rag(
             user_text,
             history,
             user_id=business_user_id
         )
 
+        # -----------------------------
+        # Save assistant reply
+        # -----------------------------
         add_message(
             conversation_id,
             "assistant",
             reply
         )
 
+        # -----------------------------
+        # Refresh CRM Intelligence
+        # -----------------------------
+        try:
+
+            analysis = refresh_customer_intelligence(
+                business_user_id,
+                from_number
+            )
+
+            logger.info(
+                f"Lead Intelligence: {analysis}"
+            )
+
+            next_action = analysis.get(
+                "next_action",
+                "Follow up"
+            )
+
+            follow_up_days = analysis.get(
+                "follow_up_days",
+                1
+            )
+
+            priority = analysis.get(
+                "priority",
+                "Medium"
+            )
+
+            if not reminder_exists(from_number):
+
+                upsert_reminder(
+                    from_number,
+                    f"[{priority}] {next_action}",
+                    follow_up_days
+                )
+
+        except Exception as e:
+
+            logger.exception(
+                f"Lead Intelligence failed: {e}"
+            )
+
+        # -----------------------------
+        # Send WhatsApp Reply
+        # -----------------------------
         await send_message(
             from_number,
             reply
         )
 
-        return {"status": "success"}
+        return {
+            "status": "success"
+        }
 
     except Exception as e:
 
@@ -350,15 +418,14 @@ async def receive_message(
         }
 
 
-
-
 @app.post("/reindex/{user_id}")
 async def reindex(user_id: str):
 
-    from incremental_ingest import incremental_ingest
-
     try:
-        await asyncio.to_thread(incremental_ingest, user_id)
+        await asyncio.to_thread(
+            incremental_ingest,
+            user_id
+        )
 
         return {
             "status": "success",
@@ -366,6 +433,9 @@ async def reindex(user_id: str):
         }
 
     except Exception as e:
+
+        logger.exception(e)
+
         return {
             "status": "error",
             "message": str(e)
@@ -398,50 +468,18 @@ async def get_settings(
         )
     }
 
-@app.post("/add-website")
-async def add_website_endpoint(request: WebsiteRequest):
-    try:
-        from langchain_huggingface import HuggingFaceEmbeddings
-        from langchain_chroma import Chroma
-
-        # Fix — pass actual URL from request
-        chunks = load_website_chunks(single_url=request.url)
-
-        if not chunks:
-            return {
-                "status": "error",
-                "message": f"Could not extract content from {request.url}"
-            }
-
-        embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-
-        vectorstore = Chroma(
-            persist_directory="chroma_db",
-            embedding_function=embeddings
-        )
-
-        vectorstore.add_documents(chunks)
-
-        return {
-            "status": "success",
-            "message": f"Added {request.url} ({len(chunks)} chunks)"
-        }
-
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": str(e)
-        }
 
 @app.post("/chat")
 async def local_chat(
     phone: str,
     message: str
 ):
+
     try:
 
-        # Load conversation history
-        history = get_history(phone)
+        logger.info(
+            f"Local Chat: {phone}"
+        )
 
         # Save user message
         add_message(
@@ -449,12 +487,11 @@ async def local_chat(
             "user",
             message
         )
-        refresh_customer_intelligence(
-            user_id=phone,
-            customer_phone=phone
-        )
 
-        # Run RAG
+        # Load updated conversation
+        history = get_history(phone)
+
+        # Generate AI reply
         reply = await handle_rag(
             message,
             history,
@@ -468,9 +505,29 @@ async def local_chat(
             reply
         )
 
+        analysis = None
+
+        try:
+
+            analysis = refresh_customer_intelligence(
+                user_id=phone,
+                customer_phone=phone
+            )
+
+            logger.info(
+                f"Lead Intelligence: {analysis}"
+            )
+
+        except Exception as e:
+
+            logger.exception(
+                f"Lead Intelligence failed: {e}"
+            )
+
         return {
             "status": "success",
-            "reply": reply
+            "reply": reply,
+            "analysis": analysis
         }
 
     except Exception as e:
@@ -483,9 +540,13 @@ async def local_chat(
             "status": "error",
             "message": str(e)
         }
-
+    
 @app.post("/reset/{phone}")
 async def reset_chat(phone: str):
+
+    logger.info(
+        f"Conversation reset: {phone}"
+    )
 
     clear_history(phone)
 
@@ -494,14 +555,13 @@ async def reset_chat(phone: str):
         "message": f"History cleared for {phone}"
     }
 
+
 @app.get("/health")
 async def health_check():
-    return {"status": "alive"}
 
-@app.get("/history/{phone}")
-async def view_history(phone: str):
-
-    return get_history(phone)
+    return {
+        "status": "alive"
+    }
 
 @app.get("/websites")
 async def websites():
@@ -509,30 +569,43 @@ async def websites():
     sites = get_websites()
 
     return {
+        "status": "success",
         "count": len(sites),
         "websites": sorted(sites)
     }
 
+
 @app.post("/website")
-async def add_site(
-    request: WebsiteRequest
-):
+async def add_site(request: WebsiteRequest):
 
     try:
 
+        logger.info(
+            f"Adding website(s) for {request.user_id}"
+        )
+
         added_urls = []
 
-        # Crawl mode
+        # ------------------------------------
+        # Crawl entire website
+        # ------------------------------------
+
         if request.crawl:
 
             discovered_urls = discover_links(
                 request.url,
-                max_pages=50
+                max_pages=request.max_pages
+            )
+
+            logger.info(
+                f"Discovered {len(discovered_urls)} pages"
             )
 
             for url in discovered_urls:
 
-                print(f"DISCOVERED: {url}")
+                logger.info(
+                    f"Discovered: {url}"
+                )
 
                 if save_website(
                     request.user_id,
@@ -540,7 +613,10 @@ async def add_site(
                 ):
                     added_urls.append(url)
 
-        # Single URL mode
+        # ------------------------------------
+        # Single page
+        # ------------------------------------
+
         else:
 
             if save_website(
@@ -549,27 +625,52 @@ async def add_site(
             ):
                 added_urls.append(request.url)
 
-        # Background rebuild
-        asyncio.create_task(
-            asyncio.to_thread(
-                incremental_ingest,
-                request.user_id
-            )
+        # ------------------------------------
+        # Nothing new
+        # ------------------------------------
+
+        if not added_urls:
+
+            return {
+                "status": "exists",
+                "message": "Website(s) already exist."
+            }
+
+        # ------------------------------------
+        # Background Reindex
+        # ------------------------------------
+
+        logger.info(
+            f"Starting background indexing for {request.user_id}"
         )
 
+        schedule_reindex(request.user_id)
+
         return {
+
             "status": "success",
+
             "added_count": len(added_urls),
-            "added_urls": added_urls
+
+            "added_urls": added_urls,
+
+            "message": "Background indexing started."
+
         }
 
     except Exception as e:
 
-        return {
-            "status": "error",
-            "message": str(e)
-        }
+        logger.exception(
+            f"Website add failed: {e}"
+        )
 
+        return {
+
+            "status": "error",
+
+            "message": str(e)
+
+        }
 
 @app.delete("/website")
 async def remove_site(
@@ -589,13 +690,7 @@ async def remove_site(
                 "message": "Website not found"
             }
 
-        # Re-index this user's websites
-        asyncio.create_task(
-            asyncio.to_thread(
-                incremental_ingest,
-                request.user_id
-            )
-        )
+        schedule_reindex(request.user_id)
 
         return {
             "status": "success",
@@ -628,6 +723,7 @@ async def list_websites(user_id: str):
 
     return {
         "status": "success",
+        "count": len(websites),
         "websites": websites
     }
 
@@ -655,9 +751,10 @@ async def get_number(
     )
 
     return {
-        "status": "success",
-        "whatsapp_number": number
-    }
+    "status":"success",
+    "configured": number is not None,
+    "whatsapp_number": number
+}
 
 @app.get("/conversation-last/{user_id}/{customer_phone}")
 async def conversation_last(user_id: str, customer_phone: str):
@@ -682,107 +779,32 @@ async def conversation_last(user_id: str, customer_phone: str):
 
 @app.get("/customers/{user_id}")
 async def customers(user_id: str):
-
-    import sqlite3
-
-    conn = sqlite3.connect("data/app.db")
-
-    cursor = conn.execute(
-        """
-        SELECT customer_phone
-        FROM customer_mapping
-        WHERE business_phone = (
-            SELECT whatsapp_number
-            FROM customer_numbers
-            WHERE user_id = ?
-        )
-        """,
-        (user_id,)
-    )
-
-    customers = [
-        row[0]
-        for row in cursor.fetchall()
-    ]
-
-    conn.close()
-
     return {
         "status": "success",
-        "customers": customers
+        "customers": get_customers(user_id)
     }
 
 @app.get("/customers-last/{user_id}")
 async def customers_last(user_id: str):
-    import sqlite3
-    conn = sqlite3.connect("conversations.db")
-
-    row = conn.execute(
-        """
-        SELECT MAX(created_at)
-        FROM conversations
-        WHERE phone LIKE ?
-        """,
-        (f"{user_id}:%",)
-    ).fetchone()
-
-    conn.close()
-
     return {
-        "last_update": row[0] or ""
-    }
+    "status": "success",
+    "last_update": get_last_customer_update(user_id)
+}
 
 @app.get("/stats/{user_id}")
 async def stats(user_id: str):
-
-    import sqlite3
 
     websites = len(
         get_websites(user_id)
     )
 
-    conn = sqlite3.connect("data/app.db")
-
-    cursor = conn.execute(
-        """
-        SELECT whatsapp_number
-        FROM customer_numbers
-        WHERE user_id = ?
-        """,
-        (user_id,)
-    )
-
-    row = cursor.fetchone()
-
-    customer_count = 0
-
-    if row:
-
-        business_phone = row[0]
-
-        cursor = conn.execute(
-            """
-            SELECT COUNT(*)
-            FROM customer_mapping
-            WHERE business_phone = ?
-            """,
-            (business_phone,)
-        )
-
-        customer_count = cursor.fetchone()[0]
-
-    conn.close()
-
     return {
+        "status": "success",
         "websites": websites,
-        "customers": customer_count
+        **get_stats(user_id)
     }
 
-from analytics import (
-    get_customer_stats,
-    get_conversation,
-    get_customer_profile
-)
+
 
 @app.get("/customer-details/{user_id}")
 async def customer_details(
@@ -855,7 +877,7 @@ async def top_customers(
     user_id: str
 ):
 
-    from analytics import get_top_customers
+    
 
     return {
         "status": "success",
@@ -876,13 +898,8 @@ async def lead_details(
         )
     }
 
-@app.get(
-    "/customer-profile/{user_id}/{customer_phone}"
-)
-async def customer_profile(
-    user_id: str,
-    customer_phone: str
-):
+@app.get("/customer-profile/{user_id}/{customer_phone}")
+async def customer_profile(user_id: str, customer_phone: str):
 
     profile = get_customer_profile(
         user_id,
@@ -896,84 +913,48 @@ async def customer_profile(
     return {
         "status": "success",
         "profile": {
-
-            "first_seen":
-                profile["first_seen"],
-
-            "last_seen":
-                profile["last_seen"],
-
-            "message_count":
-                profile["message_count"],
-
-            "lead_status":
-                lead["status"],
-
-            "confidence":
-                lead["confidence"],
-
-            "reason":
-                lead["reason"],
-
-            "updated_by":
-                lead["updated_by"],
-
-            "notes":
-                lead["notes"],
-
-            "lead_score": 
-                lead["lead_score"]
+            **profile,
+            **lead
         }
     }
 
 @app.post("/lead")
-async def save_lead(
-    request: LeadRequest
-):
+async def save_lead(request: LeadRequest):
 
-    from lead_manager import update_lead
+    current_lead = get_lead(request.customer_phone)
 
     update_lead(
-        request.customer_phone,
-        request.status,
-        request.notes,
-        100,
-        "Updated manually",
-        "Manual"
+        customer_phone=request.customer_phone,
+        status=request.status,
+        notes=request.notes,
+        confidence=current_lead.get("confidence", 50),
+        reason="Updated manually",
+        updated_by="Manual"
     )
 
-
     return {
-        "status": "success"
+        "status": "success",
+        "message": "Lead updated successfully",
+        "lead": get_lead(request.customer_phone)
     }
 
 @app.get("/lead-timeline/{customer_phone}")
 async def lead_timeline(customer_phone: str):
 
-    timeline = get_lead_timeline(
-        customer_phone
-    )
+    return {
+        "status": "success",
+        "timeline": get_lead_timeline(customer_phone)
+    }
+
+
+@app.get("/opportunities/{customer_phone}")
+async def opportunities(customer_phone: str):
 
     return {
         "status": "success",
-        "timeline": timeline
+        "opportunities": get_opportunities(customer_phone)
     }
 
-
-@app.get(
-    "/opportunities/{customer_phone}"
-)
-async def opportunities(
-    customer_phone: str
-):
-
-    return {
-        "status":"success",
-        "opportunities":
-        get_opportunities(
-            customer_phone
-        )
-    }
 
 @app.get("/reminders")
 async def reminders():
@@ -983,49 +964,23 @@ async def reminders():
         "reminders": get_reminders()
     }
 
+
 @app.get("/lead-categories")
 async def lead_categories():
 
-    import sqlite3
-
-    conn = sqlite3.connect("data/app.db")
-
-    cursor = conn.execute("""
-        SELECT
-            customer_phone,
-            status,
-            lead_score
-        FROM leads
-    """)
-
-    rows = cursor.fetchall()
-
-    conn.close()
-
-    hot = []
-    warm = []
-    cold = []
-
-    for row in rows:
-
-        lead = {
-            "customer_phone": row[0],
-            "status": row[1],
-            "lead_score": row[2]
-        }
-
-        if row[2] >= 80:
-            hot.append(lead)
-
-        elif row[2] >= 50:
-            warm.append(lead)
-
-        else:
-            cold.append(lead)
-
     return {
-        "hot": hot,
-        "warm": warm,
-        "cold": cold
+        "status": "success",
+        **get_lead_categories()
     }
 
+def schedule_reindex(user_id: str):
+
+    logger.info(
+        f"Scheduling background reindex for {user_id}"
+    )
+    asyncio.create_task(
+        asyncio.to_thread(
+            incremental_ingest,
+            user_id
+        )
+    )

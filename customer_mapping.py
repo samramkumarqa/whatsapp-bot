@@ -31,6 +31,32 @@ def init_customer_mapping():
 # BUSINESS REGISTRATION
 # user_id -> business whatsapp number
 # --------------------------------------------------
+def get_customers(user_id):
+
+    import sqlite3
+
+    conn = sqlite3.connect("data/app.db")
+
+    cursor = conn.execute(
+        """
+        SELECT customer_phone
+        FROM customer_mapping
+        WHERE business_phone = (
+            SELECT whatsapp_number
+            FROM customer_numbers
+            WHERE user_id = ?
+        )
+        """,
+        (user_id,)
+    )
+
+    customers = [
+        row[0]
+        for row in cursor.fetchall()
+    ]
+
+    conn.close()
+
 
 def save_customer_number(
     user_id: str,
