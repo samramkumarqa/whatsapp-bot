@@ -31,7 +31,7 @@ from conversations import (
     init_db,
     get_last_customer_update
 )
-
+from tag_manager import init_tags
 # ==========================================================
 # AI / RAG
 # ==========================================================
@@ -146,6 +146,7 @@ init_business_settings()
 init_leads()
 init_opportunities()
 init_reminders()
+init_tags()
 
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
