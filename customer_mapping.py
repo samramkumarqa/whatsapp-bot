@@ -1,11 +1,8 @@
-import sqlite3
-
-DB_FILE = "data/app.db"
-
+from database.db import get_crm_connection
 
 def init_customer_mapping():
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     # Business registration table
     conn.execute("""
@@ -33,10 +30,7 @@ def init_customer_mapping():
 # --------------------------------------------------
 def get_customers(user_id):
 
-    import sqlite3
-
-    conn = sqlite3.connect("data/app.db")
-
+    conn = get_crm_connection()
     cursor = conn.execute(
         """
         SELECT customer_phone
@@ -54,6 +48,7 @@ def get_customers(user_id):
         row[0]
         for row in cursor.fetchall()
     ]
+    return customers
 
     conn.close()
 
@@ -63,7 +58,7 @@ def save_customer_number(
     whatsapp_number: str
 ):
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     conn.execute(
         """
@@ -85,8 +80,7 @@ def get_customer_by_number(
     whatsapp_number: str
 ):
 
-    conn = sqlite3.connect(DB_FILE)
-
+    conn = get_crm_connection()
     cursor = conn.execute(
         """
         SELECT user_id
@@ -103,12 +97,11 @@ def get_customer_by_number(
     return row[0] if row else None
 
 
-def get_number_by_customer(
+def get_business_phone_by_user(
     user_id: str
 ):
 
-    conn = sqlite3.connect(DB_FILE)
-
+    conn = get_crm_connection()
     cursor = conn.execute(
         """
         SELECT whatsapp_number
@@ -134,8 +127,7 @@ def save_mapping(
     business_phone: str
 ):
 
-    conn = sqlite3.connect(DB_FILE)
-
+    conn = get_crm_connection()
     conn.execute(
         """
         INSERT OR REPLACE INTO customer_mapping
@@ -152,12 +144,12 @@ def save_mapping(
     conn.close()
 
 
-def get_business_phone(
+
+def get_business_phone_by_customer(
     customer_phone: str
 ):
 
-    conn = sqlite3.connect(DB_FILE)
-
+    conn = get_crm_connection()
     cursor = conn.execute(
         """
         SELECT business_phone
@@ -178,8 +170,7 @@ def delete_mapping(
     customer_phone: str
 ):
 
-    conn = sqlite3.connect(DB_FILE)
-
+    conn = get_crm_connection()
     conn.execute(
         """
         DELETE FROM customer_mapping
@@ -193,8 +184,7 @@ def delete_mapping(
 
 def init_business_settings():
 
-    conn = sqlite3.connect(DB_FILE)
-
+    conn = get_crm_connection()
     conn.execute("""
         CREATE TABLE IF NOT EXISTS business_settings (
 
@@ -227,7 +217,7 @@ def save_business_settings(
     website=None
 ):
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     conn.execute(
         """
@@ -261,7 +251,7 @@ def get_business_settings(
     user_id
 ):
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     cursor = conn.execute(
         """

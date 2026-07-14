@@ -1,12 +1,8 @@
-import sqlite3
-
-DB_FILE = "data/app.db"
-
+from database.db import get_crm_connection
 
 def init_opportunities():
 
-    conn = sqlite3.connect(DB_FILE)
-
+    conn = get_crm_connection()
     conn.execute("""
     CREATE TABLE IF NOT EXISTS opportunities (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,29 +22,69 @@ def add_opportunity(
     customer_phone,
     opportunity_type,
     confidence,
-    reason
+    reason,
+    estimated_value=0
 ):
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
-    conn.execute(
+    row = conn.execute(
         """
-        INSERT INTO opportunities
-        (
-            customer_phone,
-            type,
-            confidence,
-            reason
-        )
-        VALUES (?, ?, ?, ?)
+        SELECT id
+        FROM opportunities
+        WHERE customer_phone = ?
+        AND opportunity_type = ?
+        AND status = 'Open'
         """,
         (
             customer_phone,
-            opportunity_type,
-            confidence,
-            reason
+            opportunity_type
         )
-    )
+    ).fetchone()
+
+    if row:
+
+        conn.execute(
+            """
+            UPDATE opportunities
+            SET
+                confidence = ?,
+                reason = ?,
+                estimated_value = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (
+                confidence,
+                reason,
+                estimated_value,
+                row[0]
+            )
+        )
+
+    else:
+
+        conn.execute(
+            """
+            INSERT INTO opportunities
+            (
+                customer_phone,
+                opportunity_type,
+                confidence,
+                reason,
+                estimated_value,
+                status
+            )
+            VALUES (?, ?, ?, ?, 'Open')
+            """,
+            (
+                customer_phone,
+                opportunity_type,
+                confidence,
+                reason,
+                estimated_value
+            )
+        )
 
     conn.commit()
     conn.close()
@@ -56,7 +92,7 @@ def add_opportunity(
 
 def get_opportunities(customer_phone):
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     cursor = conn.execute(
         """

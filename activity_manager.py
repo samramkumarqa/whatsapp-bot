@@ -1,11 +1,11 @@
-import sqlite3
+from database.db import get_crm_connection
 
 DB_FILE = "data/app.db"
 
 
 def init_activity():
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     conn.execute("""
     CREATE TABLE IF NOT EXISTS ai_activity(
@@ -35,7 +35,7 @@ def add_activity(
     details
 ):
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     conn.execute("""
     INSERT INTO ai_activity(
@@ -60,9 +60,7 @@ def add_activity(
 
 def get_activity(customer_phone):
 
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
-
+    conn = get_crm_connection()
     rows = conn.execute(
         """
         SELECT *
@@ -80,11 +78,7 @@ def get_activity(customer_phone):
 
 def get_activity_timeline(customer_phone):
 
-    import sqlite3
-
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
-
+    conn = get_crm_connection()
     rows = conn.execute(
         """
         SELECT

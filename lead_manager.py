@@ -1,7 +1,6 @@
 from lead_ai import calculate_lead_score
-import sqlite3
+from database.db import get_crm_connection
 
-DB_FILE = "data/app.db"
 
 DEFAULT_LEAD = {
     "customer_phone": "",
@@ -31,7 +30,7 @@ DEFAULT_LEAD = {
 
 def init_leads():
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     conn.execute("""
     CREATE TABLE IF NOT EXISTS leads (
@@ -78,9 +77,8 @@ def init_leads():
 
 def get_lead(customer_phone):
 
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
-
+    conn = get_crm_connection()
+    
     row = conn.execute(
         """
         SELECT *
@@ -115,7 +113,7 @@ def update_lead(
         confidence
     )
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     conn.execute(
         """
@@ -168,7 +166,7 @@ def update_lead(
 
 def get_lead_timeline(customer_phone):
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     cursor = conn.execute(
         """
@@ -202,7 +200,7 @@ def get_lead_timeline(customer_phone):
 
 def get_lead_categories():
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     cursor = conn.execute("""
         SELECT
@@ -248,7 +246,7 @@ def save_opportunity(
     reason
 ):
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     conn.execute(
         """
@@ -280,7 +278,7 @@ def update_lead_intelligence(
     Save AI Lead Intelligence into CRM.
     """
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     conn.execute(
         """

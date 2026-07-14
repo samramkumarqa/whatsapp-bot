@@ -61,7 +61,11 @@ from analytics import (
     get_stats,
     get_top_customers,
     get_sales_funnel,
-    get_lead_score_dashboard
+    get_lead_score_dashboard,
+    get_opportunity_dashboard,
+    get_reminder_dashboard,
+    get_dashboard,
+    get_conversation
 )
 
 # ==========================================================
@@ -69,10 +73,10 @@ from analytics import (
 # ==========================================================
 
 from customer_mapping import (
-    get_business_phone,
+    get_business_phone_by_user,
     get_business_settings,
     get_customer_by_number,
-    get_number_by_customer,
+    get_business_phone_by_customer,
     init_business_settings,
     init_customer_mapping,
     save_business_settings,
@@ -93,7 +97,8 @@ from lead_manager import (
     init_leads,
     save_opportunity,
     update_lead,
-    get_lead_categories
+    get_lead_categories,
+    get_lead
 )
 
 # ==========================================================
@@ -138,6 +143,19 @@ from activity_manager import init_activity, add_activity, get_activity, get_acti
 # ==========================================================
 from timeline_manager import get_customer_timeline
 # ==========================================================
+# Others
+# ==========================================================
+from followup_ai import generate_followup
+
+from followup_manager import (
+    init_followups,
+    save_followup,
+    get_followups
+)
+
+from manager_assistant import ask_manager
+
+# ==========================================================
 # Environment & Initialization
 # ==========================================================
 
@@ -158,6 +176,7 @@ init_opportunities()
 init_reminders()
 init_tags()
 init_activity()
+init_followups()
 
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
@@ -202,6 +221,10 @@ class CustomerNumberRequest(
 ):
     user_id: str
     whatsapp_number: str
+
+class ManagerQuestion(BaseModel):
+    user_id: str
+    question: str
 
 print("SID:", os.getenv("TWILIO_ACCOUNT_SID"))
 print("TOKEN:", os.getenv("TWILIO_AUTH_TOKEN"))
@@ -775,7 +798,7 @@ async def get_number(
     user_id: str
 ):
 
-    number = get_number_by_customer(
+    number = get_business_phone_by_user(
         user_id
     )
 
@@ -1074,4 +1097,98 @@ async def lead_score_dashboard(user_id: str):
     return {
         "status": "success",
         **get_lead_score_dashboard(user_id)
+    }
+
+@app.get("/dashboard/{user_id}")
+async def dashboard(user_id: str):
+
+    return {
+        "status": "success",
+        "dashboard": get_dashboard(user_id)
+    }
+
+@app.get("/opportunity-dashboard/{user_id}")
+async def opportunity_dashboard(user_id: str):
+
+    return {
+        "status": "success",
+        "dashboard": get_opportunity_dashboard(user_id)
+    }
+
+@app.get("/reminder-dashboard/{user_id}")
+async def reminder_dashboard(user_id: str):
+
+    return {
+        "status": "success",
+        "dashboard": get_reminder_dashboard(user_id)
+    }
+
+@app.get("/generate-followup/{user_id}/{customer_phone}")
+async def generate_followup_message(
+    user_id: str,
+    customer_phone: str
+):
+
+    messages = get_conversation(
+        user_id,
+        customer_phone
+    )
+
+    conversation = ""
+
+    for msg in messages:
+
+        role = (
+            "Customer"
+            if msg["role"] == "user"
+            else "Assistant"
+        )
+
+        conversation += (
+            f"{role}: {msg['content']}\n"
+        )
+
+    lead = get_lead(customer_phone)
+
+    followup = generate_followup(
+        conversation,
+        lead
+    )
+    save_followup(
+        customer_phone,
+        followup
+    )
+
+    return {
+        "status": "success",
+        "followup": followup
+    }
+
+@app.get("/followups/{customer_phone}")
+async def followups(customer_phone: str):
+
+    return {
+        "status": "success",
+        "followups": get_followups(customer_phone)
+    }
+
+@app.get("/executive-dashboard/{user_id}")
+async def executive_dashboard(user_id: str):
+
+    return {
+        "status": "success",
+        "dashboard": get_dashboard(user_id)
+    }
+
+@app.post("/manager-assistant")
+def manager_assistant(question: ManagerQuestion):
+
+    answer = ask_manager(
+        question.user_id,
+        question.question
+    )
+
+    return {
+        "question": question.question,
+        "answer": answer
     }

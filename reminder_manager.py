@@ -1,12 +1,9 @@
-import sqlite3
 from datetime import datetime, timedelta
-
-DB_FILE = "data/app.db"
-
+from database.db import get_crm_connection
 
 def init_reminders():
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     conn.execute("""
     CREATE TABLE IF NOT EXISTS reminders (
@@ -24,7 +21,7 @@ def init_reminders():
 
 def complete_reminder(customer_phone):
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     conn.execute(
         """
@@ -53,7 +50,7 @@ def create_reminder(
         timedelta(days=due_in_days)
     ).strftime("%Y-%m-%d")
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     conn.execute(
         """
@@ -78,7 +75,7 @@ def create_reminder(
 
 def get_reminders():
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     cursor = conn.execute(
         """
@@ -117,7 +114,7 @@ def upsert_reminder(
     Create or update an active reminder.
     """
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     due_date = (
         datetime.now() +
@@ -185,8 +182,7 @@ def upsert_reminder(
 
 def reminder_exists(customer_phone):
 
-    conn = sqlite3.connect(DB_FILE)
-
+    conn = get_crm_connection()
     cursor = conn.execute(
         """
         SELECT id
@@ -206,9 +202,8 @@ def reminder_exists(customer_phone):
 
 def get_customer_reminders(customer_phone):
 
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
-
+    conn = get_crm_connection()
+    
     rows = conn.execute(
         """
         SELECT *
