@@ -1,11 +1,8 @@
-import sqlite3
-
-DB_FILE = "conversations.db"
-
+from database.db import get_conversation_connection
 
 def increment_unread(conversation_id):
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_conversation_connection()
 
     conn.execute(
         """
@@ -31,7 +28,7 @@ def increment_unread(conversation_id):
 
 def clear_unread(conversation_id):
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_conversation_connection()
 
     conn.execute(
         """
@@ -48,7 +45,7 @@ def clear_unread(conversation_id):
 
 def get_unread(conversation_id):
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_conversation_connection()
 
     cursor = conn.execute(
         """

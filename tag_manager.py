@@ -1,10 +1,8 @@
-import sqlite3
-
-DB_FILE = "data/app.db"
+from database.db import get_crm_connection
 
 
 def get_connection():
-    return sqlite3.connect(DB_FILE)
+    return get_crm_connection()
 
 
 def init_tags():

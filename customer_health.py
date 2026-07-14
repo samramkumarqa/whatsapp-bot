@@ -1,4 +1,7 @@
-import sqlite3
+from database.db import (
+    get_crm_connection,
+    get_conversation_connection
+)
 from datetime import datetime
 from lead_manager import get_lead
 
@@ -14,7 +17,7 @@ def get_last_seen_days(
     most recent conversation.
     """
 
-    conn = sqlite3.connect(CONVERSATION_DB)
+    conn = get_conversation_connection()
 
     conversation_id = (
         f"{user_id}:{customer_phone}"
@@ -64,7 +67,7 @@ def get_reminder_stats(
     Returns reminder statistics for one customer.
     """
 
-    conn = sqlite3.connect(CRM_DB)
+    conn = get_crm_connection()
 
     today = datetime.now().strftime(
         "%Y-%m-%d"
@@ -97,7 +100,7 @@ def get_reminder_stats(
     Returns reminder statistics for one customer.
     """
 
-    conn = sqlite3.connect(CRM_DB)
+    conn = get_crm_connection()
 
     today = datetime.now().strftime(
         "%Y-%m-%d"
@@ -129,9 +132,7 @@ def get_customer_health_dashboard(user_id):
     for all customers belonging to one business.
     """
 
-    conn = sqlite3.connect(CRM_DB)
-    conn.row_factory = sqlite3.Row
-
+    conn = get_crm_connection()
     #
     # Find business phone
     #

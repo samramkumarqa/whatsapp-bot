@@ -1,14 +1,12 @@
 from datetime import datetime
 
-import sqlite3
+from database.db import get_crm_connection
 
 CRM_DB = "data/app.db"
 
 def get_sales_forecast(business_phone):
 
-    conn = sqlite3.connect(CRM_DB)
-
-    conn.row_factory = sqlite3.Row
+    conn = get_crm_connection()
 
     rows = conn.execute(
         """
@@ -79,11 +77,7 @@ def get_sales_forecast(business_phone):
 
 
 def predict_revenue(business_phone):
-
-    conn = sqlite3.connect(CRM_DB)
-
-    conn.row_factory = sqlite3.Row
-
+    conn = get_crm_connection()
     rows = conn.execute(
         """
         SELECT

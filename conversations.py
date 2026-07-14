@@ -1,19 +1,8 @@
-import sqlite3
-
-DB_FILE = "conversations.db"
+from database.db import get_conversation_connection
 
 
 def get_connection():
-    conn = sqlite3.connect(
-        DB_FILE,
-        timeout=30
-    )
-
-    conn.execute(
-        "PRAGMA journal_mode=WAL"
-    )
-
-    return conn
+    return get_conversation_connection()
 
 
 def init_db():
@@ -95,8 +84,7 @@ def clear_history(phone):
     conn.close()
 
 def get_last_customer_update(user_id):
-    import sqlite3
-    conn = sqlite3.connect("conversations.db")
+    conn = get_conversation_connection()
 
     row = conn.execute(
         """

@@ -1,15 +1,11 @@
-import sqlite3
-
-CRM_DB = "data/app.db"
-
+from database.db import get_crm_connection
 
 def get_ai_alerts(user_id):
     """
     Build AI dashboard alerts for managers.
     """
 
-    conn = sqlite3.connect(CRM_DB)
-    conn.row_factory = sqlite3.Row
+    conn = get_crm_connection()
 
     #
     # Find business phone

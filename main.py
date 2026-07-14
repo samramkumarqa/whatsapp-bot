@@ -811,8 +811,9 @@ async def get_number(
 @app.get("/conversation-last/{user_id}/{customer_phone}")
 async def conversation_last(user_id: str, customer_phone: str):
 
-    import sqlite3
-    conn = sqlite3.connect("conversations.db")
+    from database.db import get_conversation_connection
+
+    conn = get_conversation_connection()
 
     row = conn.execute(
         """

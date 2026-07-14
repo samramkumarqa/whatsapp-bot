@@ -111,3 +111,9 @@ def commit_and_close(conn):
 
 def close_connection(conn):
     conn.close()
+
+def get_conversation_connection():
+    conn = sqlite3.connect(CONVERSATION_DB, timeout=30)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
+    return conn

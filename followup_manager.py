@@ -1,11 +1,9 @@
-import sqlite3
-
-DB_FILE = "data/app.db"
+from database.db import get_crm_connection
 
 
 def init_followups():
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     conn.execute("""
     CREATE TABLE IF NOT EXISTS ai_followups(
@@ -32,7 +30,7 @@ def init_followups():
 
 def save_followup(customer_phone, message):
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_crm_connection()
 
     conn.execute(
         """
@@ -55,9 +53,7 @@ def save_followup(customer_phone, message):
 
 def get_followups(customer_phone):
 
-    conn = sqlite3.connect(DB_FILE)
-
-    conn.row_factory = sqlite3.Row
+    conn = get_crm_connection()
 
     rows = conn.execute(
         """
