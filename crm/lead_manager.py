@@ -1,4 +1,4 @@
-from lead_ai import calculate_lead_score
+from ai.lead_ai import calculate_lead_score
 from database.db import get_crm_connection
 
 

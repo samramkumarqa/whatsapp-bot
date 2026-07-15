@@ -38,7 +38,7 @@ from crm.tag_manager import init_tags
 
 from rag_handler import handle_rag
 from whatsapp import send_message
-from lead_intelligence import refresh_customer_intelligence
+from ai.lead_intelligence import refresh_customer_intelligence
 
 # ==========================================================
 # Website / Knowledge Base
@@ -89,7 +89,7 @@ from crm.customer_mapping import (
 # Leads
 # ==========================================================
 
-from lead_ai import detect_lead_status
+from ai.lead_ai import detect_lead_status
 
 from crm.lead_manager import (
     get_lead,
@@ -105,7 +105,7 @@ from crm.lead_manager import (
 # Opportunities
 # ==========================================================
 
-from opportunity_ai import detect_opportunity
+from ai.opportunity_ai import detect_opportunity
 
 from crm.opportunity_manager import (
     add_opportunity,
@@ -153,7 +153,7 @@ from crm.followup_manager import (
     get_followups
 )
 
-from manager_assistant import ask_manager
+from ai.manager_assistant import ask_manager
 
 # ==========================================================
 # Environment & Initialization
