@@ -2,15 +2,15 @@
 import json
 from dotenv import load_dotenv
 from llm import ask_llm
-from tag_manager import save_tags
+from crm.tag_manager import save_tags
 load_dotenv()
 import logging
 logger = logging.getLogger(__name__)
 from analytics import get_conversation
-from lead_manager import update_lead_intelligence, get_lead
-from activity_manager import add_activity
+from crm.lead_manager import update_lead_intelligence, get_lead
+from crm.activity_manager import add_activity
 from opportunity_coach import analyse_opportunity
-from opportunity_manager import add_opportunity
+from crm.opportunity_manager import add_opportunity
 from sales_coach import get_next_best_action
 
 AI_VERSION = "v1"

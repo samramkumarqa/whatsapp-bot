@@ -3,7 +3,7 @@ from database.db import (
     get_conversation_connection
 )
 from datetime import datetime
-from lead_manager import get_lead
+from crm.lead_manager import get_lead
 
 CRM_DB = "data/app.db"
 CONVERSATION_DB = "conversations.db"

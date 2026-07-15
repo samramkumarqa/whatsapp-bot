@@ -1,6 +1,6 @@
 from datetime import datetime
 from unread_manager import get_unread
-from lead_manager import get_lead
+from crm.lead_manager import get_lead
 from sales_coach import get_next_best_action
 from customer_health import get_customer_health_dashboard
 from ai_alerts import get_ai_alerts
@@ -8,7 +8,7 @@ from forecast_manager import get_sales_forecast
 from business_insights import generate_business_insights
 from executive_summary import generate_executive_summary
 from daily_briefing import generate_daily_briefing
-from customer_mapping import get_business_phone_by_user
+from crm.customer_mapping import get_business_phone_by_user
 
 CONVERSATION_DB = "conversations.db"
 CRM_DB = "data/app.db"

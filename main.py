@@ -31,7 +31,7 @@ from conversations import (
     init_db,
     get_last_customer_update
 )
-from tag_manager import init_tags
+from crm.tag_manager import init_tags
 # ==========================================================
 # AI / RAG
 # ==========================================================
@@ -72,7 +72,7 @@ from analytics import (
 # Customer Mapping
 # ==========================================================
 
-from customer_mapping import (
+from crm.customer_mapping import (
     get_business_phone_by_user,
     get_business_settings,
     get_customer_by_number,
@@ -91,7 +91,7 @@ from customer_mapping import (
 
 from lead_ai import detect_lead_status
 
-from lead_manager import (
+from crm.lead_manager import (
     get_lead,
     get_lead_timeline,
     init_leads,
@@ -107,7 +107,7 @@ from lead_manager import (
 
 from opportunity_ai import detect_opportunity
 
-from opportunity_manager import (
+from crm.opportunity_manager import (
     add_opportunity,
     get_opportunities,
     init_opportunities,
@@ -137,7 +137,7 @@ from unread_manager import (
 # ==========================================================
 # Activity Manager
 # ==========================================================
-from activity_manager import init_activity, add_activity, get_activity, get_activity_timeline
+from crm.activity_manager import init_activity, add_activity, get_activity, get_activity_timeline
 # ==========================================================
 # Timeline Manager
 # ==========================================================
@@ -147,7 +147,7 @@ from timeline_manager import get_customer_timeline
 # ==========================================================
 from followup_ai import generate_followup
 
-from followup_manager import (
+from crm.followup_manager import (
     init_followups,
     save_followup,
     get_followups

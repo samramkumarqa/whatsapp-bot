@@ -1,5 +1,5 @@
-from activity_manager import get_activity
-from opportunity_manager import get_opportunities
+from crm.activity_manager import get_activity
+from crm.opportunity_manager import get_opportunities
 from reminder_manager import get_customer_reminders
 
 

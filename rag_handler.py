@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 import logging
 
-from customer_mapping import (
+from crm.customer_mapping import (
     get_business_settings
 )
 
