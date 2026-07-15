@@ -6,7 +6,7 @@ from crm.tag_manager import save_tags
 load_dotenv()
 import logging
 logger = logging.getLogger(__name__)
-from analytics import get_conversation
+from analytics.analytics import get_conversation
 from crm.lead_manager import update_lead_intelligence, get_lead
 from crm.activity_manager import add_activity
 from opportunity_coach import analyse_opportunity

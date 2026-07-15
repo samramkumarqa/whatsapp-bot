@@ -2,9 +2,9 @@ from datetime import datetime
 from unread_manager import get_unread
 from crm.lead_manager import get_lead
 from sales_coach import get_next_best_action
-from customer_health import get_customer_health_dashboard
-from ai_alerts import get_ai_alerts
-from forecast_manager import get_sales_forecast
+from analytics.customer_health import get_customer_health_dashboard
+from analytics.ai_alerts import get_ai_alerts
+from analytics.forecast_manager import get_sales_forecast
 from business_insights import generate_business_insights
 from executive_summary import generate_executive_summary
 from daily_briefing import generate_daily_briefing

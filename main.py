@@ -54,7 +54,7 @@ from website_manager import (
     get_websites,
 )
 
-from analytics import (
+from analytics.analytics import (
     get_customer_stats,
     get_conversation,
     get_customer_profile,
@@ -876,7 +876,7 @@ async def customer_search(
     user_id: str,
     q: str = ""
 ):
-    from analytics import get_customer_stats
+    from analytics.analytics import get_customer_stats
 
     customers = get_customer_stats(user_id)
 
@@ -918,7 +918,7 @@ async def conversation_view(
 @app.get("/dashboard-metrics/{user_id}")
 async def dashboard_metrics(user_id: str):
 
-    from analytics import get_dashboard_metrics
+    from analytics.analytics import get_dashboard_metrics
 
     return {
         "status": "success",

@@ -1,4 +1,4 @@
-from analytics import get_dashboard
+from analytics.analytics import get_dashboard
 from llm import ask_llm
 
 def ask_manager(user_id, question):
