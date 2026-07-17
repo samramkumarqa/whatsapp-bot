@@ -1,12 +1,10 @@
 from groq import Groq
-from dotenv import load_dotenv
-import os
 import json
 
-load_dotenv()
+from config import GROQ_API_KEY
 
 client = Groq(
-    api_key=os.getenv("GROQ_API_KEY")
+    api_key=GROQ_API_KEY
 )
 
 LEAD_STATUSES = [
@@ -76,7 +74,6 @@ Example:
 
         result = response.choices[0].message.content.strip()
 
-        # Handle JSON wrapped in markdown
         result = result.replace("```json", "")
         result = result.replace("```", "")
         result = result.strip()
@@ -98,7 +95,7 @@ Example:
 
         try:
             confidence = int(confidence)
-        except:
+        except Exception:
             confidence = 50
 
         confidence = max(
@@ -119,15 +116,14 @@ Example:
 
     except Exception as e:
 
-        print(
-            f"Lead AI Error: {e}"
-        )
+        print(f"Lead AI Error: {e}")
 
         return {
             "status": "New",
             "confidence": 50,
             "reason": "Unable to determine lead intent"
         }
+
 
 def calculate_lead_score(
     status,

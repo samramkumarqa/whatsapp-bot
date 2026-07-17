@@ -1,17 +1,22 @@
 
-import json
-from dotenv import load_dotenv
+
 from llm import ask_llm
-from crm.tag_manager import save_tags
-load_dotenv()
+from crm.tag_manager import (
+    save_tags,
+    get_tags,
+)
 import logging
 logger = logging.getLogger(__name__)
 from analytics.analytics import get_conversation
-from crm.lead_manager import update_lead_intelligence, get_lead
+from crm.lead_manager import (
+    update_lead_intelligence,
+    get_lead,
+)
 from crm.activity_manager import add_activity
 from ai.opportunity_coach import analyse_opportunity
 from crm.opportunity_manager import add_opportunity
 from ai.sales_coach import get_next_best_action
+from ai.utils import parse_ai_json
 
 AI_VERSION = "v1"
 
@@ -256,13 +261,7 @@ Do not explain your reasoning.
 
         else:
 
-            start = response.find("{")
-            end = response.rfind("}") + 1
-
-            if start == -1 or end == 0:
-                raise ValueError("JSON not found")
-
-            result = json.loads(response[start:end])
+            result = parse_ai_json(response, DEFAULT_RESPONSE.copy())
 
         # Fill missing keys
         for key, value in DEFAULT_RESPONSE.items():
@@ -396,30 +395,13 @@ def refresh_customer_intelligence(
     # Opportunity Detection
     #
 
-    opportunity = analyse_opportunity(
-        conversation_text
-    )
+    opportunity = analyse_opportunity(conversation_text)
 
     if isinstance(opportunity, str):
-
-        try:
-
-            start = opportunity.find("{")
-            end = opportunity.rfind("}") + 1
-
-            opportunity = json.loads(
-                opportunity[start:end]
-            )
-
-        except Exception:
-
-            logger.exception(
-                "Opportunity AI parsing failed"
-            )
-
-            opportunity = {
-                "has_opportunity": False
-            }
+        opportunity = parse_ai_json(
+            opportunity,
+            {"has_opportunity": False}
+        )
 
     #
     # Existing Lead

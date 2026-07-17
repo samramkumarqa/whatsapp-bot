@@ -1,12 +1,10 @@
 from groq import Groq
-from dotenv import load_dotenv
 import json
-import os
 
-load_dotenv()
+from config import GROQ_API_KEY
 
 client = Groq(
-    api_key=os.getenv("GROQ_API_KEY")
+    api_key=GROQ_API_KEY
 )
 
 
@@ -48,8 +46,8 @@ If no opportunity exists:
         model="llama-3.3-70b-versatile",
         messages=[
             {
-                "role":"user",
-                "content":prompt
+                "role": "user",
+                "content": prompt
             }
         ],
         temperature=0
@@ -62,10 +60,10 @@ If no opportunity exists:
             .message.content
         )
 
-    except:
+    except Exception:
 
         return {
-            "type":"None",
-            "confidence":0,
-            "reason":"Parse error"
+            "type": "None",
+            "confidence": 0,
+            "reason": "Parse error"
         }

@@ -1,18 +1,13 @@
 from groq import AsyncGroq
-from vector_store import get_retriever
-from dotenv import load_dotenv
-import os
 import logging
 
+from config import GROQ_API_KEY
+from vector_store import get_retriever
 from crm.customer_mapping import (
-    get_business_settings
+    get_business_settings,
 )
 
-load_dotenv()
-
 logger = logging.getLogger(__name__)
-
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 client = AsyncGroq(api_key=GROQ_API_KEY)
 
@@ -41,7 +36,7 @@ Current Question:
 async def handle_rag(
     user_message: str,
     history=None,
-    user_id=None
+    user_id=None,
 ) -> str:
 
     try:
@@ -50,7 +45,7 @@ async def handle_rag(
 
             query = build_query(
                 user_message,
-                history
+                history,
             )
 
             logger.info(
@@ -103,7 +98,7 @@ async def handle_rag(
 
             src = doc.metadata.get(
                 "source",
-                "Unknown Source"
+                "Unknown Source",
             )
 
             if src not in sources:
@@ -119,32 +114,32 @@ async def handle_rag(
 
         business_name = settings.get(
             "business_name",
-            "Business"
+            "Business",
         )
 
         phone = settings.get(
             "phone",
-            ""
+            "",
         )
 
         email = settings.get(
             "email",
-            ""
+            "",
         )
 
         website = settings.get(
             "website",
-            ""
+            "",
         )
 
         welcome_message = settings.get(
             "welcome_message",
-            ""
-        )  
+            "",
+        )
 
         ai_instructions = settings.get(
             "ai_instructions",
-            ""
+            "",
         )
 
         # ==========================
@@ -178,22 +173,21 @@ Rules:
 - Follow the business instructions.
 - Be helpful and concise.
 - If information is not found, say:
+  "I could not find that information in the knowledge base."
 - Answer in under 500 words.
 - Use bullet points.
 - Avoid repeating information.
 
-"I could not find that information in the knowledge base."
-
 Context:
 {context}
-"""
+""",
                 },
                 {
                     "role": "user",
-                    "content": user_message
-                }
+                    "content": user_message,
+                },
             ],
-            temperature=0
+            temperature=0,
         )
 
         answer = (
