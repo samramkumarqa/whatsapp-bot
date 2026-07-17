@@ -25,6 +25,11 @@ from api.website import router as website_router
 from api.chat import router as chat_router
 from api.misc import router as misc_router
 from api.customer import router as customer_router
+from automation.service import initialize_scheduler
+from automation.database import init_automation_db
+from api.automation import router as automation_router
+from automation.database import init_automation_db
+
 # ==========================================================
 # Environment & Initialization
 # ==========================================================
@@ -33,7 +38,7 @@ from config import (
     TWILIO_ACCOUNT_SID,
     TWILIO_AUTH_TOKEN,
 )
-
+app = FastAPI()
 
 init_db()
 init_customer_mapping()
@@ -44,8 +49,11 @@ init_reminders()
 init_tags()
 init_activity()
 init_followups()
+init_automation_db()
 
-
+@app.on_event("startup")
+async def startup():
+    initialize_scheduler()
 
 
 LEAD_PRIORITY = {
@@ -75,3 +83,4 @@ app.include_router(website_router)
 app.include_router(chat_router)
 app.include_router(misc_router)
 app.include_router(dashboard_router)
+app.include_router(automation_router)

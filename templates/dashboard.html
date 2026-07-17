@@ -20,7 +20,7 @@ body{
 
     color:#1e293b;
 
-    padding:20px;
+    padding:14px;
 }
 
 /* HEADER */
@@ -46,6 +46,7 @@ h2{
     margin-bottom:20px;
     box-shadow:0 4px 15px rgba(0,0,0,.08);
     transition:all .2s ease;
+    overflow:visible;
 }
 /* STATS */
 
@@ -131,19 +132,21 @@ select{
 
 #conversationViewer{
 
-display:flex;
+    flex:1;
 
-flex-direction:column;
+    min-height:0;
 
-gap:18px;
+    overflow-y:auto;
 
-padding:24px;
+    padding:24px;
 
-height:700px;
+    background:#f8fafc;
 
-overflow-y:auto;
+    display:flex;
 
-background:#f8fafc;
+    flex-direction:column;
+
+    gap:18px;
 
 }
 
@@ -254,7 +257,11 @@ color:white;
 
 .message-bubble{
 
-max-width:72%;
+max-width:78%;
+
+min-width:120px;
+
+padding:14px 18px;
 
 display:flex;
 
@@ -262,13 +269,9 @@ flex-direction:column;
 
 gap:10px;
 
-padding:14px 18px;
-
-border-radius:18px;
-
-box-shadow:0 2px 10px rgba(0,0,0,.08);
-
 word-break:break-word;
+
+animation:fadeIn .25s ease;
 
 }
 
@@ -310,14 +313,39 @@ background:#cbd5e1;
 border-radius:20px;
 
 }
+
 .user-message{
 
 background:#2563eb;
 
 color:white;
 
-border-bottom-right-radius:6px;
+border-radius:18px;
 
+border-bottom-right-radius:4px;
+
+box-shadow:
+
+0 4px 12px rgba(37,99,235,.20);
+
+}
+
+.left-panel,
+.center-panel,
+.right-panel{
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    min-height:0;
+}
+
+.left-panel .card,
+.center-panel .card,
+.right-panel .card{
+    display:flex;
+    flex-direction:column;
+    flex:1;
+    min-height:0;
 }
 
 /* AI */
@@ -326,11 +354,15 @@ border-bottom-right-radius:6px;
 
 background:white;
 
-color:#1e293b;
+border-radius:18px;
 
-border-bottom-left-radius:6px;
+border-bottom-left-radius:4px;
 
-border:1px solid #e2e8f0;
+border:1px solid #e5e7eb;
+
+box-shadow:
+
+0 3px 10px rgba(0,0,0,.05);
 
 }
 
@@ -338,7 +370,7 @@ border:1px solid #e2e8f0;
 
 .ai-label{
 
-font-size:12px;
+font-size:11px;
 
 font-weight:700;
 
@@ -346,7 +378,7 @@ color:#10b981;
 
 text-transform:uppercase;
 
-letter-spacing:.5px;
+letter-spacing:.6px;
 
 }
 
@@ -382,7 +414,9 @@ gap:8px;
 
 font-size:11px;
 
-opacity:.75;
+margin-top:6px;
+
+opacity:.7;
 
 }
 
@@ -450,38 +484,18 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
 .main-layout{
     display:grid;
-    grid-template-columns:300px 1fr 360px;
+    grid-template-columns:300px minmax(0,1fr) 380px;
     gap:20px;
-    align-items:start;
-    margin-bottom:25px;
-}
-.left-panel,
-.center-panel,
-.right-panel{
-    min-height:750px;
+    height:calc(100vh - 140px);
+    align-items:stretch;
 }
 
-.left-panel .card,
-.center-panel .card,
 
-.right-panel .card{
-    height:750px;
-    display:flex;
-    flex-direction:column;
-    overflow-y:auto;
-    overflow-x:hidden;
-    padding-right:8px;
-}
+
 .profile-card{
-
-    flex:1;
-
     display:flex;
-
     flex-direction:column;
-
-    min-height:0;
-
+    height:calc(100vh - 40px);
 }
 @media (max-width: 1400px){
 
@@ -531,11 +545,20 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
 .customer-card{
 
-    border-bottom:1px solid #f1f5f9;
+    display:flex;
 
-    border-radius:0;
+    gap:14px;
 
-    margin:0;
+    align-items:flex-start;
+
+    padding:16px;
+
+    cursor:pointer;
+
+    border-bottom:1px solid #eef2f7;
+
+    transition:.25s;
+
 }
 @keyframes fadeCustomer{
 
@@ -558,9 +581,9 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 }
 .customer-card:hover{
 
-    background:#f8fafc;
+    background:#eff6ff;
 
-    transform:translateY(-1px);
+    transform:translateX(4px);
     border-color:#dbeafe;
 
 }
@@ -652,15 +675,13 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 }
 .customer-card.active{
 
-    background:#eff6ff;
+    background:#dbeafe;
 
     border-left:5px solid #2563eb;
 
     padding-left:10px;
 
-    box-shadow:
-
-    0 8px 18px rgba(37,99,235,.12);
+    box-shadow:0 6px 15px rgba(37,99,235,.12);
 }
 .customer-avatar-wrapper{
 
@@ -755,7 +776,7 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
     white-space:nowrap;
 
-    overflow:hidden;
+    overflow:visible;
 
     text-overflow:ellipsis;
 
@@ -769,11 +790,36 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
     display:flex;
 
-    justify-content:space-between;
+    
+    align-items:center;
+    gap:8px;
+}
+.customer-info{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:2px;
+
+}
+
+.message-count{
+
+    font-size:12px;
+
+    color:#64748b;
+
+    display:flex;
 
     align-items:center;
 
+    gap:4px;
+
+    margin-left:10px;
+
 }
+
 .lead-chip{
 
     padding:4px 10px;
@@ -908,13 +954,7 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
     align-items:center;
 }
-.left-panel .card{
 
-    display:flex;
-    flex-direction:column;
-
-    height:calc(100vh - 230px);
-}
 .value{
 
     font-weight:600;
@@ -957,11 +997,12 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
 #leadTimeline{
 
-    max-height:400px;
+    flex:1;
 
     overflow-y:auto;
 
-    padding-right:5px;
+    min-height:180px;
+
 }
 
 .top-section{
@@ -1052,7 +1093,8 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
     top:0;
 
-    z-index:10;
+    z-index:5;
+
 }
 .crm-sidebar .card h3{
     border-bottom:1px solid #e5e7eb;
@@ -1138,14 +1180,7 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
     color:#374151;
 }
 
-.timeline-item{
 
-    border-left:4px solid #2563eb;
-
-    padding-left:12px;
-
-    margin-bottom:15px;
-}
 
 .timeline-status{
 
@@ -1179,9 +1214,6 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
         0 4px 15px rgba(0,0,0,.08);
 }
 
-.center-panel{
-    min-width:0;
-}
 
 .crm-grid{
 
@@ -1201,6 +1233,7 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 .profile-content{
     flex:1;
     overflow-y:auto;
+    padding-right:8px;
 }
 #customerProfile{
 
@@ -1208,22 +1241,28 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
     overflow-y:auto;
 
-    min-height:250px;
-
-    max-height:450px;
-
-    line-height:1.7;
+    min-height:0;
 
     padding-right:8px;
-    margin-bottom:20px;
-
 
 }
 #leadHealthPanel{
 
-    max-height:180px;
-    margin-top:10px;
-    overflow-y:auto;
+margin-top:20px;
+
+background:white;
+
+border:1px solid #e5e7eb;
+
+border-radius:16px;
+
+padding:18px;
+
+line-height:1.8;
+
+box-shadow:
+
+0 5px 15px rgba(0,0,0,.05);
 
 }
 #leadNotes{
@@ -1270,6 +1309,8 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
     margin-top:20px;
 
+    flex-shrink:0;
+
 }
 .left-panel h3,
 .center-panel h3,
@@ -1280,12 +1321,30 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
 
 
-.left-panel{
-    width:auto;
-}
 
-.right-panel{
-    position:relative;
+
+
+.right-panel::-webkit-scrollbar{
+
+    width:8px;
+
+}
+.right-panel::-webkit-scrollbar-track{
+
+    background:transparent;
+
+}
+.right-panel::-webkit-scrollbar-thumb{
+
+    background:#cbd5e1;
+
+    border-radius:20px;
+
+}
+.right-panel::-webkit-scrollbar-thumb:hover{
+
+    background:#94a3b8;
+
 }
 
 .crm-grid .card{
@@ -1294,18 +1353,92 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 .crm-header{
 
     display:flex;
-    justify-content:space-between;
+
     align-items:center;
 
-    padding:18px 24px;
-
-    margin-bottom:25px;
+    justify-content:space-between;
 
     background:white;
 
     border-radius:18px;
 
-    box-shadow:0 5px 20px rgba(0,0,0,.08);
+    padding:18px 26px;
+
+    margin-bottom:20px;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+
+}
+
+.crm-brand{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:18px;
+
+}
+
+.crm-live-stats{
+
+    display:flex;
+
+    gap:18px;
+
+    align-items:center;
+
+}
+
+.mini-stat{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    padding:10px 16px;
+
+    background:#f8fafc;
+
+    border-radius:12px;
+
+    min-width:95px;
+
+    justify-content:center;
+
+    transition:.2s;
+
+}
+
+.mini-stat:hover{
+
+    background:#eff6ff;
+
+}
+
+.mini-stat span{
+
+    font-size:18px;
+
+}
+
+.mini-stat strong{
+
+    font-size:18px;
+
+    color:#2563eb;
+
+}
+
+.crm-header-right{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
 
 }
 
@@ -1319,20 +1452,29 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
 .logo-circle{
 
-    width:58px;
-    height:58px;
+    width:56px;
 
-    border-radius:50%;
+    height:56px;
 
-    background:#2563eb;
+    border-radius:16px;
+
+    background:linear-gradient(
+        135deg,
+        #2563eb,
+        #3b82f6
+    );
 
     color:white;
 
     display:flex;
+
     align-items:center;
+
     justify-content:center;
 
     font-size:28px;
+
+    box-shadow:0 8px 18px rgba(37,99,235,.25);
 
 }
 
@@ -1343,22 +1485,23 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
     color:#2563eb;
 
 }
+
 .business-strip{
-
-    margin-top:6px;
-
-    color:#64748b;
-
-    font-size:15px;
-
-    font-weight:500;
 
     display:flex;
 
-    align-items:center;
+    flex-direction:column;
 
-    gap:10px;
+    gap:4px;
+
+    color:#64748b;
+
+    font-size:13px;
+
+    margin-top:4px;
+
 }
+
 .separator{
     margin:0 10px;
     color:#cbd5e1;
@@ -1376,24 +1519,24 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
     align-items:center;
 
-    gap:16px;
+    gap:18px;
 
-    margin-bottom:20px;
+    margin-bottom:22px;
 
-    padding-bottom:15px;
+    padding-bottom:18px;
 
     border-bottom:1px solid #e5e7eb;
 
 }
 .profile-avatar{
 
-    width:72px;
+    width:84px;
 
-    height:72px;
+    height:84px;
 
     border-radius:50%;
 
-    background:#2563eb;
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
 
     color:white;
 
@@ -1403,11 +1546,15 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
     justify-content:center;
 
-    font-size:22px;
+    font-size:30px;
 
     font-weight:700;
 
     flex-shrink:0;
+    
+    box-shadow:
+
+    0 10px 25px rgba(37,99,235,.25);
 
 }
 .profile-avatar-large{
@@ -1435,11 +1582,13 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 }
 .profile-name{
 
-    font-size:20px;
+    font-size:24px;
 
     font-weight:700;
 
     color:#0f172a;
+
+    margin-bottom:4px;
 
 }
 .profile-phone{
@@ -1450,17 +1599,23 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 }
 .lead-type{
 
-    padding:10px;
+    padding:14px;
 
     text-align:center;
 
-    border-radius:12px;
+    border-radius:14px;
 
     color:white;
 
-    font-weight:bold;
+    font-size:16px;
+
+    font-weight:700;
 
     margin-bottom:20px;
+
+    box-shadow:
+
+    0 5px 15px rgba(0,0,0,.08);
 
 }
 .lead-type.hot{
@@ -1485,13 +1640,19 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
     text-align:center;
 
-    background:#f8fafc;
+    background:white;
 
-    border-radius:12px;
+    border:1px solid #e5e7eb;
 
-    padding:15px;
+    border-radius:16px;
 
-    margin-bottom:20px;
+    padding:22px;
+
+    margin-bottom:22px;
+
+    box-shadow:
+
+    0 5px 15px rgba(0,0,0,.05);
 
 }
 
@@ -1503,11 +1664,13 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
 .score-number{
 
-    font-size:28px;
+    font-size:42px;
 
-    font-weight:bold;
+    font-weight:700;
 
     color:#2563eb;
+
+    margin-top:10px;
 
 }
 
@@ -1517,22 +1680,35 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
     grid-template-columns:1fr 1fr;
 
-    gap:12px;
+    gap:14px;
 
-    margin:20px 0;
-
-    margin-bottom:20px;
+    margin-bottom:22px;
 
 }
 
 .quick-stats div{
 
-    background:#f8fafc;
+    background:white;
 
-    padding:14px;
+    border:1px solid #e5e7eb;
 
-    border-radius:12px;
+    padding:16px;
+
+    border-radius:14px;
+
     text-align:center;
+
+    transition:.2s;
+
+}
+
+.quick-stats div:hover{
+
+transform:translateY(-2px);
+
+box-shadow:
+
+0 6px 15px rgba(0,0,0,.08);
 
 }
 
@@ -1548,39 +1724,50 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
 .summary-card{
 
-    background:#f8fafc;
+background:white;
 
-    border-radius:12px;
+border:1px solid #e5e7eb;
 
-    padding:16px;
+border-radius:16px;
 
-    margin-top:18px;
+padding:18px;
+
+margin-bottom:18px;
+
+box-shadow:
+
+0 5px 15px rgba(0,0,0,.05);
 
 }
 
 .summary-card h4{
 
-    margin-bottom:10px;
-    color:#2563eb;
+margin-bottom:10px;
+
+font-size:15px;
+
+font-weight:700;
+
+color:#2563eb;
 
 }
 .profile-status{
 
-    display:inline-block;
+    display:inline-flex;
 
-    margin-top:6px;
+    align-items:center;
 
-    padding:5px 12px;
+    padding:6px 14px;
 
-    border-radius:20px;
+    border-radius:999px;
 
     background:#dbeafe;
 
-    color:#2563eb;
+    color:#1d4ed8;
 
     font-size:12px;
 
-    font-weight:600;
+    font-weight:700;
 
 }
 .avatar{
@@ -1597,11 +1784,7 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
     font-size:28px;
     margin-bottom:10px;
 }
-.timeline-item{
-    position:relative;
-    padding-left:20px;
-    margin-bottom:15px;
-}
+
 
 .timeline-item::before{
     content:"";
@@ -1780,9 +1963,29 @@ html{
 ========================== */
 
 #opportunityPanel{
+
     display:flex;
+
     flex-direction:column;
+
     gap:12px;
+
+    flex:1;
+
+    overflow-y:auto;
+
+    min-height:180px;
+
+}
+
+#reminderPanel{
+
+    flex:1;
+
+    overflow-y:auto;
+
+    min-height:180px;
+
 }
 
 .opportunity-card{
@@ -1874,16 +2077,7 @@ html{
 
     color:#475569;
 }
-.empty-state{
 
-    text-align:center;
-
-    color:#94a3b8;
-
-    padding:35px 10px;
-
-    font-size:14px;
-}
 
 .empty-state p{
 
@@ -2160,25 +2354,29 @@ html{
 
 .chat-avatar{
 
-    width:52px;
+    width:54px;
 
-    height:52px;
+    height:54px;
 
     border-radius:50%;
 
-    background:#2563eb;
+    background:linear-gradient(135deg,#2563eb,#3b82f6);
 
     color:white;
 
     display:flex;
 
+    justify-content:center;
+
     align-items:center;
 
-    justify-content:center;
+    font-size:18px;
 
     font-weight:700;
 
-    font-size:18px;
+    position:relative;
+
+    flex-shrink:0;
 
 }
 
@@ -2186,35 +2384,43 @@ html{
 
     content:"";
 
-    width:12px;
-
-    height:12px;
-
-    background:#22c55e;
-
-    border-radius:50%;
-
-    border:2px solid white;
-
     position:absolute;
 
     bottom:2px;
 
     right:2px;
+
+    width:12px;
+
+    height:12px;
+
+    border-radius:50%;
+
+    background:#22c55e;
+
+    border:2px solid white;
+
 }
 
 .chat-customer-name{
 
-    font-size:17px;
+    font-size:18px;
 
     font-weight:700;
+
+    color:#1e293b;
+
 }
+
 
 .chat-presence{
 
-    color:#22c55e;
-
     font-size:13px;
+
+    color:#64748b;
+
+    margin-top:3px;
+
 }
 .typing{
 
@@ -2248,18 +2454,11 @@ html{
 
 .gauge-circle{
 
-    width:150px;
+    width:170px;
 
-    height:150px;
+    height:170px;
 
     border-radius:50%;
-
-    background:
-        conic-gradient(
-            #22c55e 0deg,
-            #22c55e 0deg,
-            #e5e7eb 0deg
-        );
 
     display:flex;
 
@@ -2267,37 +2466,45 @@ html{
 
     align-items:center;
 
-    transition:.5s;
+    transition:.4s;
+
+    box-shadow:
+
+    0 10px 30px rgba(0,0,0,.08);
 
 }
 
 .gauge-inner{
 
-    width:118px;
+width:132px;
 
-    height:118px;
+height:132px;
 
-    background:white;
+background:white;
 
-    border-radius:50%;
+border-radius:50%;
 
-    display:flex;
+display:flex;
 
-    flex-direction:column;
+justify-content:center;
 
-    justify-content:center;
+align-items:center;
 
-    align-items:center;
+flex-direction:column;
+
+box-shadow:
+
+inset 0 2px 6px rgba(0,0,0,.05);
 
 }
 
 .gauge-score{
 
-    font-size:34px;
+font-size:42px;
 
-    font-weight:700;
+font-weight:700;
 
-    color:#1e293b;
+color:#0f172a;
 
 }
 .message-icon{
@@ -2323,10 +2530,10 @@ html{
 }
 .crm-section{
     margin-top:24px;
+    flex-shrink:0;
 }
 
 .ai-header{
-
 
 display:flex;
 
@@ -2334,24 +2541,27 @@ justify-content:space-between;
 
 align-items:center;
 
-margin-bottom:8px;
+padding-bottom:6px;
+
+margin-bottom:4px;
+
+border-bottom:1px solid #f1f5f9;
 
 }
 
 .copy-btn{
 
+border:1px solid #e2e8f0;
 
-border:none;
-
-background:#f1f5f9;
+background:#f8fafc;
 
 padding:5px 10px;
 
 border-radius:8px;
 
 cursor:pointer;
-
-font-size:12px;
+font-weight:600;
+font-size:11px;
 
 transition:.2s;
 
@@ -2398,6 +2608,68 @@ background:#e2e8f0;
     color:#94a3b8;
 }
 
+.message-content h1,
+.message-content h2,
+.message-content h3{
+
+margin-top:14px;
+
+margin-bottom:8px;
+
+}
+
+.message-content ul{
+
+padding-left:22px;
+
+margin:10px 0;
+
+}
+
+.message-content ol{
+
+padding-left:22px;
+
+margin:10px 0;
+
+}
+
+.message-content li{
+
+margin:5px 0;
+
+}
+
+.message-content blockquote{
+
+border-left:4px solid #2563eb;
+
+padding-left:14px;
+
+margin:10px 0;
+
+color:#475569;
+
+font-style:italic;
+
+}
+
+.message-content table{
+
+border-collapse:collapse;
+
+margin-top:10px;
+
+}
+
+.message-content td,
+.message-content th{
+
+border:1px solid #e2e8f0;
+
+padding:8px;
+
+}
 
 @keyframes slideUser{
 
@@ -2491,6 +2763,141 @@ background:#e2e8f0;
     font-size:13px;
 }
 
+.profile-score-ring{
+
+    display:flex;
+
+    justify-content:center;
+
+    margin:20px 0;
+
+}
+
+.profile-ring{
+
+    width:130px;
+
+    height:130px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:10px;
+}
+
+.profile-ring-inner{
+
+    width:100%;
+
+    height:100%;
+
+    border-radius:50%;
+
+    background:white;
+
+}
+
+.profile-ring-score{
+
+    font-size:34px;
+
+    font-weight:700;
+
+    color:#1e293b;
+
+    line-height:1;
+
+}
+
+.profile-ring-label{
+
+    margin-top:4px;
+
+    font-size:13px;
+
+    color:#64748b;
+
+}
+
+.health-card{
+
+    background:#ffffff;
+
+    border:1px solid #e2e8f0;
+
+    border-radius:16px;
+
+    padding:18px;
+
+    margin-top:16px;
+
+    box-shadow:0 4px 12px rgba(15,23,42,.04);
+
+}
+
+.health-row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:10px 0;
+
+    font-size:14px;
+
+}
+
+.health-row span{
+
+    color:#64748b;
+
+}
+
+.health-row strong{
+
+    color:#0f172a;
+
+    font-weight:700;
+
+}
+
+.health-divider{
+
+    height:1px;
+
+    background:#e5e7eb;
+
+    margin:14px 0;
+
+}
+
+.health-reason-title{
+
+    font-weight:700;
+
+    color:#0f172a;
+
+    margin-bottom:8px;
+
+}
+
+.health-reason-text{
+
+    color:#475569;
+
+    line-height:1.7;
+
+    font-size:14px;
+
+}
+
 .typing-bubble{
 
 display:flex;
@@ -2505,9 +2912,9 @@ padding:14px 18px;
 
 border-radius:18px;
 
-border-bottom-left-radius:6px;
+border-bottom-left-radius:4px;
 
-box-shadow:0 2px 8px rgba(0,0,0,.08);
+box-shadow:0 3px 8px rgba(0,0,0,.05);
 
 }
 
@@ -2553,7 +2960,22 @@ animation-delay:.2s;
 }
 
 }
-    </style>
+.lead-status-badge{
+
+    padding:7px 14px;
+
+    border-radius:999px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+    background:#eff6ff;
+
+    color:#2563eb;
+
+}
+    </style>    
 
 </head>
 
@@ -2566,7 +2988,7 @@ animation-delay:.2s;
 
 <div class="crm-header">
 
-    <div class="crm-header-left">
+    <div class="crm-brand">
 
         <div class="logo-circle">
             🤖
@@ -2580,18 +3002,51 @@ animation-delay:.2s;
 
             <div class="business-strip">
 
-                <span id="businessNameDisplay">
+                <div id="businessNameDisplay">
                     Business Name
-                </span>
+                </div>
 
-                <span class="separator">|
-                </span>
-
-                <span id="whatsappNumberDisplay">
+                <div id="whatsappNumberDisplay">
                     +14155238886
-                </span>
+                </div>
 
             </div>
+
+        </div>
+
+    </div>
+
+    <div class="crm-live-stats">
+
+        <div class="mini-stat">
+
+            <span>👥</span>
+
+            <strong id="customerCount">0</strong>
+
+        </div>
+
+        <div class="mini-stat">
+
+            <span>💬</span>
+
+            <strong id="messageCount">0</strong>
+
+        </div>
+
+        <div class="mini-stat">
+
+            <span>🎯</span>
+
+            <strong id="qualifiedCount">0</strong>
+
+        </div>
+
+        <div class="mini-stat">
+
+            <span>💰</span>
+
+            <strong id="opportunityCount">0</strong>
 
         </div>
 
@@ -2616,49 +3071,6 @@ animation-delay:.2s;
 <!-- KPI -->
 <!-- ===================================================== -->
 
-<div class="kpi-grid">
-
-    <div class="kpi-card">
-
-        <div class="kpi-icon">👥</div>
-
-        <div class="kpi-title">Customers</div>
-
-        <div class="kpi-value" id="customerCount">0</div>
-
-    </div>
-
-    <div class="kpi-card">
-
-        <div class="kpi-icon">💬</div>
-
-        <div class="kpi-title">Messages</div>
-
-        <div class="kpi-value" id="messageCount">0</div>
-
-    </div>
-
-    <div class="kpi-card">
-
-        <div class="kpi-icon">🎯</div>
-
-        <div class="kpi-title">Qualified Leads</div>
-
-        <div class="kpi-value" id="qualifiedCount">0</div>
-
-    </div>
-
-    <div class="kpi-card">
-
-        <div class="kpi-icon">💰</div>
-
-        <div class="kpi-title">Opportunities</div>
-
-        <div class="kpi-value" id="opportunityCount">0</div>
-
-    </div>
-
-</div>
 
 
 <!-- ===================================================== -->
@@ -2675,22 +3087,22 @@ animation-delay:.2s;
 
             <div class="inbox-header">
 
-                <h3>💬 Customer Inbox</h3>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
 
-                <span
-                    class="customer-count"
-                    id="customerCountBadge">
+                    <h3>💬 Conversations</h3>
 
-                    0
+                    <span id="customerCountBadge" class="customer-count">
+                        0
+                    </span>
 
-                </span>
+                </div>
 
             </div>
 
             <input
                 id="customerSearch"
                 class="search-box"
-                placeholder="Search Customer..."
+                placeholder="🔍 Search conversations..."
                 onkeyup="searchCustomers()">
 
             <ul id="customerList"></ul>
@@ -2742,7 +3154,7 @@ animation-delay:.2s;
 
                 <span
                     id="customerStatusBadge"
-                    class="badge">
+                    class="lead-status-badge">
 
                     New
 
@@ -2773,45 +3185,44 @@ animation-delay:.2s;
 
     <aside class="right-panel">
 
-        <div class="card">
+    <div class="card">
 
-            <!-- Profile -->
+        <!-- ================= Customer Profile ================= -->
 
-            <div class="profile-header">
+        <div class="profile-header">
 
-                <div
-                    id="profileAvatar"
-                    class="profile-avatar">
+            <div id="profileAvatar" class="profile-avatar">
+                --
+            </div>
 
-                    --
+            <div>
 
-                </div>
+                <h3 id="profileName">
+                    Customer
+                </h3>
 
-                <div>
-
-                    <h3 id="profileName">
-
-                        Customer
-
-                    </h3>
-
-                    <div
-                        id="profileStatus"
-                        class="profile-status">
-
-                        New Lead
-
-                    </div>
-
+                <div id="profileStatus" class="profile-status">
+                    New Lead
                 </div>
 
             </div>
+
+        </div>
+
+        <!-- Everything below becomes scrollable -->
+
+        <div class="profile-content">
+
+            <!-- Customer Summary -->
 
             <div id="customerProfile">
-
                 Select Customer
-
             </div>
+
+
+            <!-- ====================================== -->
+            <!-- Lead Health -->
+            <!-- ====================================== -->
 
             <div class="crm-section">
 
@@ -2821,25 +3232,35 @@ animation-delay:.2s;
 
                 <div class="crm-section-body">
 
-            <div class="health-gauge">
-
-                <div
-                    id="leadGauge"
-                    class="gauge-circle">
-
-                    <div class="gauge-inner">
+                    <div class="health-gauge">
 
                         <div
-                            id="gaugeScore"
-                            class="gauge-score">
+                            id="leadGauge"
+                            class="gauge-circle">
 
-                            0
+                            <div class="gauge-inner">
+
+                                <div
+                                    id="gaugeScore"
+                                    class="gauge-score">
+
+                                    0
+
+                                </div>
+
+                                <div class="gauge-text">
+                                    /100
+                                </div>
+
+                            </div>
 
                         </div>
 
-                        <div class="gauge-text">
+                        <div
+                            id="leadTemperature"
+                            class="lead-temperature">
 
-                            /100
+                            Cold Lead
 
                         </div>
 
@@ -2847,21 +3268,17 @@ animation-delay:.2s;
 
                 </div>
 
-                <div
-                    id="leadTemperature"
-                    class="lead-temperature">
-
-                    Cold Lead
-
-                </div>
-
             </div>
 
-        </div>
 
-    </div>
+            <!-- AI Lead Health Explanation -->
 
             <div id="leadHealthPanel"></div>
+
+
+            <!-- ====================================== -->
+            <!-- Lead Management -->
+            <!-- ====================================== -->
 
             <div class="crm-section">
 
@@ -2871,40 +3288,42 @@ animation-delay:.2s;
 
                 <div class="crm-section-body">
 
-            <label>Status</label>
+                    <label>Status</label>
 
-            <select id="leadStatus">
+                    <select id="leadStatus">
 
-                <option>New</option>
-                <option>Interested</option>
-                <option>Qualified</option>
-                <option>Proposal Sent</option>
-                <option>Closed Won</option>
-                <option>Closed Lost</option>
+                        <option>New</option>
+                        <option>Interested</option>
+                        <option>Qualified</option>
+                        <option>Proposal Sent</option>
+                        <option>Closed Won</option>
+                        <option>Closed Lost</option>
 
-            </select>
+                    </select>
 
-            <label>Notes</label>
+                    <label>Notes</label>
 
-            <textarea
-                id="leadNotes"
-                rows="5"></textarea>
+                    <textarea
+                        id="leadNotes"
+                        rows="5"></textarea>
 
-            <button
-                onclick="saveLead()">
+                    <button onclick="saveLead()">
+                        Save Lead
+                    </button>
 
-                Save Lead
+                </div>
 
-            </button>
+            </div>
 
         </div>
+        <!-- END profile-content -->
 
-    </aside>
-
-</div>
     </div>
+    <!-- END card -->
 
-</div>
+</aside>
+
+</div> 
 
 <!-- ===================================================== -->
 <!-- CRM DASHBOARD -->
@@ -3028,6 +3447,7 @@ animation-delay:.2s;
     
 let currentCustomer = null;
 let customerCache = {};
+let customerMap = {};
 let lastConversationHash = "";
 let lastCustomerHash = "";
 async function addWebsite() {
@@ -3299,6 +3719,7 @@ function renderCustomers(customers){
         }
 
         customerCache[key] = customer;
+        customerMap[key] = customer;
 
     });
 
@@ -3307,98 +3728,111 @@ function renderCustomers(customers){
 
 function createCustomerCard(customer){
 
-    const li =
-        document.createElement("li");
+    const li = document.createElement("li");
 
     li.className = "customer-card";
 
-    li.dataset.phone =
-        customer.phone;
+    li.dataset.phone = customer.phone;
 
-    if(customer.phone===currentCustomer){
-
+    if(customer.phone === currentCustomer){
         li.classList.add("active");
-
     }
 
-    li.onclick=()=>selectCustomer(customer.phone);
+    li.onclick = () => selectCustomer(customer.phone);
 
     const initials =
         customer.name
-        ? customer.name.substring(0,2).toUpperCase()
-        : customer.phone.substring(0,2);
+            ? customer.name.substring(0,2).toUpperCase()
+            : customer.phone.substring(0,2);
 
-    let leadBadge="";
+    let leadClass = "cold";
 
-    if(customer.lead_score>=80){
-
-        leadBadge =
-            `<span class="lead-chip hot">🔥</span>`;
-
+    if(customer.lead_score >= 80){
+        leadClass = "hot";
     }
-    else if(customer.lead_score>=50){
-
-        leadBadge =
-            `<span class="lead-chip warm">🟡</span>`;
-
+    else if(customer.lead_score >= 50){
+        leadClass = "warm";
     }
 
-    li.innerHTML=`
+    li.innerHTML = `
 
-        <div class="customer-avatar">
+    <div class="customer-avatar-wrapper">
 
+        <div class="customer-avatar ${leadClass}">
             ${initials}
-
         </div>
 
-        <div class="customer-details">
+        <div class="presence-dot"></div>
 
-            <div class="customer-header">
+    </div>
+
+    <div class="customer-main">
+
+        <div class="customer-top">
+
+            <div class="customer-info">
 
                 <div class="customer-name">
 
-                    ${customer.name || customer.phone}
-
-                    ${leadBadge}
+                    ${customer.name || "Unknown Customer"}
 
                 </div>
 
-                <div class="customer-time">
+                <div class="customer-phone">
 
-                    ${formatTime(customer.last_seen)}
+                    ${customer.phone}
 
                 </div>
 
             </div>
 
-            <div class="customer-preview">
+            <div class="customer-time">
 
-                ${customer.last_message || ""}
+                ${formatTime(customer.last_seen)}
 
             </div>
 
         </div>
 
-        ${
-        customer.unread_count>0
-        ?
+        <div class="customer-preview">
 
-        `<div class="unread-badge">
+            ${customer.last_message || "No conversation yet"}
 
-            ${customer.unread_count}
+        </div>
 
-        </div>`
+        <div class="customer-footer">
 
-        :
+            <span class="lead-chip ${leadClass}">
 
-        ""
+                ${getLeadBadge(customer.lead_score)}
 
-        }
+            </span>
+
+            <span class="message-count">
+
+                💬 ${customer.message_count || 0}
+
+            </span>
+
+            ${
+                customer.unread_count > 0
+                ?
+                `<span class="unread-badge">
+
+                    ${customer.unread_count}
+
+                </span>`
+                :
+                ""
+            }
+
+        </div>
+
+    </div>
 
     `;
 
     return li;
-
 }
 
 
@@ -3493,23 +3927,36 @@ function formatTime(dateString){
 
 }
 
-function updateChatHeader(customerPhone) {
+function updateChatHeader(customerPhone){
+
+    const customer =
+        customerCache[customerPhone] || {};
+
+    const name =
+        customer.name || customerPhone;
 
     document.getElementById("selectedCustomer").innerText =
-        customerPhone;
+        name;
 
     document.getElementById("chatAvatar").innerText =
-        customerPhone.substring(0,2).toUpperCase();
+        name.substring(0,2).toUpperCase();
 
-const lastSeen = 30; // seconds
+    document.getElementById("customerStatusBadge").innerText =
+        customer.lead_status || "New Lead";
 
-if (lastSeen < 60) {
-    document.getElementById("chatPresence").innerHTML =
-        "<span style='color:#22c55e'>Online</span>";
-} else {
-    document.getElementById("chatPresence").innerHTML =
-        "<span>Last seen 8m ago</span>";
-}
+    const lastSeen = customer.last_seen;
+
+    if(lastSeen){
+
+        document.getElementById("chatPresence").innerHTML =
+            `<span style="color:#22c55e">● Online recently</span>`;
+
+    }else{
+
+        document.getElementById("chatPresence").innerHTML =
+            `<span>Offline</span>`;
+
+    }
 
 }
 
@@ -3768,28 +4215,25 @@ setTimeout(()=>{
 
 function scrollConversation(force=false){
 
-const viewer =
-    document.getElementById("conversationViewer");
+    const viewer =
+        document.getElementById("conversationViewer");
 
-const distance =
+    const distance =
+        viewer.scrollHeight -
+        viewer.scrollTop -
+        viewer.clientHeight;
 
-    viewer.scrollHeight -
+    if(force || distance<150){
 
-    viewer.scrollTop -
+        viewer.scrollTo({
 
-    viewer.clientHeight;
+            top:viewer.scrollHeight,
 
-if(force || distance<120){
+            behavior:"smooth"
 
-    viewer.scrollTo({
+        });
 
-        top:viewer.scrollHeight,
-
-        behavior:"smooth"
-
-    });
-
-}
+    }
 
 }
 
@@ -3852,7 +4296,7 @@ async function loadConversation(customerPhone) {
 
     });
 
-    scrollConversation();
+    scrollConversation(true);
 
 }
 
@@ -4128,12 +4572,13 @@ async function saveBusinessSettings(){
 function getLeadBadge(score){
 
     if(score >= 80)
-        return "🔥 HOT";
+        return "🔥 Hot Lead";
 
     if(score >= 50)
-        return "🟡 WARM";
+        return "🟡 Warm Lead";
 
-    return "❄️ COLD";
+    return "❄️ Cold Lead";
+
 }
 
 async function loadBusinessSettings(){
@@ -4170,94 +4615,154 @@ async function loadBusinessSettings(){
 
 async function loadCustomerProfile(customerPhone) {
 
-    const userId =
-        document.getElementById("userId").value;
+    const userId = document.getElementById("userId").value;
 
-    const response =
-        await fetch(
-            `/customer-profile/${userId}/${encodeURIComponent(customerPhone)}`
-        );
+    const response = await fetch(
+        `/customer-profile/${userId}/${encodeURIComponent(customerPhone)}`
+    );
 
-    const data =
-        await response.json();
+    const data = await response.json();
 
-    const customerName =
-        data.profile.name || customerPhone;
+    console.log("Customer Profile API:", data);
 
-    const score =
-        data.profile.lead_score || 0;
+    const profile = data.profile || {};
 
+    const customerName = profile.name || customerPhone;
+    const score = profile.lead_score || 0;
+    const confidence = profile.confidence || 0;
+    const leadStatus = profile.lead_status || "New Lead";
+    const notes = profile.notes || "No notes available.";
+    const aiReason = profile.reason || "No AI summary available.";
+
+    // ----------------------------
     // Lead Type
+    // ----------------------------
+
     let badge = "🔵 Cold Lead";
 
     if (score >= 80) {
         badge = "🔥 Hot Lead";
-    }
-    else if (score >= 50) {
+    } else if (score >= 50) {
         badge = "🟡 Warm Lead";
     }
+
+    // ----------------------------
+    // Ring Color
+    // ----------------------------
+
+    const ringColor =
+        score >= 80
+            ? "#ef4444"
+            : score >= 50
+                ? "#f59e0b"
+                : "#3b82f6";
 
     // ----------------------------
     // Header
     // ----------------------------
 
-    document.getElementById("profileName").innerText =
-        customerName;
+    document.getElementById("profileName").innerText = customerName;
 
     document.getElementById("profileAvatar").innerText =
         customerName.substring(0, 2).toUpperCase();
 
     document.getElementById("profileStatus").innerText =
-        data.profile.lead_status || "New Lead";
+        leadStatus;
 
     // ----------------------------
     // Lead Health Gauge
     // ----------------------------
 
-    const degrees = score * 3.6;
+    document.getElementById("gaugeScore").innerText = score;
 
-    document.getElementById("gaugeScore").innerText =
-        score;
+    document.getElementById("leadTemperature").innerText = badge;
 
-    document.getElementById("leadGauge").style.background =
-        `conic-gradient(
-            #22c55e ${degrees}deg,
-            #e5e7eb ${degrees}deg
-        )`;
+    const gauge = document.getElementById("leadGauge");
 
-    document.getElementById("leadTemperature").innerText =
-        badge;
-
-    document.getElementById("leadHealthPanel").innerHTML = `
-        <div><b>AI Confidence:</b> ${data.profile.confidence || 0}%</div>
-        <div><b>Lead Status:</b> ${data.profile.lead_status || "New"}</div>
-        <div><b>Updated By:</b> ${data.profile.updated_by || "-"}</div>
-        <div><b>Reason:</b> ${data.profile.reason || "-"}</div>
+    gauge.style.background = `
+        conic-gradient(
+            ${ringColor} ${score * 3.6}deg,
+            #e5e7eb ${score * 3.6}deg
+        )
     `;
 
     // ----------------------------
-    // Customer Profile Body
+    // Lead Health Card
+    // ----------------------------
+
+    document.getElementById("leadHealthPanel").innerHTML = `
+
+        <div class="health-card">
+
+            <div class="health-row">
+                <span>🎯 AI Confidence</span>
+                <strong>${confidence}%</strong>
+            </div>
+
+            <div class="health-row">
+                <span>📌 Lead Status</span>
+                <strong>${leadStatus}</strong>
+            </div>
+
+            <div class="health-row">
+                <span>⭐ Lead Score</span>
+                <strong>${score}/100</strong>
+            </div>
+
+            <div class="health-row">
+                <span>👤 Updated By</span>
+                <strong>${profile.updated_by || "-"}</strong>
+            </div>
+
+            <div class="health-divider"></div>
+
+            <div class="health-reason-title">
+                🤖 AI Assessment
+            </div>
+
+            <div class="health-reason-text">
+                ${aiReason}
+            </div>
+
+        </div>
+
+    `;
+
+    // ----------------------------
+    // Customer Profile
     // ----------------------------
 
     document.getElementById("customerProfile").innerHTML = `
 
         <div class="lead-type ${getLeadClass(score)}">
-
             ${badge}
-
         </div>
 
         <div class="lead-score-card">
 
-            <div class="score-stars">
+            <div class="profile-score-ring">
 
-                ${getStars(score)}
+                <div
+                    class="profile-ring"
+                    style="background:
+                        conic-gradient(
+                            ${ringColor} ${score * 3.6}deg,
+                            #e5e7eb ${score * 3.6}deg
+                        );">
 
-            </div>
+                    <div class="profile-ring-inner">
 
-            <div class="score-number">
+                        <div class="profile-ring-score">
+                            ${score}
+                        </div>
 
-                ${score}/100
+                        <div class="profile-ring-label">
+                            /100
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
@@ -4266,48 +4771,32 @@ async function loadCustomerProfile(customerPhone) {
         <div class="quick-stats">
 
             <div>
-
                 <span>💬 Messages</span>
-
-                <strong>${data.profile.message_count || 0}</strong>
-
+                <strong>${profile.message_count || 0}</strong>
             </div>
 
             <div>
-
                 <span>📅 First Seen</span>
-
-                <strong>${data.profile.first_seen || "-"}</strong>
-
+                <strong>${profile.first_seen || "-"}</strong>
             </div>
 
             <div>
-
                 <span>🕒 Last Seen</span>
-
-                <strong>${data.profile.last_seen || "-"}</strong>
-
+                <strong>${profile.last_seen || "-"}</strong>
             </div>
 
             <div>
-
                 <span>🎯 Confidence</span>
-
-                <strong>${data.profile.confidence || 0}%</strong>
-
+                <strong>${confidence}%</strong>
             </div>
 
         </div>
 
         <div class="summary-card">
 
-            <h4>🧠 AI Summary</h4>
+            <h4>🧠 AI Customer Summary</h4>
 
-            <p>
-
-                ${data.profile.reason || "No summary available."}
-
-            </p>
+            <p>${aiReason}</p>
 
         </div>
 
@@ -4315,19 +4804,12 @@ async function loadCustomerProfile(customerPhone) {
 
             <h4>📝 Internal Notes</h4>
 
-            <p>
-
-                ${data.profile.notes || "No notes."}
-
-            </p>
+            <p>${notes}</p>
 
         </div>
 
     `;
 }
-
-
-
 
 async function loadLeadTimeline(
     customerPhone

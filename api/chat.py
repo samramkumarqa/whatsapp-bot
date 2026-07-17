@@ -58,7 +58,7 @@ async def local_chat(
 
         try:
 
-            analysis = refresh_customer_intelligence(
+            analysis = await refresh_customer_intelligence(
                 user_id=phone,
                 customer_phone=phone
             )

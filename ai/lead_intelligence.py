@@ -18,6 +18,9 @@ from crm.opportunity_manager import add_opportunity
 from ai.sales_coach import get_next_best_action
 from ai.utils import parse_ai_json
 
+from automation.engine import automation_engine
+
+
 AI_VERSION = "v1"
 
 SYSTEM_PROMPT = """
@@ -338,7 +341,7 @@ Do not explain your reasoning.
 
 
 
-def refresh_customer_intelligence(
+async def refresh_customer_intelligence(
     user_id,
     customer_phone
 ):
@@ -390,7 +393,7 @@ def refresh_customer_intelligence(
         )
 
         return analysis
-
+    
     #
     # Opportunity Detection
     #
@@ -562,6 +565,11 @@ def refresh_customer_intelligence(
         f"Updated AI tags for {customer_phone}: "
 
         f"{new_tags}"
+    )
+
+    await automation_engine.run(
+        customer_phone,
+        analysis
     )
 
     return analysis
