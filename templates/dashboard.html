@@ -545,19 +545,7 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
 .customer-card{
 
-    display:flex;
-
-    gap:14px;
-
-    align-items:flex-start;
-
-    padding:16px;
-
-    cursor:pointer;
-
-    border-bottom:1px solid #eef2f7;
-
-    transition:.25s;
+    padding:18px;
 
 }
 @keyframes fadeCustomer{
@@ -581,33 +569,16 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 }
 .customer-card:hover{
 
-    background:#eff6ff;
+    background:#f8fbff;
 
     transform:translateX(4px);
-    border-color:#dbeafe;
+
+    transition:.25s;
 
 }
 .customer-avatar{
 
-    width:52px;
-
-    height:52px;
-
-    border-radius:50%;
-
-    color:white;
-
-    font-weight:700;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    font-size:18px;
-
-    flex-shrink:0;
+    transition:.25s;
 
 }
 .customer-avatar.hot{
@@ -639,11 +610,11 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 }
 .customer-name{
 
-    font-size:16px;
+    font-size:15px;
 
     font-weight:700;
 
-    color:#1e293b;
+    color:#0f172a;
 
 }
 .customer-details{
@@ -675,13 +646,10 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 }
 .customer-card.active{
 
-    background:#dbeafe;
+    background:#eff6ff;
 
     border-left:5px solid #2563eb;
 
-    padding-left:10px;
-
-    box-shadow:0 6px 15px rgba(37,99,235,.12);
 }
 .customer-avatar-wrapper{
 
@@ -772,15 +740,19 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 }
 .customer-preview{
 
+    margin-top:8px;
+
     color:#64748b;
+
+    font-size:13px;
+
+    line-height:1.4;
 
     white-space:nowrap;
 
-    overflow:visible;
+    overflow:hidden;
 
     text-overflow:ellipsis;
-
-    font-size:14px;
 
 }
 
@@ -857,9 +829,11 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
 .customer-time{
 
+    font-size:11px;
+
     color:#94a3b8;
 
-    font-size:11px;
+    white-space:nowrap;
 
 }
 
@@ -892,10 +866,135 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 .customer-card:hover .customer-avatar{
 
     transform:scale(1.08);
+}
+.customer-bottom{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-top:10px;
+
+}
+.customer-metrics{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    flex-wrap:wrap;
+
+}
+.customer-actions{
+
+    display:flex;
+
+    gap:6px;
+
+    opacity:0;
 
     transition:.25s;
+
+}
+.customer-card:hover .customer-actions{
+
+    opacity:1;
+
+}
+.customer-action-btn{
+
+    width:30px;
+
+    height:30px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#f1f5f9;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+    font-size:14px;
+
+}
+.customer-action-btn:hover{
+
+    background:#dbeafe;
+
+    transform:scale(1.08);
+
+}
+/* ==================================
+   Lead Priority Cards
+================================== */
+
+.customer-card.hot{
+
+    border-left:5px solid #ef4444;
+
+    background:#fff5f5;
+
 }
 
+.customer-card.warm{
+
+    border-left:5px solid #f59e0b;
+
+    background:#fffbeb;
+
+}
+
+.customer-card.cold{
+
+    border-left:5px solid #2563eb;
+
+    background:#f8fbff;
+
+}
+
+.customer-card.hot:hover{
+
+    background:#fee2e2;
+
+}
+
+.customer-card.warm:hover{
+
+    background:#fef3c7;
+
+}
+
+.customer-card.cold:hover{
+
+    background:#eff6ff;
+
+}
+
+.customer-score{
+
+    font-size:12px;
+
+    color:#475569;
+
+    font-weight:600;
+
+}
+.message-total{
+
+    font-size:12px;
+
+    color:#475569;
+
+    font-weight:600;
+
+}
 .message-time{
 
     text-align:right;
@@ -1891,19 +1990,106 @@ html{
     padding-bottom:10px;
 }
 
+/* ==========================
+   Inbox Header
+========================== */
+
+.inbox-title-row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
+
+    margin-bottom:14px;
+
+}
+
+.inbox-title-row h3{
+
+    margin:0;
+
+    font-size:20px;
+
+}
+
+.inbox-subtitle{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin-top:6px;
+
+    color:#64748b;
+
+    font-size:13px;
+
+}
+
+.online-dot{
+
+    width:8px;
+
+    height:8px;
+
+    border-radius:50%;
+
+    background:#22c55e;
+
+    box-shadow:0 0 8px rgba(34,197,94,.6);
+
+}
+
+.inbox-actions{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+}
+
+.refresh-btn{
+
+    width:34px;
+
+    height:34px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#f8fafc;
+
+    cursor:pointer;
+
+    color:#2563eb;
+
+    font-size:18px;
+
+    transition:.25s;
+
+}
+
+.refresh-btn:hover{
+
+    background:#dbeafe;
+
+    transform:rotate(90deg);
+
+}
+
 .customer-count{
 
-    background:#2563eb;
+    min-width:38px;
 
-    color:white;
+    text-align:center;
 
-    padding:4px 10px;
-
-    border-radius:20px;
-
-    font-size:12px;
-
-    font-weight:700;
 }
 .search-wrapper{
 
@@ -2975,6 +3161,38 @@ animation-delay:.2s;
     color:#2563eb;
 
 }
+
+/* ===============================
+   Inbox Date Sections
+================================= */
+
+.customer-section{
+
+    list-style:none;
+
+    position:sticky;
+
+    top:0;
+
+    z-index:5;
+
+    background:#f8fafc;
+
+    padding:10px 16px;
+
+    font-size:12px;
+
+    font-weight:700;
+
+    color:#64748b;
+
+    text-transform:uppercase;
+
+    letter-spacing:.6px;
+
+    border-bottom:1px solid #e5e7eb;
+
+}
     </style>    
 
 </head>
@@ -3087,23 +3305,55 @@ animation-delay:.2s;
 
             <div class="inbox-header">
 
-                <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div class="inbox-title-row">
 
-                    <h3>💬 Conversations</h3>
+                    <div>
 
-                    <span id="customerCountBadge" class="customer-count">
-                        0
-                    </span>
+                        <h3>💬 Conversations</h3>
+
+                        <div class="inbox-subtitle">
+
+                            <span class="online-dot"></span>
+
+                            <span id="onlineCustomers">
+                                Active Customers
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="inbox-actions">
+
+                        <span id="customerCountBadge"
+                            class="customer-count">
+                            0
+                        </span>
+
+                        <button
+                            class="refresh-btn"
+                            onclick="loadCustomers()"
+                            title="Refresh">
+
+                            ↻
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="search-wrapper">
+
+                    <input
+                        id="customerSearch"
+                        class="search-box"
+                        placeholder="Search by customer, phone or message..."
+                        onkeyup="searchCustomers()">
 
                 </div>
 
             </div>
-
-            <input
-                id="customerSearch"
-                class="search-box"
-                placeholder="🔍 Search conversations..."
-                onkeyup="searchCustomers()">
 
             <ul id="customerList"></ul>
 
@@ -3450,6 +3700,7 @@ let customerCache = {};
 let customerMap = {};
 let lastConversationHash = "";
 let lastCustomerHash = "";
+let pinnedCustomers = new Set();
 async function addWebsite() {
 
     document.getElementById("status").innerText =
@@ -3531,6 +3782,33 @@ async function loadWebsites() {
 
         list.appendChild(li);
     });
+}
+
+function getConversationSection(lastSeen){
+
+    if(!lastSeen)
+        return "Older";
+
+    const date = new Date(lastSeen);
+
+    const today = new Date();
+
+    const diff =
+        Math.floor(
+            (today - date) / (1000*60*60*24)
+        );
+
+    if(diff <= 0)
+        return "Today";
+
+    if(diff === 1)
+        return "Yesterday";
+
+    if(diff <= 7)
+        return "This Week";
+
+    return "Older";
+
 }
 
 async function searchCustomers() {
@@ -3644,89 +3922,128 @@ async function loadDashboardMetrics() {
 
 async function loadCustomers() {
 
-    const userId =
-        document.getElementById("userId").value;
+    const userId = document.getElementById("userId").value;
 
-    if (!userId)
-        return;
+    if (!userId) return;
 
-    const response =
-        await fetch(`/customer-details/${userId}`);
+    try {
 
-    const data =
-        await response.json();
+        const response = await fetch(`/customer-details/${userId}`);
 
-    const list =
-        document.getElementById("customerList");
+        const data = await response.json();
 
-    renderCustomers(data.customers);
+        const customers = data.customers || [];
 
-    const totalMessages =
-        data.customers.reduce(
-            (sum,c)=>sum+c.message_count,
+        // ----------------------------
+        // Render Inbox
+        // ----------------------------
+
+        renderCustomers(customers);
+
+        // ----------------------------
+        // Dashboard Numbers
+        // ----------------------------
+
+        const totalCustomers = customers.length;
+
+        const totalMessages = customers.reduce(
+            (sum, c) => sum + (c.message_count || 0),
             0
         );
 
-    document.getElementById(
-        "messageCount"
-    ).innerText = totalMessages;
+        const qualifiedLeads = customers.filter(
+            c => (c.lead_score || 0) >= 80
+        ).length;
+
+        const opportunities = customers.filter(
+            c => (c.lead_score || 0) >= 60
+        ).length;
+
+        // ----------------------------
+        // Header KPIs
+        // ----------------------------
+
+        document.getElementById("customerCount").innerText =
+            totalCustomers;
+
+        document.getElementById("messageCount").innerText =
+            totalMessages;
+
+        document.getElementById("qualifiedCount").innerText =
+            qualifiedLeads;
+
+        document.getElementById("opportunityCount").innerText =
+            opportunities;
+
+        // ----------------------------
+        // Inbox Header Badge
+        // ----------------------------
+
+        document.getElementById("customerCountBadge").innerText =
+            totalCustomers;
+
+    }
+    catch (err) {
+
+        console.error("Unable to load customers", err);
+
+    }
+
 }
 
+function renderCustomers(customers) {
 
-function renderCustomers(customers){
+    const list = document.getElementById("customerList");
 
-    const list =
-        document.getElementById("customerList");
+    list.innerHTML = "";
 
-    const existingCards = {};
+    if (!customers || customers.length === 0) {
 
-    list.querySelectorAll(".customer-card")
-        .forEach(card=>{
+        list.innerHTML = `
 
-            existingCards[
-                card.dataset.phone
-            ] = card;
+            <div class="empty-inbox">
 
-        });
+                <div style="font-size:60px;">📭</div>
 
-    customers.forEach(customer=>{
+                <h3>No Conversations</h3>
 
-        const key = customer.phone;
+                <p>Customers will appear here once they start chatting.</p>
 
-        const previous =
-            customerCache[key];
+            </div>
 
-        const changed =
-            JSON.stringify(previous)
-            !==
-            JSON.stringify(customer);
+        `;
 
-        if(!existingCards[key]){
+        return;
+    }
 
-            const card =
-                createCustomerCard(customer);
+    let currentSection = "";
 
-            list.appendChild(card);
+    customers.forEach(customer => {
 
+        const section = getConversationSection(customer.last_seen);
+
+        if (section !== currentSection) {
+
+            currentSection = section;
+
+            const divider = document.createElement("li");
+
+            divider.className = "customer-section";
+
+            divider.innerHTML = `
+                <span>${currentSection}</span>
+            `;
+
+            list.appendChild(divider);
         }
-        else if(changed){
 
-            const newCard =
-                createCustomerCard(customer);
-
-            existingCards[key].replaceWith(newCard);
-
-        }
-
-        customerCache[key] = customer;
-        customerMap[key] = customer;
+        list.appendChild(createCustomerCard(customer));
 
     });
 
 }
 
-
-function createCustomerCard(customer){
+function createCustomerCard(customer) {
 
     const li = document.createElement("li");
 
@@ -3734,107 +4051,175 @@ function createCustomerCard(customer){
 
     li.dataset.phone = customer.phone;
 
-    if(customer.phone === currentCustomer){
+    if (customer.phone === currentCustomer) {
         li.classList.add("active");
     }
 
     li.onclick = () => selectCustomer(customer.phone);
 
+    // ----------------------------
+    // Avatar Initials
+    // ----------------------------
+
     const initials =
         customer.name
-            ? customer.name.substring(0,2).toUpperCase()
-            : customer.phone.substring(0,2);
+            ? customer.name.substring(0, 2).toUpperCase()
+            : customer.phone.substring(0, 2);
+
+    // ----------------------------
+    // Lead Priority
+    // ----------------------------
 
     let leadClass = "cold";
 
-    if(customer.lead_score >= 80){
+    if ((customer.lead_score || 0) >= 80) {
         leadClass = "hot";
     }
-    else if(customer.lead_score >= 50){
+    else if ((customer.lead_score || 0) >= 50) {
         leadClass = "warm";
     }
 
+    li.classList.add(leadClass);
+
+    const leadLabel =
+        leadClass === "hot"
+            ? "🔥 Hot"
+            : leadClass === "warm"
+                ? "🟡 Warm"
+                : "🔵 Cold";
+
+    // ----------------------------
+    // Render
+    // ----------------------------
+
     li.innerHTML = `
 
-    <div class="customer-avatar-wrapper">
+        <div class="customer-avatar-wrapper">
 
-        <div class="customer-avatar ${leadClass}">
-            ${initials}
+            <div class="customer-avatar ${leadClass}">
+                ${initials}
+            </div>
+
+            <div class="presence-dot"></div>
+
         </div>
 
-        <div class="presence-dot"></div>
+        <div class="customer-main">
 
-    </div>
+            <div class="customer-top">
 
-    <div class="customer-main">
+                <div class="customer-details">
 
-        <div class="customer-top">
+                    <div class="customer-name">
 
-            <div class="customer-info">
+                        ${customer.name || "Unknown Customer"}
 
-                <div class="customer-name">
+                    </div>
 
-                    ${customer.name || "Unknown Customer"}
+                    <div class="customer-phone">
+
+                        ${customer.phone}
+
+                    </div>
 
                 </div>
 
-                <div class="customer-phone">
+                <div class="customer-time">
 
-                    ${customer.phone}
+                    ${customer.last_seen
+                        ? formatTime(customer.last_seen)
+                        : "--"}
 
                 </div>
 
             </div>
 
-            <div class="customer-time">
+            <div class="customer-preview">
 
-                ${formatTime(customer.last_seen)}
+                ${customer.last_message || "No messages yet"}
+
+            </div>
+
+            <div class="customer-bottom">
+
+                <div class="customer-metrics">
+
+                    <span class="lead-chip ${leadClass}">
+                        ${leadLabel}
+                    </span>
+
+                    <span class="customer-score">
+
+                        ⭐ ${customer.lead_score || 0}
+
+                    </span>
+
+                    <span class="message-total">
+
+                        💬 ${customer.message_count || 0}
+
+                    </span>
+
+                    ${
+                        customer.unread_count > 0
+                            ? `
+                            <span class="unread-badge">
+                                ${customer.unread_count}
+                            </span>
+                            `
+                            : ""
+                    }
+
+                </div>
+
+                <div class="customer-actions">
+
+                    <button
+                        class="customer-action-btn"
+                        title="Call">
+
+                        📞
+
+                    </button>
+
+                    <button
+                        class="customer-action-btn"
+                        title="Pin"
+                        onclick="event.stopPropagation(); togglePin('${customer.phone}')">
+
+                        ${pinnedCustomers.has(customer.phone) ? "📍" : "📌"}
+
+                    </button>
+
+                    <button
+                        class="customer-action-btn"
+                        title="More">
+
+                        ⋮
+
+                    </button>
+
+                </div>
 
             </div>
 
         </div>
-
-        <div class="customer-preview">
-
-            ${customer.last_message || "No conversation yet"}
-
-        </div>
-
-        <div class="customer-footer">
-
-            <span class="lead-chip ${leadClass}">
-
-                ${getLeadBadge(customer.lead_score)}
-
-            </span>
-
-            <span class="message-count">
-
-                💬 ${customer.message_count || 0}
-
-            </span>
-
-            ${
-                customer.unread_count > 0
-                ?
-                `<span class="unread-badge">
-
-                    ${customer.unread_count}
-
-                </span>`
-                :
-                ""
-            }
-
-        </div>
-
-    </div>
 
     `;
 
     return li;
 }
 
+function togglePin(phone){
+
+    if(pinnedCustomers.has(phone))
+        pinnedCustomers.delete(phone);
+    else
+        pinnedCustomers.add(phone);
+
+    loadCustomers();
+
+}
 
 function filterCustomers() {
 
