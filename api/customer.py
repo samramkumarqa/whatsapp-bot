@@ -24,7 +24,7 @@ from crm.activity_manager import (
 )
 
 from timeline_manager import get_customer_timeline
-
+from crm.customer_mapping import get_business_id
 from unread_manager import clear_unread
 
 router = APIRouter()
@@ -77,20 +77,23 @@ async def conversation_view(
     user_id: str,
     customer_phone: str
 ):
-        conversation_id = (
-            f"{user_id}:{customer_phone}"
-        )
 
-        clear_unread(
-            conversation_id
-        )
+    business_id = get_business_id(user_id)
 
-        return {
-            "status": "success",
-            "messages": get_conversation(
-                user_id,
-                customer_phone
-            )
+    conversation_id = (
+        f"{business_id}:{customer_phone}"
+    )
+
+    clear_unread(
+        conversation_id
+    )
+
+    return {
+        "status": "success",
+        "messages": get_conversation(
+            user_id,
+            customer_phone
+        )
     }
 
 

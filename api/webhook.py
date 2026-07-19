@@ -18,6 +18,7 @@ validator = RequestValidator(TWILIO_AUTH_TOKEN)
 from crm.customer_mapping import (
     save_mapping,
     get_customer_by_number,
+    get_business_id
 )
 
 from conversations import (
@@ -102,7 +103,9 @@ async def receive_message(
         business_user_id = get_customer_by_number(
             to_number
         )
-
+        business_id = get_business_id(
+            business_user_id
+        )
         if not business_user_id:
 
             await send_message(
@@ -125,7 +128,7 @@ async def receive_message(
         if user_text.lower() == "reset":
 
             clear_history(
-                f"{business_user_id}:{from_number}"
+                f"{business_id}:{from_number}"
             )
 
             await send_message(
@@ -138,7 +141,7 @@ async def receive_message(
             }
 
         conversation_id = (
-            f"{business_user_id}:{from_number}"
+            f"{business_id}:{from_number}"
         )
 
         history = get_history(

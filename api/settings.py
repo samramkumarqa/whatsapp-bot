@@ -26,6 +26,7 @@ class CustomerNumberRequest(
 ):
     user_id: str
     whatsapp_number: str
+    business_id: str | None = None
 
 @router.post("/business-settings")
 async def save_settings(
@@ -61,7 +62,8 @@ async def save_number(
 
     save_customer_number(
         request.user_id,
-        request.whatsapp_number
+        request.whatsapp_number,
+        "business_001"
     )
 
     return {

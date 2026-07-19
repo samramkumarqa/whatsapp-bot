@@ -60,6 +60,11 @@ def start_scheduler():
 
     scheduler.start()
 
+    print("Jobs currently registered:")
+
+    for job in scheduler.get_jobs():
+        print(job.id, job.next_run_time)
+
     logger.info(
         "Automation Scheduler Started"
     )

@@ -9,6 +9,8 @@ from ai.business_insights import generate_business_insights
 from executive_summary import generate_executive_summary
 from daily_briefing import generate_daily_briefing
 from crm.customer_mapping import get_business_phone_by_user
+from crm.customer_mapping import get_business_id
+
 
 CONVERSATION_DB = "conversations.db"
 CRM_DB = "data/app.db"
@@ -50,6 +52,13 @@ def get_customer_stats(user_id):
     conv_conn = get_conversation_connection()
     crm_conn = get_crm_connection()
 
+    business_id = get_business_id(user_id)
+
+    if not business_id:
+        conv_conn.close()
+        crm_conn.close()
+        return []
+
     cursor = conv_conn.execute(
         """
         SELECT
@@ -61,7 +70,7 @@ def get_customer_stats(user_id):
         GROUP BY phone
         ORDER BY last_seen DESC
         """,
-        (f"{user_id}:%",)
+        (f"{business_id}:%",)
     )
 
     rows = cursor.fetchall()
@@ -103,7 +112,11 @@ def get_customer_stats(user_id):
             """
             SELECT
                 lead_score,
-                status
+                status,
+                intent,
+                buying_stage,
+                sentiment,
+                priority
             FROM leads
             WHERE customer_phone = ?
             """,
@@ -112,17 +125,64 @@ def get_customer_stats(user_id):
 
         lead_row = lead_cursor.fetchone()
 
-        lead_score = lead_row[0] if lead_row else 0
-        lead_status = lead_row[1] if lead_row else "New"
+        if lead_row:
+
+            lead_score = lead_row[0]
+            lead_status = lead_row[1]
+            intent = lead_row[2]
+            buying_stage = lead_row[3]
+            sentiment = lead_row[4]
+            priority = lead_row[5]
+
+        else:
+
+            lead_score = 0
+            lead_status = "New"
+            intent = ""
+            buying_stage = ""
+            sentiment = ""
+            priority = ""
+
+        try:
+
+            last_seen_dt = datetime.strptime(
+                row[2],
+                "%Y-%m-%d %H:%M:%S"
+            )
+
+            last_seen_days = (
+                datetime.now() - last_seen_dt
+            ).days
+
+        except:
+
+            last_seen_days = 999
 
         customers.append({
+
             "phone": customer_phone,
+
             "message_count": row[1],
+
             "last_seen": row[2],
+
             "unread_count": unread_count,
+
             "last_message": last_message,
+
             "lead_score": lead_score,
-            "status": lead_status
+
+            "status": lead_status,
+
+            "intent": intent,
+
+            "buying_stage": buying_stage,
+
+            "sentiment": sentiment,
+
+            "priority": priority,
+            "last_seen_days": last_seen_days,
+
         })
 
     conv_conn.close()
@@ -135,8 +195,13 @@ def get_conversation(
     customer_phone
 ):
 
+    business_id = get_business_id(user_id)
+
+    if not business_id:
+        return []
+
     conversation_id = (
-        f"{user_id}:{customer_phone}"
+        f"{business_id}:{customer_phone}"
     )
 
     conn = get_conversation_connection()
@@ -168,6 +233,15 @@ def get_conversation(
 
 def get_dashboard_metrics(user_id):
 
+    business_id = get_business_id(user_id)
+
+    if not business_id:
+        return {
+            "customers": 0,
+            "messages": 0,
+            "today_messages": 0
+        }
+
     conn = get_conversation_connection()
 
     customer_count = conn.execute(
@@ -176,7 +250,7 @@ def get_dashboard_metrics(user_id):
         FROM conversations
         WHERE phone LIKE ?
         """,
-        (f"{user_id}:%",)
+        (f"{business_id}:%",)
     ).fetchone()[0]
 
     message_count = conn.execute(
@@ -185,7 +259,7 @@ def get_dashboard_metrics(user_id):
         FROM conversations
         WHERE phone LIKE ?
         """,
-        (f"{user_id}:%",)
+        (f"{business_id}:%",)
     ).fetchone()[0]
 
     today_count = conn.execute(
@@ -195,7 +269,7 @@ def get_dashboard_metrics(user_id):
         WHERE phone LIKE ?
         AND DATE(created_at)=DATE('now')
         """,
-        (f"{user_id}:%",)
+        (f"{business_id}:%",)
     ).fetchone()[0]
 
     conn.close()
@@ -210,6 +284,11 @@ def get_customer_profile(user_id, customer_phone):
 
     conn = get_conversation_connection()
 
+    business_id = get_business_id(user_id)
+
+    if not business_id:
+        return {}
+
     cursor = conn.execute(
         """
         SELECT
@@ -219,7 +298,7 @@ def get_customer_profile(user_id, customer_phone):
         FROM conversations
         WHERE phone = ?
         """,
-        (f"{user_id}:{customer_phone}",)
+        (f"{business_id}:{customer_phone}",)
     )
 
     row = cursor.fetchone()
@@ -241,10 +320,16 @@ def get_customer_profile(user_id, customer_phone):
     return profile
 
 def get_top_customers(
+        
+    
     user_id,
     limit=5
 ):
 
+    business_id = get_business_id(user_id)
+
+    if not business_id:
+        return []
     conn = get_conversation_connection()
 
     cursor = conn.execute(
@@ -259,7 +344,7 @@ def get_top_customers(
         LIMIT ?
         """,
         (
-            f"{user_id}:%",
+            f"{business_id}:%",
             limit
         )
     )

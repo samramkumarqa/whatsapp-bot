@@ -51,11 +51,54 @@ def get_customers(user_id):
     return customers
 
     conn.close()
+def get_user_id_by_business_id(business_id):
 
+    conn = get_crm_connection()
+
+    cursor = conn.execute(
+        """
+        SELECT user_id
+        FROM customer_numbers
+        WHERE business_id = ?
+        """,
+        (business_id,)
+    )
+
+    row = cursor.fetchone()
+
+    conn.close()
+
+    if not row:
+        return None
+
+    return row[0]
+
+def get_business_id(user_id):
+
+    conn = get_crm_connection()
+
+    cursor = conn.execute(
+        """
+        SELECT business_id
+        FROM customer_numbers
+        WHERE user_id = ?
+        """,
+        (user_id,)
+    )
+
+    row = cursor.fetchone()
+
+    conn.close()
+
+    if not row:
+        return None
+
+    return row[0]
 
 def save_customer_number(
     user_id: str,
-    whatsapp_number: str
+    whatsapp_number: str,
+    business_id: str = None
 ):
 
     conn = get_crm_connection()
@@ -63,18 +106,22 @@ def save_customer_number(
     conn.execute(
         """
         INSERT OR REPLACE INTO customer_numbers
-        (user_id, whatsapp_number)
-        VALUES (?, ?)
+        (
+            user_id,
+            whatsapp_number,
+            business_id
+        )
+        VALUES (?, ?, ?)
         """,
         (
             user_id,
-            whatsapp_number
+            whatsapp_number,
+            business_id
         )
     )
 
     conn.commit()
     conn.close()
-
 
 def get_customer_by_number(
     whatsapp_number: str

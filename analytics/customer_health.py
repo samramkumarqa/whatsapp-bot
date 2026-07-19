@@ -4,6 +4,7 @@ from database.db import (
 )
 from datetime import datetime
 from crm.lead_manager import get_lead
+from crm.customer_mapping import get_business_id
 
 CRM_DB = "data/app.db"
 CONVERSATION_DB = "conversations.db"
@@ -19,8 +20,13 @@ def get_last_seen_days(
 
     conn = get_conversation_connection()
 
+    business_id = get_business_id(user_id)
+
+    if not business_id:
+        return 999
+
     conversation_id = (
-        f"{user_id}:{customer_phone}"
+        f"{business_id}:{customer_phone}"
     )
 
     row = conn.execute(
@@ -93,38 +99,7 @@ def get_reminder_stats(
         "overdue": overdue
     }
 
-def get_reminder_stats(
-    customer_phone
-):
-    """
-    Returns reminder statistics for one customer.
-    """
 
-    conn = get_crm_connection()
-
-    today = datetime.now().strftime(
-        "%Y-%m-%d"
-    )
-
-    overdue = conn.execute(
-        """
-        SELECT COUNT(*)
-        FROM reminders
-        WHERE customer_phone=?
-        AND completed=0
-        AND due_date < ?
-        """,
-        (
-            customer_phone,
-            today
-        )
-    ).fetchone()[0]
-
-    conn.close()
-
-    return {
-        "overdue": overdue
-    }
 
 def get_customer_health_dashboard(user_id):
     """

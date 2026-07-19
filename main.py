@@ -29,6 +29,8 @@ from automation.service import initialize_scheduler
 from automation.database import init_automation_db
 from api.automation import router as automation_router
 from automation.database import init_automation_db
+from api.reminders import router as reminders_router
+from automation.scheduler import start_scheduler
 
 # ==========================================================
 # Environment & Initialization
@@ -66,7 +68,7 @@ LEAD_PRIORITY = {
 
 }
 
-app = FastAPI()
+
 
 validator = RequestValidator(TWILIO_AUTH_TOKEN)
 
@@ -84,3 +86,5 @@ app.include_router(chat_router)
 app.include_router(misc_router)
 app.include_router(dashboard_router)
 app.include_router(automation_router)
+app.include_router(reminders_router)
+

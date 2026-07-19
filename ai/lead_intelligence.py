@@ -18,7 +18,6 @@ from crm.opportunity_manager import add_opportunity
 from ai.sales_coach import get_next_best_action
 from ai.utils import parse_ai_json
 
-from automation.engine import automation_engine
 
 
 AI_VERSION = "v1"
@@ -567,9 +566,5 @@ async def refresh_customer_intelligence(
         f"{new_tags}"
     )
 
-    await automation_engine.run(
-        customer_phone,
-        analysis
-    )
 
     return analysis

@@ -5,7 +5,10 @@ from automation.models import (
     Condition,
     Action,
 )
-from automation.actions import ACTION_REGISTRY
+
+# NEW registry
+from automation.actions.registry import ACTION_REGISTRY
+
 from automation.manager import get_rules
 from crm.activity_manager import add_activity
 
@@ -17,7 +20,11 @@ class AutomationEngine:
     def __init__(self):
         pass
 
-    def evaluate_condition(self, analysis, condition):
+    def evaluate_condition(
+        self,
+        analysis,
+        condition
+    ):
         """
         Evaluate a single condition.
         """
@@ -25,7 +32,6 @@ class AutomationEngine:
         current_value = analysis.get(condition.field)
 
         operator = condition.operator
-
         expected = condition.value
 
         try:
@@ -53,7 +59,10 @@ class AutomationEngine:
                 if current_value is None:
                     return False
 
-                return str(expected).lower() in str(current_value).lower()
+                return (
+                    str(expected).lower()
+                    in str(current_value).lower()
+                )
 
             logger.warning(
                 f"Unknown operator: {operator}"
@@ -88,7 +97,9 @@ class AutomationEngine:
 
         for action in rule.actions:
 
-            action_fn = ACTION_REGISTRY.get(action.name)
+            action_fn = ACTION_REGISTRY.get(
+                action.name
+            )
 
             if action_fn is None:
 
@@ -97,6 +108,10 @@ class AutomationEngine:
                 )
 
                 continue
+
+            logger.info(
+                f"Executing action plugin: {action.name}"
+            )
 
             await action_fn(
                 customer_phone,
@@ -108,38 +123,63 @@ class AutomationEngine:
         customer_phone,
         analysis
     ):
-        """
-        Evaluate automation rules stored in the database.
-        """
 
-        logger.info("Automation Engine started.")
+        logger.info(
+            "Automation Engine started."
+        )
 
-        rules_data = get_rules(enabled_only=True)
+        rules_data = get_rules(
+            enabled_only=True
+        )
 
         for rule_data in rules_data:
+
+            #
+            # Build Conditions
+            #
 
             conditions = []
 
             for c in rule_data["conditions"]:
 
                 conditions.append(
-                    RuleCondition(
+
+                    Condition(
+
                         field=c["field"],
+
                         operator=c["operator"],
+
                         value=c["value"]
+
                     )
                 )
+
+            #
+            # Build Actions
+            #
 
             actions = []
 
             for a in rule_data["actions"]:
 
                 actions.append(
-                    RuleAction(
+
+                    Action(
+
                         name=a["name"],
-                        params=a.get("params", {})
+
+                        params=a.get(
+                            "params",
+                            {}
+                        )
+
                     )
                 )
+
+            #
+            # Build Rule
+            #
 
             rule = AutomationRule(
 
@@ -147,7 +187,10 @@ class AutomationEngine:
 
                 name=rule_data["name"],
 
-                description=rule_data.get("description", ""),
+                description=rule_data.get(
+                    "description",
+                    ""
+                ),
 
                 conditions=conditions,
 
@@ -159,7 +202,12 @@ class AutomationEngine:
                     "stop_after_match",
                     True
                 )
+
             )
+
+            #
+            # Evaluate Conditions
+            #
 
             matched = True
 

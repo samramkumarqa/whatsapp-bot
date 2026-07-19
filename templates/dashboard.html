@@ -1005,7 +1005,23 @@ box-shadow:0 6px 16px rgba(0,0,0,.12);
 
     color:#8696a0;
 }
+.timeline-footer{
 
+    margin-top:8px;
+
+    font-size:12px;
+
+    color:#64748b;
+
+}
+
+.timeline-footer strong{
+
+    color:#1e293b;
+
+    font-weight:600;
+
+}
 /* STATUS */
 
 #status{
@@ -2411,16 +2427,119 @@ html{
     border-color:#ef4444;
 }
 
+
 .reminder-title{
 
-    font-weight:600;
-    margin-bottom:4px;
+    font-size:18px;
+
+    font-weight:700;
+
+    color:#1e293b;
+
+}
+.reminder-card{
+
+    background:#ffffff;
+
+    border-radius:16px;
+
+    padding:18px;
+
+    margin-bottom:16px;
+
+    border-left:5px solid;
+
+    box-shadow:0 6px 18px rgba(15,23,42,.06);
+
+    transition:.25s;
+
+}
+.reminder-card:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 12px 28px rgba(15,23,42,.10);
+
+}
+.reminder-card.green{
+
+    border-color:#22c55e;
+
+}
+.reminder-card.yellow{
+
+    border-color:#f59e0b;
+
+}
+.reminder-card.red{
+
+    border-color:#ef4444;
+
+}
+.reminder-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
+
+    margin-bottom:12px;
+
 }
 
 .reminder-date{
 
-    font-size:12px;
+    margin-top:6px;
+
+    font-size:13px;
+
     color:#64748b;
+
+}
+.reminder-priority{
+
+    padding:6px 12px;
+
+    border-radius:999px;
+
+    font-size:12px;
+
+    font-weight:700;
+
+}
+.reminder-priority.green{
+
+    background:#dcfce7;
+
+    color:#166534;
+
+}
+
+.reminder-priority.yellow{
+
+    background:#fef3c7;
+
+    color:#92400e;
+
+}
+
+.reminder-priority.red{
+
+    background:#fee2e2;
+
+    color:#991b1b;
+
+}
+
+.reminder-reason{
+
+    color:#475569;
+
+    line-height:1.6;
+
+    font-size:14px;
+
 }
 /* LEAD HEALTH */
 
@@ -2502,6 +2621,116 @@ html{
 
     line-height:1.6;
 }
+.timeline-item{
+
+    display:flex;
+
+    gap:16px;
+
+    position:relative;
+
+    padding-bottom:24px;
+
+}
+
+.timeline-item:last-child{
+
+    padding-bottom:0;
+
+}
+
+.timeline-item::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:18px;
+
+    top:42px;
+
+    width:2px;
+
+    height:calc(100% - 18px);
+
+    background:#e2e8f0;
+
+}
+
+.timeline-item:last-child::before{
+
+    display:none;
+
+}
+
+.timeline-icon{
+
+    width:38px;
+
+    height:38px;
+
+    border-radius:50%;
+
+    background:#eff6ff;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:18px;
+
+    flex-shrink:0;
+
+    box-shadow:0 3px 8px rgba(0,0,0,.08);
+
+}
+
+.timeline-content{
+
+    flex:1;
+
+    background:white;
+
+    border:1px solid #e5e7eb;
+
+    border-radius:12px;
+
+    padding:14px;
+
+}
+
+.timeline-title{
+
+    font-weight:700;
+
+    color:#0f172a;
+
+    margin-bottom:6px;
+
+}
+
+.timeline-description{
+
+    color:#475569;
+
+    font-size:13px;
+
+    line-height:1.6;
+
+}
+
+.timeline-date{
+
+    margin-top:8px;
+
+    font-size:12px;
+
+    color:#94a3b8;
+
+}
+
 .search-box{
 
     width:100%;
@@ -2608,6 +2837,64 @@ html{
     margin-top:3px;
 
 }
+.pipeline-summary{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:12px;
+
+    margin-bottom:18px;
+
+}
+.pipeline-stat{
+
+    background:#f8fafc;
+
+    border:1px solid #e2e8f0;
+
+    border-radius:14px;
+
+    padding:14px;
+
+    text-align:center;
+
+}
+
+.pipeline-kpi{
+
+    background:#f8fafc;
+
+    border:1px solid #e2e8f0;
+
+    border-radius:12px;
+
+    padding:14px;
+
+    text-align:center;
+
+}
+
+.pipeline-number{
+
+    font-size:24px;
+
+    font-weight:700;
+
+    color:#2563eb;
+
+    margin-bottom:6px;
+
+}
+
+.pipeline-label{
+
+    font-size:12px;
+
+    color:#64748b;
+
+}
 .typing{
 
     color:#22c55e;
@@ -2626,6 +2913,71 @@ html{
     100%{opacity:.3;}
 }
 
+/* ==========================================
+   Opportunity Summary
+========================================== */
+
+.opportunity-summary{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:12px;
+
+    margin-bottom:18px;
+
+}
+
+.opp-summary-item{
+
+    background:#f8fafc;
+
+    border:1px solid #e2e8f0;
+
+    border-radius:14px;
+
+    padding:14px;
+
+    text-align:center;
+
+    transition:.25s;
+
+}
+
+.opp-summary-item:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 6px 16px rgba(0,0,0,.08);
+
+}
+
+.opp-summary-value{
+
+    font-size:26px;
+
+    font-weight:700;
+
+    color:#2563eb;
+
+    margin-bottom:6px;
+
+}
+
+.opp-summary-label{
+
+    font-size:12px;
+
+    color:#64748b;
+
+    font-weight:600;
+
+    text-transform:uppercase;
+
+    letter-spacing:.4px;
+
+}
 .health-gauge{
 
     display:flex;
@@ -3589,13 +3941,34 @@ animation-delay:.2s;
 
     </div>
 
-    <div class="card">
+        <div class="card">
 
-        <h3>💰 Opportunity Pipeline</h3>
+            <h3>💰 Opportunity Pipeline</h3>
 
-        <div id="opportunityPanel"></div>
+            
 
-    </div>
+            <div class="pipeline-summary">
+
+                <div class="pipeline-stat">
+                    <div class="pipeline-number" id="oppOpenCount">0</div>
+                    <div class="pipeline-label">Open Deals</div>
+                </div>
+
+                <div class="pipeline-stat">
+                    <div class="pipeline-number" id="oppRevenue">₹0</div>
+                    <div class="pipeline-label">Revenue</div>
+                </div>
+
+                <div class="pipeline-stat">
+                    <div class="pipeline-number" id="oppAvgProbability">0%</div>
+                    <div class="pipeline-label">Win Rate</div>
+                </div>
+
+            </div>
+
+            <div id="opportunityPanel"></div>
+
+        </div>
 
     <div class="card">
 
@@ -3633,7 +4006,7 @@ animation-delay:.2s;
 
         <input
             id="userId"
-            placeholder="testA"
+            placeholder="+14155238886"
         >
 
         <br>
@@ -4263,7 +4636,8 @@ async function selectCustomer(customerPhone){
         loadCustomerProfile(customerPhone),
         loadLeadTimeline(customerPhone),
         loadConversation(customerPhone),
-        loadOpportunities(customerPhone)
+        loadOpportunities(customerPhone),
+        loadReminders(customerPhone)
     ]);
 }
 
@@ -5196,74 +5570,190 @@ async function loadCustomerProfile(customerPhone) {
     `;
 }
 
-async function loadLeadTimeline(
-    customerPhone
-){
+async function loadLeadTimeline(customerPhone) {
 
-    const response =
-        await fetch(
-            `/lead-timeline/${encodeURIComponent(customerPhone)}`
-        );
+    const response = await fetch(
+        `/lead-timeline/${encodeURIComponent(customerPhone)}`
+    );
 
-    const data =
-        await response.json();
+    const data = await response.json();
+
+    const timeline =
+        document.getElementById("leadTimeline");
 
     let html = "";
 
-    if(
+    if (
         !data.timeline ||
         data.timeline.length === 0
-    ){
+    ) {
 
-        html = `
-        <div
-            style="
-                color:#64748b;
-                text-align:center;
-                padding:20px;
-            "
-        >
-            No History
+        timeline.innerHTML = `
+
+        <div class="empty-state">
+
+            <div style="font-size:42px;">🕒</div>
+
+            <p>No activity recorded yet.</p>
+
         </div>
+
         `;
+
+        return;
     }
-    else{
 
-        data.timeline.forEach(item => {
+    data.timeline.forEach(item => {
 
-            const color =
-                item.updated_by === "AI"
-                ? "#10b981"
-                : "#2563eb";
+        //----------------------------------------
+        // Activity Type
+        //----------------------------------------
 
-            const badge =
-                item.updated_by === "AI"
-                ? "🤖 AI"
-                : "👤 Manual";
+        let icon = "📝";
+        let activityType = "Activity";
 
-            html += `
-            <div class="timeline-item">
+        if (item.updated_by === "AI") {
 
-                <div class="timeline-status">
-                    ${item.status}
+            icon = "🤖";
+            activityType = "AI Analysis";
+
+        } else {
+
+            icon = "👤";
+            activityType = "Manual Update";
+        }
+
+        const status =
+            (item.status || "").toLowerCase();
+
+        const reason =
+            (item.reason || "").toLowerCase();
+
+        if (reason.includes("message")) {
+
+            icon = "💬";
+            activityType = "Customer Message";
+
+        }
+
+        if (status.includes("qualified")) {
+
+            icon = "🎯";
+            activityType = "Lead Qualified";
+
+        }
+
+        if (status.includes("proposal")) {
+
+            icon = "📄";
+            activityType = "Proposal Sent";
+
+        }
+
+        if (status.includes("negotiation")) {
+
+            icon = "🤝";
+            activityType = "Negotiation";
+
+        }
+
+        if (status.includes("won")) {
+
+            icon = "🏆";
+            activityType = "Deal Won";
+
+        }
+
+        if (status.includes("lost")) {
+
+            icon = "❌";
+            activityType = "Deal Lost";
+
+        }
+
+        //----------------------------------------
+        // Title
+        //----------------------------------------
+
+        const title =
+            item.status || "Status Updated";
+
+        //----------------------------------------
+        // Description
+        //----------------------------------------
+
+        const description =
+            item.reason ||
+            "Lead status updated.";
+
+        //----------------------------------------
+        // Updated By
+        //----------------------------------------
+
+        const updatedBy =
+            item.updated_by || "System";
+
+        //----------------------------------------
+        // HTML
+        //----------------------------------------
+
+        html += `
+
+        <div class="timeline-item">
+
+            <div class="timeline-icon">
+
+                ${icon}
+
+            </div>
+
+            <div class="timeline-content">
+
+                <div class="timeline-header">
+
+                    <span class="timeline-type">
+
+                        ${activityType}
+
+                    </span>
+
+                    <span class="timeline-date">
+
+                        ${item.created_at}
+
+                    </span>
+
                 </div>
 
-                <div class="timeline-date">
-                    ${item.created_at}
+                <div class="timeline-status">
+
+                    ${title}
+
                 </div>
 
                 <div class="timeline-reason">
-                    ${item.reason}
+
+                    ${description}
+
+                </div>
+
+                <div class="timeline-footer">
+
+                    Updated by
+                    <strong>${updatedBy}</strong>
+
                 </div>
 
             </div>
-            `;
-        });
-    }
 
-    document.getElementById(
-        "leadTimeline"
-    ).innerHTML = html;
+        </div>
+
+        `;
+
+    });
+
+    timeline.innerHTML = html;
+
 }
 
 function getLeadClass(score){
@@ -5290,82 +5780,279 @@ function getStars(score){
 
 }
 
-async function loadOpportunities(
-    customerPhone
-){
+async function loadOpportunities(customerPhone) {
 
-    const response =
-        await fetch(
-            `/opportunities/${encodeURIComponent(customerPhone)}`
-        );
+    const response = await fetch(
+        `/opportunities/${encodeURIComponent(customerPhone)}`
+    );
 
-    const data =
-        await response.json();
+    const data = await response.json();
+
+    const opportunities = data.opportunities || [];
+
+    let totalRevenue = 0;
+    let totalProbability = 0;
+    let openCount = 0;
+
+    opportunities.forEach(opp => {
+
+        if (
+            opp.stage !== "Closed Won" &&
+            opp.stage !== "Closed Lost"
+        ) {
+            openCount++;
+        }
+
+        totalRevenue += Number(opp.value || 0);
+
+        totalProbability += Number(opp.probability || 0);
+
+    });
+
+    const avgProbability =
+        opportunities.length
+            ? Math.round(totalProbability / opportunities.length)
+            : 0;
+
+    // ------------------------------------
+    // UPDATE SUMMARY CARDS
+    // ------------------------------------
+
+    document.getElementById("oppOpenCount").innerText =
+        openCount;
+
+    document.getElementById("oppRevenue").innerText =
+        "₹" + totalRevenue.toLocaleString();
+
+    document.getElementById("oppAvgProbability").innerText =
+        avgProbability + "%";
+
+    // ------------------------------------
+    // BUILD OPPORTUNITY CARDS
+    // ------------------------------------
 
     let html = "";
 
-    if(
-        !data.opportunities ||
-        data.opportunities.length === 0
-    ){
+    if (opportunities.length === 0) {
 
         html = `
+
         <div class="empty-state">
 
-            💼
+            <div style="font-size:48px;">💰</div>
 
             <p>No opportunities yet</p>
 
         </div>
+
         `;
-    }
-    else{
 
-        data.opportunities.forEach(
-            opp => {
+    } else {
 
-                const confidenceClass =
-                    opp.confidence >= 80
-                        ? "high"
-                        : opp.confidence >= 50
-                        ? "medium"
-                        : "low";
+        opportunities.forEach(opp => {
 
-                html += `
-                <div class="opportunity-card">
+            html += createOpportunityCard(opp);
 
-                    <div class="opp-header">
+        });
 
-                        <span class="opp-title">
-                            ${opp.type}
-                        </span>
-
-                        <span class="opp-confidence ${confidenceClass}">
-                            ${opp.confidence}%
-                        </span>
-
-                    </div>
-
-                    <div class="opp-date">
-                        📅 ${opp.created_at}
-                    </div>
-
-                    <div class="opp-reason">
-                        ${opp.reason}
-                    </div>
-
-                </div>
-                `;
-            }
-        );
     }
 
-    document.getElementById(
-        "opportunityPanel"
-    ).innerHTML = html;
+    document.getElementById("opportunityPanel").innerHTML =
+        html;
+}
+function createOpportunityCard(opp) {
+
+    const probability =
+        Number(opp.probability || 0);
+
+    const value =
+        Number(opp.value || opp.amount || 0);
+
+    //---------------------------------------
+    // Priority
+    //---------------------------------------
+
+    let priority = "💼";
+
+    if (value >= 100000) {
+
+        priority = "🔥";
+
+    } else if (value >= 50000) {
+
+        priority = "⭐";
+
+    }
+
+    //---------------------------------------
+    // Stage Color
+    //---------------------------------------
+
+    let stageClass = "stage-qualified";
+
+    const stage =
+        (opp.stage || "").toLowerCase();
+
+    if (stage.includes("proposal")) {
+
+        stageClass = "stage-proposal";
+
+    } else if (stage.includes("negotiation")) {
+
+        stageClass = "stage-negotiation";
+
+    } else if (
+        stage.includes("won")
+    ) {
+
+        stageClass = "stage-won";
+
+    } else if (
+        stage.includes("lost")
+    ) {
+
+        stageClass = "stage-lost";
+
+    }
+
+    //---------------------------------------
+    // AI Confidence
+    //---------------------------------------
+
+    const confidence =
+        opp.ai_confidence || probability;
+
+    //---------------------------------------
+    // Expected Close
+    //---------------------------------------
+
+    const closeDate =
+        opp.expected_close || "-";
+
+    //---------------------------------------
+    // Last Updated
+    //---------------------------------------
+
+    const updated =
+        opp.updated_at || "-";
+
+    //---------------------------------------
+    // HTML
+    //---------------------------------------
+
+    return `
+
+    <div class="opportunity-card">
+
+        <div class="opportunity-header">
+
+            <div class="opportunity-title">
+
+                ${priority}
+                ${opp.title || "Opportunity"}
+
+            </div>
+
+            <span class="opportunity-stage ${stageClass}">
+
+                ${opp.stage || "Qualified"}
+
+            </span>
+
+        </div>
+
+        <div class="opportunity-value">
+
+            ₹${value.toLocaleString()}
+
+        </div>
+
+        <div class="meta-item">
+
+            🎯 Win Probability
+
+            <strong>
+
+                ${probability}%
+
+            </strong>
+
+        </div>
+
+        <div class="probability-bar">
+
+            <div
+                class="probability-fill"
+                style="width:${probability}%">
+
+            </div>
+
+        </div>
+
+        <div class="opportunity-meta">
+
+            <div class="meta-item">
+
+                📅 Expected Close
+
+                <br>
+
+                <strong>
+
+                    ${closeDate}
+
+                </strong>
+
+            </div>
+
+            <div class="meta-item">
+
+                🤖 AI Confidence
+
+                <br>
+
+                <strong>
+
+                    ${confidence}%
+
+                </strong>
+
+            </div>
+
+        </div>
+
+        ${opp.reason ? `
+
+        <div class="summary-card" style="margin-top:16px;">
+
+            <h4>🤖 AI Insight</h4>
+
+            <p>${opp.reason}</p>
+
+        </div>
+
+        ` : ""}
+
+        <div
+            style="
+                margin-top:12px;
+                font-size:12px;
+                color:#64748b;
+            ">
+
+            Updated
+
+            ${updated}
+
+        </div>
+
+    </div>
+
+    `;
+
 }
 
-async function loadReminders(){
+async function loadAllReminders() {
 
     const response =
         await fetch("/reminders");
@@ -5373,63 +6060,322 @@ async function loadReminders(){
     const data =
         await response.json();
 
+    const reminders =
+        data.reminders || [];
+    
+    reminders.sort((a, b) => {
+
+        const today = new Date().toISOString().split("T")[0];
+
+        function priority(reminder) {
+
+            if (reminder.due_date < today) return 0;   // Overdue
+            if (reminder.due_date === today) return 1; // Today
+            return 2;                                  // Upcoming
+
+        }
+
+        const p1 = priority(a);
+        const p2 = priority(b);
+
+        if (p1 !== p2)
+            return p1 - p2;
+
+        return new Date(a.due_date) - new Date(b.due_date);
+
+    });
+
+    const today =
+        new Date().toISOString().split("T")[0];
+
+    let overdue = 0;
+    let todayCount = 0;
+    let upcoming = 0;
+
     let html = "";
 
-    data.reminders.forEach(reminder => {
+    if (reminders.length === 0) {
 
-        const today =
-            new Date()
-                .toISOString()
-                .split("T")[0];
+        html = `
 
-        let badge = "🟢";
+        <div class="empty-state">
 
-        if(
-            reminder.due_date < today
-        ){
-            badge = "🔴";
+            <div style="font-size:48px;">📅</div>
+
+            <p>No follow-up reminders.</p>
+
+        </div>
+
+        `;
+
+    } else {
+
+        reminders.forEach(reminder => {
+
+            let cardClass = "green";
+            let badge = "Upcoming";
+
+            if (reminder.due_date < today) {
+
+                cardClass = "red";
+                badge = "Overdue";
+                overdue++;
+
+            }
+            else if (reminder.due_date === today) {
+
+                cardClass = "yellow";
+                badge = "Today";
+                todayCount++;
+
+            }
+            else {
+
+                upcoming++;
+
+            }
+
+            html += `
+
+            <div class="reminder-card ${cardClass}">
+
+                <div class="reminder-header">
+
+                    <div>
+
+                        <div class="reminder-title">
+
+                            📞 ${reminder.customer_phone}
+
+                        </div>
+
+                        <div class="reminder-date">
+
+                            📅 ${reminder.due_date}
+
+                        </div>
+
+                    </div>
+
+                    <div class="reminder-priority ${cardClass}">
+
+                        ${badge}
+
+                    </div>
+
+                </div>
+
+                <div class="reminder-reason">
+
+                    ${reminder.reminder_text}
+
+                </div>
+
+            </div>
+
+            `;
+
+        });
+
+    }
+
+    document.getElementById("reminderPanel").innerHTML = `
+
+        <div class="pipeline-summary">
+
+            <div class="pipeline-stat">
+
+                <div class="pipeline-number">${overdue}</div>
+
+                <div class="pipeline-label">Overdue</div>
+
+            </div>
+
+            <div class="pipeline-stat">
+
+                <div class="pipeline-number">${todayCount}</div>
+
+                <div class="pipeline-label">Today</div>
+
+            </div>
+
+            <div class="pipeline-stat">
+
+                <div class="pipeline-number">${upcoming}</div>
+
+                <div class="pipeline-label">Upcoming</div>
+
+            </div>
+
+        </div>
+
+        ${html}
+
+    `;
+}
+
+async function loadReminders(customerPhone) {
+
+    const response =
+        await fetch(
+            `/reminders/${encodeURIComponent(customerPhone)}`
+        );
+
+    const data =
+        await response.json();
+
+    const reminders =
+        data.reminders || [];
+
+    const today =
+        new Date().toISOString().split("T")[0];
+
+    reminders.sort((a, b) => {
+
+        function priority(reminder){
+
+            if(reminder.due_date < today) return 0;
+            if(reminder.due_date === today) return 1;
+            return 2;
+
         }
-        else if(
-            reminder.due_date === today
-        ){
-            badge = "🟡";
+
+        const p1 = priority(a);
+        const p2 = priority(b);
+
+        if(p1 !== p2)
+            return p1 - p2;
+
+        return new Date(a.due_date) - new Date(b.due_date);
+
+    });
+
+    let overdue = 0;
+    let todayCount = 0;
+    let upcoming = 0;
+
+    let html = "";
+
+    if(reminders.length === 0){
+
+        document.getElementById("reminderPanel").innerHTML = `
+
+        <div class="empty-state">
+
+            <div style="font-size:48px;">📅</div>
+
+            <p>No reminders for this customer.</p>
+
+        </div>
+
+        `;
+
+        return;
+
+    }
+
+    reminders.forEach(reminder=>{
+
+        let cardClass="green";
+        let badge="Upcoming";
+
+        if(reminder.due_date < today){
+
+            cardClass="red";
+            badge="Overdue";
+            overdue++;
+
+        }
+        else if(reminder.due_date===today){
+
+            cardClass="yellow";
+            badge="Today";
+            todayCount++;
+
+        }
+        else{
+
+            upcoming++;
+
         }
 
         html += `
-        <div
-            style="
-                padding:10px;
-                border-bottom:1px solid #eee;
-            "
-        >
 
-            ${badge}
+        <div class="reminder-card ${cardClass}">
 
-            <b>
-                ${reminder.customer_phone}
-            </b>
+            <div class="reminder-header">
 
-            <br>
+                <div>
 
-            ${reminder.reminder_text}
+                    <div class="reminder-title">
 
-            <br>
+                        📞 ${reminder.customer_phone}
 
-            <small>
-                Due:
-                ${reminder.due_date}
-            </small>
+                    </div>
+
+                    <div class="reminder-date">
+
+                        📅 ${reminder.due_date}
+
+                    </div>
+
+                </div>
+
+                <div class="reminder-priority ${cardClass}">
+
+                    ${badge}
+
+                </div>
+
+            </div>
+
+            <div class="reminder-reason">
+
+                ${reminder.reminder_text}
+
+            </div>
 
         </div>
+
         `;
+
     });
 
-    document.getElementById(
-        "reminderPanel"
-    ).innerHTML = html;
+    document.getElementById("reminderPanel").innerHTML = `
+
+        <div class="pipeline-summary">
+
+            <div class="pipeline-stat">
+
+                <div class="pipeline-number">${overdue}</div>
+
+                <div class="pipeline-label">Overdue</div>
+
+            </div>
+
+            <div class="pipeline-stat">
+
+                <div class="pipeline-number">${todayCount}</div>
+
+                <div class="pipeline-label">Today</div>
+
+            </div>
+
+            <div class="pipeline-stat">
+
+                <div class="pipeline-number">${upcoming}</div>
+
+                <div class="pipeline-label">Upcoming</div>
+
+            </div>
+
+        </div>
+
+        ${html}
+
+    `;
+
 }
-
-
 
 window.onload = async function () {
 
@@ -5442,8 +6388,19 @@ window.onload = async function () {
         loadBusinessInfo(),
         loadBusinessSettings(),
         loadWebsites(),
-        loadReminders()
-    ]);
+       ]);
+
+       document.getElementById("reminderPanel").innerHTML = `
+
+        <div class="empty-state">
+
+            <div style="font-size:48px;">📅</div>
+
+            <p>Select a customer to view reminders.</p>
+
+        </div>
+
+        `;
 
 };
 
