@@ -3435,7 +3435,93 @@ padding:8px;
     font-size:14px;
 
 }
+.automation-card{
 
+    background:#ffffff;
+
+    border:1px solid #ddd;
+
+    border-radius:10px;
+
+    padding:18px;
+
+    margin-bottom:16px;
+
+    box-shadow:0 2px 8px rgba(0,0,0,.06);
+
+}
+
+.automation-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
+
+}
+
+.automation-header h3{
+
+    margin:0;
+
+}
+
+.automation-description{
+
+    color:#666;
+
+    margin-top:6px;
+
+}
+
+.automation-details{
+
+    display:flex;
+
+    gap:40px;
+
+    margin-top:18px;
+
+    margin-bottom:18px;
+
+}
+
+.badge-enabled{
+
+    background:#d1fae5;
+
+    color:#065f46;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-weight:bold;
+
+}
+
+.badge-disabled{
+
+    background:#fee2e2;
+
+    color:#991b1b;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-weight:bold;
+
+}
+
+.automation-buttons{
+
+    display:flex;
+
+    gap:10px;
+
+}
 .typing-bubble{
 
 display:flex;
@@ -4057,6 +4143,61 @@ animation-delay:.2s;
             Save Settings
         </button>
 
+        <hr style="margin:25px 0">
+
+        <h3>🤖 Automation Rules</h3>
+
+        <div id="automationRulesContainer">
+
+            Loading automation rules...
+
+        </div>
+
+        <hr style="margin:25px 0">
+
+        <div id="ruleEditor" style="display:none;">
+
+            <h3 id="editorTitle">Edit Rule</h3>
+
+            <label>Trigger</label>
+
+            <select id="triggerType">
+
+                <option value="lead_score">Lead Score</option>
+
+                <option value="customer_health">Customer Health</option>
+
+                <option value="last_seen_days">Last Seen Days</option>
+
+                <option value="sentiment">Sentiment</option>
+
+            </select>
+
+            <br><br>
+
+            <label>Conditions (JSON)</label>
+
+            <textarea
+                id="conditionEditor"
+                rows="8"
+                style="width:100%;"></textarea>
+
+            <br><br>
+
+            <label>Actions (JSON)</label>
+
+            <textarea
+                id="actionEditor"
+                rows="8"
+                style="width:100%;"></textarea>
+
+            <br><br>
+
+            <button onclick="saveRule()">
+                💾 Save Rule
+            </button>
+
+        </div>
         </details>
 
 </div>
@@ -4155,6 +4296,182 @@ async function loadWebsites() {
 
         list.appendChild(li);
     });
+}
+
+async function loadAutomationRules() {
+
+    const container = document.getElementById(
+        "automationRulesContainer"
+    );
+
+    container.innerHTML = "Loading automation rules...";
+
+    try {
+
+        const response = await fetch(
+            "/automation/rules"
+        );
+
+        const data = await response.json();
+
+        if (!data.rules || data.rules.length === 0) {
+
+            container.innerHTML =
+                "<p>No automation rules found.</p>";
+
+            return;
+        }
+
+        let html = "";
+
+        data.rules.forEach(rule => {
+
+            html += `
+
+                <div class="automation-card" data-rule-id="${rule.id}">
+
+                    <div class="automation-header">
+
+                        <div>
+
+                            <h3>🤖 ${rule.name}</h3>
+
+                            <div class="automation-description">
+
+                                ${rule.description || ""}
+
+                            </div>
+
+                        </div>
+
+                        <div class="automation-status">
+
+                            ${
+                                rule.enabled
+                                ? "<span class='badge-enabled'>🟢 Enabled</span>"
+                                : "<span class='badge-disabled'>🔴 Disabled</span>"
+                            }
+
+                        </div>
+
+                    </div>
+
+                    <div class="automation-details">
+
+                        <div>
+
+                            <strong>Trigger</strong><br>
+
+                            ${rule.trigger_type}
+
+                        </div>
+
+                        <div>
+
+                            <strong>Conditions</strong><br>
+
+                            ${Array.isArray(rule.condition_json)
+                                ? rule.condition_json.length
+                                : 1}
+
+                        </div>
+
+                        <div>
+
+                            <strong>Actions</strong><br>
+
+                            ${Array.isArray(rule.action_json)
+                                ? rule.action_json.length
+                                : 1}
+
+                        </div>
+
+                    </div>
+
+                    <div class="automation-buttons">
+
+                        <button
+                            onclick="editRule(${rule.id})"
+                        >
+                            ✏ Edit
+                        </button>
+
+                        <button
+                            onclick="toggleRule(${rule.id}, ${rule.enabled})"
+                        >
+                            ${
+                                rule.enabled
+                                ? "⏸ Disable"
+                                : "▶ Enable"
+                            }
+                        </button>
+
+                        <button
+                            onclick="deleteRule(${rule.id})"
+                            style="background:#ef4444;color:white"
+                        >
+                            🗑 Delete
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        });
+
+        container.innerHTML = html;
+
+    } catch (err) {
+
+        console.error(err);
+
+        container.innerHTML =
+            "<p style='color:red'>Failed to load automation rules.</p>";
+
+    }
+
+}
+
+async function editRule(ruleId) {
+
+    console.log("Editing rule:", ruleId);
+
+    const response = await fetch("/automation/rules");
+
+    const data = await response.json();
+
+    const rule = data.rules.find(r => r.id === ruleId);
+
+    if (!rule) {
+        alert("Rule not found");
+        return;
+    }
+
+    document.getElementById("ruleEditor").style.display = "block";
+
+    document.getElementById("editorTitle").innerHTML =
+        `Edit Rule - ${rule.name}`;
+
+    document.getElementById("triggerType").value =
+        rule.trigger_type;
+
+    document.getElementById("conditionEditor").value =
+        JSON.stringify(rule.condition_json, null, 2);
+
+    document.getElementById("actionEditor").value =
+        JSON.stringify(rule.action_json, null, 2);
+
+    window.currentEditingRule = rule.id;
+}
+
+function populateRuleForm(rule){
+
+    console.log("Rule Loaded");
+
+    console.log(rule);
+
 }
 
 function getConversationSection(lastSeen){
@@ -4359,6 +4676,75 @@ async function loadCustomers() {
     catch (err) {
 
         console.error("Unable to load customers", err);
+
+    }
+
+}
+
+async function saveRule() {
+
+    if (!window.currentEditingRule) {
+        alert("No rule selected.");
+        return;
+    }
+
+    try {
+
+        const payload = {
+
+            name: document
+                .getElementById("editorTitle")
+                .innerText
+                .replace("Edit Rule - ", ""),
+
+            description: "",
+
+            enabled: true,
+
+            trigger_type:
+                document.getElementById("triggerType").value,
+
+            condition_json: JSON.parse(
+                document.getElementById("conditionEditor").value
+            ),
+
+            action_json: JSON.parse(
+                document.getElementById("actionEditor").value
+            )
+
+        };
+
+        const response = await fetch(
+
+            `/automation/rules/${window.currentEditingRule}`,
+
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(payload)
+
+            }
+
+        );
+
+        const result = await response.json();
+
+        console.log(result);
+
+        alert("Rule updated successfully.");
+
+        loadAutomationRules();
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        alert("Invalid JSON or failed to update.");
 
     }
 
@@ -5118,7 +5504,7 @@ document
         loadTopCustomers();
         loadBusinessSettings();
         loadReminders();
-        
+        loadAutomationRules();   
     }
 );
 
@@ -5160,7 +5546,7 @@ setInterval(() => {
     loadTopCustomers();
 
     loadReminders();
-
+    loadAutomationRules();
 }, 60000);
 
 
@@ -6556,7 +6942,90 @@ async function checkConversationUpdates(){
 
 }
 
+
+async function deleteRule(id){
+
+    if(!confirm("Delete this automation rule?"))
+        return;
+
+    try{
+
+        const response = await fetch(
+            `/automation/rules/${id}`,
+            {
+                method:"DELETE"
+            }
+        );
+
+        const data = await response.json();
+
+        if(data.status=="success"){
+
+            alert("Rule deleted successfully.");
+
+            loadAutomationRules();
+
+        }else{
+
+            alert("Unable to delete rule.");
+
+        }
+
+    }catch(err){
+
+        console.error(err);
+
+        alert("Delete failed.");
+
+    }
+
+}
+
+async function toggleRule(id, enabled){
+
+    try{
+
+        const response = await fetch(
+
+            `/automation/rules/${id}/enabled`,
+
+            {
+
+                method:"PUT",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify({
+
+                    enabled: !enabled
+
+                })
+
+            }
+
+        );
+
+        const data = await response.json();
+
+        if(data.status=="success"){
+
+            loadAutomationRules();
+
+        }
+
+    }catch(err){
+
+        console.error(err);
+
+        alert("Unable to update rule.");
+
+    }
+
+}
+
 </script>
 
 </body>
-</html>"
+</html>
