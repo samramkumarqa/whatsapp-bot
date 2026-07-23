@@ -1866,6 +1866,42 @@ font-weight:700;
 color:#2563eb;
 
 }
+
+.rule-summary{
+
+    margin-top:20px;
+
+    padding:15px;
+
+    background:#f8fafc;
+
+    border:1px solid #dbeafe;
+
+    border-radius:10px;
+
+}
+
+.rule-summary h4{
+
+    margin-top:0;
+
+    color:#2563eb;
+
+}
+
+.summary-section{
+
+    margin-bottom:15px;
+
+}
+
+.summary-item{
+
+    margin-left:15px;
+
+    margin-top:5px;
+
+}
 .profile-status{
 
     display:inline-flex;
@@ -3514,6 +3550,9 @@ padding:8px;
     font-weight:bold;
 
 }
+/* =======================================
+   Automation Buttons
+======================================= */
 
 .automation-buttons{
 
@@ -3521,7 +3560,97 @@ padding:8px;
 
     gap:10px;
 
+    margin-top:18px;
+
 }
+
+.automation-buttons button{
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:9px 18px;
+
+    cursor:pointer;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    transition:.25s;
+
+}
+
+.automation-buttons button:hover{
+
+    transform:translateY(-2px);
+
+}
+
+
+.btn-edit{
+
+    background:#2563eb;
+
+    color:white;
+
+}
+
+.btn-edit:hover{
+
+    background:#1d4ed8;
+
+}
+
+/* Enable */
+
+.btn-enable{
+
+    background:#16a34a;
+
+    color:white;
+
+}
+
+.btn-enable:hover{
+
+    background:#15803d;
+
+}
+
+/* Disable */
+
+.btn-disable{
+
+    background:#f59e0b;
+
+    color:white;
+
+}
+
+.btn-disable:hover{
+
+    background:#d97706;
+
+}
+
+/* Delete */
+
+.btn-delete{
+
+    background:#ef4444;
+
+    color:white;
+
+}
+
+.btn-delete:hover{
+
+    background:#dc2626;
+
+}
+
 .typing-bubble{
 
 display:flex;
@@ -3603,7 +3732,66 @@ animation-delay:.2s;
 /* ===============================
    Inbox Date Sections
 ================================= */
+.rule-section{
 
+    margin-top:20px;
+
+    padding-top:15px;
+
+    border-top:1px solid #e5e7eb;
+
+}
+
+.rule-section h4{
+
+    margin-bottom:12px;
+
+    color:#374151;
+
+}
+
+.condition-row,
+.action-row{
+
+    display:flex;
+
+    gap:10px;
+
+    align-items:center;
+
+    margin-bottom:10px;
+
+}
+
+.condition-row select,
+.action-row select{
+
+    width:170px;
+
+}
+
+.condition-row input,
+.action-row input{
+
+    flex:1;
+
+}
+
+.condition-row button,
+.action-row button{
+
+    background:#ef4444;
+
+    color:white;
+
+}
+
+.condition-row button:hover,
+.action-row button:hover{
+
+    background:#dc2626;
+
+}
 .customer-section{
 
     list-style:none;
@@ -3629,6 +3817,442 @@ animation-delay:.2s;
     letter-spacing:.6px;
 
     border-bottom:1px solid #e5e7eb;
+
+}
+.automation-summary{
+    display:flex;
+    gap:15px;
+    margin:15px 0 20px;
+}
+
+.summary-card-small{
+    flex:1;
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+    padding:14px;
+    text-align:center;
+}
+
+.summary-number{
+    font-size:26px;
+    font-weight:700;
+    color:#1f2937;
+}
+
+.summary-number.enabled{
+    color:#16a34a;
+}
+
+.summary-number.disabled{
+    color:#dc2626;
+}
+
+.summary-label{
+    margin-top:6px;
+    font-size:13px;
+    color:#64748b;
+}
+
+.create-rule-btn{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.create-rule-btn:hover{
+    background:#1d4ed8;
+}
+
+.automation-empty{
+
+    padding:50px 20px;
+
+    text-align:center;
+
+    border:2px dashed #dbeafe;
+
+    border-radius:12px;
+
+    background:#f8fbff;
+
+}
+
+.automation-empty-icon{
+
+    font-size:60px;
+
+    margin-bottom:15px;
+
+}
+
+.automation-empty-title{
+
+    font-size:20px;
+
+    font-weight:700;
+
+    color:#1e293b;
+
+    margin-bottom:10px;
+
+}
+
+.automation-empty-text{
+
+    color:#64748b;
+
+    line-height:1.6;
+
+    max-width:320px;
+
+    margin:0 auto 25px;
+
+}
+.rule-section-view{
+
+    margin-top:18px;
+
+}
+
+.rule-label{
+
+    font-weight:700;
+
+    color:#334155;
+
+    margin-bottom:8px;
+
+}
+
+.rule-value{
+
+    color:#2563eb;
+
+    font-weight:600;
+
+}
+
+.rule-chip-container{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:8px;
+
+}
+
+.rule-chip{
+
+    background:#eff6ff;
+
+    color:#2563eb;
+
+    border-radius:20px;
+
+    padding:6px 12px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+.rule-actions{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+}
+
+.rule-action{
+
+    display:flex;
+
+    gap:10px;
+
+    align-items:flex-start;
+
+    padding:10px;
+
+    background:#f8fafc;
+
+    border-radius:8px;
+
+}
+
+.rule-action small{
+
+    color:#64748b;
+
+}
+
+.delete-btn{
+
+    background:#ef4444 !important;
+
+    color:white !important;
+
+}
+
+.rule-chip{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    background:#eff6ff;
+
+    color:#1d4ed8;
+
+    border:1px solid #bfdbfe;
+
+    border-radius:20px;
+
+    padding:8px 14px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    transition:all .2s ease;
+
+}
+
+.rule-chip:hover{
+
+    background:#dbeafe;
+
+    transform:translateY(-1px);
+
+}
+.action-card{
+
+    margin-top:12px;
+
+    border:1px solid #e2e8f0;
+
+    border-radius:10px;
+
+    background:white;
+
+    overflow:hidden;
+
+    transition:.25s;
+
+}
+
+.action-card:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 6px 16px rgba(0,0,0,.08);
+
+}
+
+.action-header{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:12px 15px;
+
+    background:#f8fafc;
+
+    border-bottom:1px solid #e2e8f0;
+
+}
+
+.action-title{
+
+    font-weight:600;
+
+    color:#1e293b;
+
+}
+
+.action-icon{
+
+    font-size:18px;
+
+}
+
+.action-body{
+
+    padding:14px 15px;
+
+    color:#334155;
+
+    line-height:1.6;
+
+}
+
+.action-footer{
+
+    padding:10px 15px;
+
+    background:#f8fafc;
+
+    color:#64748b;
+
+    font-size:13px;
+
+    border-top:1px solid #e2e8f0;
+
+}
+
+.action-card.reminder{
+
+    border-left:5px solid #2563eb;
+
+}
+
+.action-card.activity{
+
+    border-left:5px solid #16a34a;
+
+}
+
+.collapsible-header{
+
+    cursor:pointer;
+
+    user-select:none;
+
+}
+
+.collapsible-header:hover{
+
+    background:#f8fafc;
+
+}
+
+.automation-title{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+.collapse-icon{
+
+    font-size:16px;
+
+    width:18px;
+
+    transition:transform .25s;
+
+}
+.automation-card.collapsed .collapse-icon{
+
+    transform:rotate(-90deg);
+
+}
+
+.automation-body{
+
+    max-height:1500px;
+
+    overflow:hidden;
+
+    opacity:1;
+
+    transition:
+
+        max-height .35s ease,
+
+        opacity .25s ease,
+
+        padding .25s ease;
+
+}
+
+.automation-card.collapsed .automation-body{
+
+    max-height:0;
+
+    opacity:0;
+
+    padding-top:0;
+
+    padding-bottom:0;
+
+}
+
+/* ======================================
+   Card Fade In
+====================================== */
+
+@keyframes fadeInCard{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(15px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+.automation-card{
+
+    transition:
+
+        transform .25s,
+
+        box-shadow .25s;
+
+}
+
+.automation-card:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:
+
+        0 12px 28px rgba(0,0,0,.08);
+
+}
+.automation-buttons button{
+
+    transition:
+
+        transform .15s,
+
+        box-shadow .15s,
+
+        background .25s;
+
+}
+
+.automation-buttons button:active{
+
+    transform:scale(.95);
 
 }
     </style>    
@@ -4070,6 +4694,9 @@ animation-delay:.2s;
 <!-- ===================================================== -->
 <!-- SETTINGS -->
 <!-- ===================================================== -->
+<!-- ===================================================== -->
+<!-- SETTINGS -->
+<!-- ===================================================== -->
 
 <div class="card">
 
@@ -4078,15 +4705,14 @@ animation-delay:.2s;
     <details closed>
 
         <summary>
-
             Open Settings
-
         </summary>
 
-        <!-- Keep all your existing settings controls here -->
-
-
         <br>
+
+        <!-- ========================= -->
+        <!-- User Settings -->
+        <!-- ========================= -->
 
         <label>WhatsApp Number</label>
 
@@ -4120,6 +4746,10 @@ animation-delay:.2s;
 
         <hr style="margin:25px 0">
 
+        <!-- ========================= -->
+        <!-- Business Settings -->
+        <!-- ========================= -->
+
         <h3>⚙️ Business Settings</h3>
 
         <input
@@ -4137,73 +4767,162 @@ animation-delay:.2s;
             placeholder="AI Instructions"
         ></textarea>
 
-        <button
-            onclick="saveBusinessSettings()"
-        >
+        <button onclick="saveBusinessSettings()">
             Save Settings
         </button>
 
         <hr style="margin:25px 0">
 
+        <!-- ========================= -->
+        <!-- Automation Rules -->
+        <!-- ========================= -->
+
         <h3>🤖 Automation Rules</h3>
 
+        <div id="automationStats" class="automation-summary">
+
+            <div class="summary-card-small">
+                <div class="summary-number" id="ruleTotal">0</div>
+                <div class="summary-label">Total Rules</div>
+            </div>
+
+            <div class="summary-card-small">
+                <div class="summary-number enabled" id="ruleEnabled">0</div>
+                <div class="summary-label">Enabled</div>
+            </div>
+
+            <div class="summary-card-small">
+                <div class="summary-number disabled" id="ruleDisabled">0</div>
+                <div class="summary-label">Disabled</div>
+            </div>
+
+        </div>
+
+        <div style="margin:18px 0;">
+
+            <button
+                onclick="createRule()"
+                class="create-rule-btn">
+
+                ➕ Create New Rule
+
+            </button>
+
+        </div>
+
         <div id="automationRulesContainer">
-
             Loading automation rules...
-
         </div>
 
         <hr style="margin:25px 0">
 
+        <!-- ========================= -->
+        <!-- Rule Editor -->
+        <!-- ========================= -->
+
         <div id="ruleEditor" style="display:none;">
 
-            <h3 id="editorTitle">Edit Rule</h3>
+            <h3 id="editorTitle">
+                Edit Rule
+            </h3>
 
-            <label>Trigger</label>
+            <!-- Trigger -->
 
-            <select id="triggerType">
+            <div class="rule-section">
 
-                <option value="lead_score">Lead Score</option>
+                <h4>🎯 Trigger</h4>
 
-                <option value="customer_health">Customer Health</option>
+                <select id="triggerType">
 
-                <option value="last_seen_days">Last Seen Days</option>
+                    <option value="lead_score">
+                        Lead Score
+                    </option>
 
-                <option value="sentiment">Sentiment</option>
+                    <option value="customer_health">
+                        Customer Health
+                    </option>
 
-            </select>
+                    <option value="last_seen_days">
+                        Last Seen Days
+                    </option>
 
-            <br><br>
+                    <option value="sentiment">
+                        Sentiment
+                    </option>
 
-            <label>Conditions (JSON)</label>
+                </select>
 
-            <textarea
-                id="conditionEditor"
-                rows="8"
-                style="width:100%;"></textarea>
+            </div>
 
-            <br><br>
+            <!-- Conditions -->
 
-            <label>Actions (JSON)</label>
+            <div class="rule-section">
 
-            <textarea
-                id="actionEditor"
-                rows="8"
-                style="width:100%;"></textarea>
+                <h4>🧩 Conditions</h4>
 
-            <br><br>
+                <div id="conditionBuilder">
 
-            <button onclick="saveRule()">
-                💾 Save Rule
-            </button>
+                </div>
+
+                <button onclick="addCondition()">
+                    ➕ Add Condition
+                </button>
+
+            </div>
+
+            <!-- Actions -->
+
+            <div class="rule-section">
+
+                <h4>⚡ Actions</h4>
+
+                <div id="actionBuilder">
+
+                </div>
+
+                <button onclick="addAction()">
+                    ➕ Add Action
+                </button>
+
+            </div>
+
+            <!-- Summary -->
+
+            <div class="rule-section">
+
+                <h4>📋 Rule Summary</h4>
+
+                <div
+                    id="ruleSummaryContent"
+                    class="rule-summary"
+                >
+
+                    No rule selected.
+
+                </div>
+
+            </div>
+
+            <!-- Save -->
+
+            <div class="rule-section">
+
+                <button
+                    class="save-rule-btn"
+                    onclick="saveRule()"
+                >
+                    💾 Save Rule
+                </button>
+
+            </div>
 
         </div>
-        </details>
+
+    </details>
 
 </div>
 
 <div id="status"></div>
-
 </body>
 
 
@@ -4298,91 +5017,274 @@ async function loadWebsites() {
     });
 }
 
+function createRule() {
+
+    window.currentEditingRule = null;
+
+    document.getElementById("ruleEditor").style.display = "block";
+
+    document.getElementById("editorTitle").innerHTML =
+        "Create New Rule";
+
+    document.getElementById("triggerType").value =
+        "lead_score";
+
+    //
+    // Reset Conditions
+    //
+
+    document.getElementById("conditionBuilder").innerHTML = "";
+
+    addCondition();
+    
+
+    //
+    // Reset Actions
+    //
+
+    document.getElementById("actionBuilder").innerHTML = "";
+
+    addAction();
+
+}
+
 async function loadAutomationRules() {
 
-    const container = document.getElementById(
-        "automationRulesContainer"
-    );
+    const container = document.getElementById("automationRulesContainer");
 
     container.innerHTML = "Loading automation rules...";
 
     try {
 
-        const response = await fetch(
-            "/automation/rules"
-        );
+        const response = await fetch("/automation/rules");
 
         const data = await response.json();
 
+        const totalRules = data.rules.length;
+
+        const enabledRules =
+            data.rules.filter(r => r.enabled).length;
+
+        const disabledRules =
+            totalRules - enabledRules;
+
+        document.getElementById("ruleTotal").innerText = totalRules;
+        document.getElementById("ruleEnabled").innerText = enabledRules;
+        document.getElementById("ruleDisabled").innerText = disabledRules;
+
         if (!data.rules || data.rules.length === 0) {
 
-            container.innerHTML =
-                "<p>No automation rules found.</p>";
+            document.getElementById("ruleTotal").innerText = 0;
+            document.getElementById("ruleEnabled").innerText = 0;
+            document.getElementById("ruleDisabled").innerText = 0;
+
+            container.innerHTML = `
+                <div class="automation-empty">
+
+                    <div class="automation-empty-icon">
+                        🤖
+                    </div>
+
+                    <div class="automation-empty-title">
+                        No automation rules yet
+                    </div>
+
+                    <div class="automation-empty-text">
+                        Create your first automation rule to automatically follow up with customers.
+                    </div>
+
+                    <button
+                        class="create-rule-btn"
+                        onclick="createRule()">
+                        ➕ Create New Rule
+                    </button>
+
+                </div>
+            `;
 
             return;
         }
 
         let html = "";
 
-        data.rules.forEach(rule => {
+        data.rules.forEach((rule,index) => {
+
+            const triggerNames = {
+
+                lead_score: "🟢 Lead Score",
+                sentiment: "🟣 Sentiment",
+                last_seen_days: "🟠 Last Seen",
+                customer_health: "🔵 Customer Health"
+
+            };
+
+            const trigger =
+                triggerNames[rule.trigger_type] ||
+                rule.trigger_type;
+
+            const conditions =
+                Array.isArray(rule.condition_json)
+                    ? rule.condition_json
+                    : [rule.condition_json];
+
+            const actions =
+                Array.isArray(rule.action_json)
+                    ? rule.action_json
+                    : [rule.action_json];
 
             html += `
 
-                <div class="automation-card" data-rule-id="${rule.id}">
+            <div
+                class="automation-card"
+                style="animation-delay:${index * 80}ms">
 
-                    <div class="automation-header">
+                <div
+                    class="automation-header collapsible-header"
+                    onclick="toggleRuleCard(this)">
+
+                    <div class="automation-title">
+
+                        <span class="collapse-icon">
+                            ▼
+                        </span>
 
                         <div>
 
                             <h3>🤖 ${rule.name}</h3>
 
                             <div class="automation-description">
-
                                 ${rule.description || ""}
-
                             </div>
 
                         </div>
 
-                        <div class="automation-status">
+                    </div>
+
+                    ${
+                        rule.enabled
+                        ? "<span class='badge-enabled'>🟢 Enabled</span>"
+                        : "<span class='badge-disabled'>🔴 Disabled</span>"
+                    }
+
+                </div>
+
+                <div class="automation-body">
+
+                    <div class="rule-section-view">
+
+                        <div class="rule-label">
+                            🎯 Trigger
+                        </div>
+
+                        <div class="rule-value">
+                            ${trigger}
+                        </div>
+
+                    </div>
+
+                    <div class="rule-section-view">
+
+                        <div class="rule-label">
+                            📌 Conditions
+                        </div>
+
+                        <div class="rule-chip-container">
 
                             ${
-                                rule.enabled
-                                ? "<span class='badge-enabled'>🟢 Enabled</span>"
-                                : "<span class='badge-disabled'>🔴 Disabled</span>"
+                                conditions.map(c => {
+
+                                    let value = c.value;
+
+                                    if (c.field === "last_seen_days") {
+                                        value += " Days";
+                                    }
+
+                                    return `
+                                        <span class="rule-chip">
+                                            ${getConditionFieldLabel(c.field)}
+                                            ${getOperatorLabel(c.operator)}
+                                            ${value}
+                                        </span>
+                                    `;
+
+                                }).join("")
                             }
 
                         </div>
 
                     </div>
 
-                    <div class="automation-details">
+                    <div class="rule-section-view">
 
-                        <div>
-
-                            <strong>Trigger</strong><br>
-
-                            ${rule.trigger_type}
-
+                        <div class="rule-label">
+                            ⚡ Actions
                         </div>
 
-                        <div>
+                        <div class="rule-actions">
 
-                            <strong>Conditions</strong><br>
+                            ${
+                                actions.map(a => {
 
-                            ${Array.isArray(rule.condition_json)
-                                ? rule.condition_json.length
-                                : 1}
+                                    if (a.name === "create_reminder") {
 
-                        </div>
+                                        return `
 
-                        <div>
+                                        <div class="action-card reminder">
 
-                            <strong>Actions</strong><br>
+                                            <div class="action-header">
 
-                            ${Array.isArray(rule.action_json)
-                                ? rule.action_json.length
-                                : 1}
+                                                <span class="action-icon">
+                                                    📅
+                                                </span>
+
+                                                <span class="action-title">
+                                                    Create Reminder
+                                                </span>
+
+                                            </div>
+
+                                            <div class="action-body">
+                                                ${a.params.text}
+                                            </div>
+
+                                            <div class="action-footer">
+                                                ⏰ After <strong>${a.params.days}</strong> Day(s)
+                                            </div>
+
+                                        </div>
+                                        `;
+                                    }
+
+                                    return `
+
+                                    <div class="action-card activity">
+
+                                        <div class="action-header">
+
+                                            <span class="action-icon">
+                                                📝
+                                            </span>
+
+                                            <span class="action-title">
+                                                CRM Activity
+                                            </span>
+
+                                        </div>
+
+                                        <div class="action-body">
+                                            ${a.params.title}
+                                        </div>
+
+                                        <div class="action-footer">
+                                            🟢 Activity Logged
+                                        </div>
+
+                                    </div>
+
+                                    `;
+
+                                }).join("")
+                            }
 
                         </div>
 
@@ -4390,15 +5292,11 @@ async function loadAutomationRules() {
 
                     <div class="automation-buttons">
 
-                        <button
-                            onclick="editRule(${rule.id})"
-                        >
+                        <button onclick="editRule(${rule.id})">
                             ✏ Edit
                         </button>
 
-                        <button
-                            onclick="toggleRule(${rule.id}, ${rule.enabled})"
-                        >
+                        <button onclick="toggleRule(${rule.id}, ${rule.enabled})">
                             ${
                                 rule.enabled
                                 ? "⏸ Disable"
@@ -4408,14 +5306,17 @@ async function loadAutomationRules() {
 
                         <button
                             onclick="deleteRule(${rule.id})"
-                            style="background:#ef4444;color:white"
-                        >
+                            class="delete-btn">
+
                             🗑 Delete
+
                         </button>
 
                     </div>
 
                 </div>
+
+            </div>
 
             `;
 
@@ -4423,7 +5324,8 @@ async function loadAutomationRules() {
 
         container.innerHTML = html;
 
-    } catch (err) {
+    }
+    catch (err) {
 
         console.error(err);
 
@@ -4437,6 +5339,7 @@ async function loadAutomationRules() {
 async function editRule(ruleId) {
 
     console.log("Editing rule:", ruleId);
+    console.count("editRule called");
 
     const response = await fetch("/automation/rules");
 
@@ -4445,8 +5348,11 @@ async function editRule(ruleId) {
     const rule = data.rules.find(r => r.id === ruleId);
 
     if (!rule) {
+
         alert("Rule not found");
+
         return;
+
     }
 
     document.getElementById("ruleEditor").style.display = "block";
@@ -4457,13 +5363,236 @@ async function editRule(ruleId) {
     document.getElementById("triggerType").value =
         rule.trigger_type;
 
-    document.getElementById("conditionEditor").value =
-        JSON.stringify(rule.condition_json, null, 2);
+    //
+    // Populate Visual Condition Builder
+    //
 
-    document.getElementById("actionEditor").value =
-        JSON.stringify(rule.action_json, null, 2);
+    const builder =
+        document.getElementById("conditionBuilder");
+
+    builder.innerHTML = "";
+    console.log("After clear:", builder.innerHTML);
+    console.log("Rows:", builder.querySelectorAll(".condition-row").length);
+
+    const conditions = Array.isArray(rule.condition_json)
+        ? rule.condition_json
+        : [rule.condition_json];
+    console.log("Condition JSON:", rule.condition_json);
+    console.log("Conditions array:", conditions);
+    console.log("Conditions length:", conditions.length);
+    conditions.forEach(condition => {
+
+        builder.insertAdjacentHTML(
+            "beforeend",
+            `
+            <div class="condition-row">
+
+                <select class="condition-field">
+
+                    <option value="lead_score"
+                        ${condition.field==="lead_score"?"selected":""}>
+                        Lead Score
+                    </option>
+
+                    <option value="status"
+                        ${condition.field==="status"?"selected":""}>
+                        Lead Status
+                    </option>
+
+                    <option value="priority"
+                        ${condition.field==="priority"?"selected":""}>
+                        Priority
+                    </option>
+
+                    <option value="sentiment"
+                        ${condition.field==="sentiment"?"selected":""}>
+                        Sentiment
+                    </option>
+
+                    <option value="intent"
+                        ${condition.field==="intent"?"selected":""}>
+                        Intent
+                    </option>
+
+                    <option value="buying_stage"
+                        ${condition.field==="buying_stage"?"selected":""}>
+                        Buying Stage
+                    </option>
+
+                    <option value="last_seen_days"
+                        ${condition.field==="last_seen_days"?"selected":""}>
+                        Last Seen (Days)
+                    </option>
+
+                </select>
+
+                <select class="condition-operator">
+
+                    <option value=">="
+                        ${condition.operator===">="?"selected":""}>
+                        >=
+                    </option>
+
+                    <option value=">"
+                        ${condition.operator===">"?"selected":""}>
+                        >
+                    </option>
+
+                    <option value="<="
+                        ${condition.operator==="<="?"selected":""}>
+                        <=
+                    </option>
+
+                    <option value="<"
+                        ${condition.operator=="<" ? "selected" : ""}>
+                        <
+                    </option>
+
+                    <option value="="
+                        ${condition.operator==="="?"selected":""}>
+                        =
+                    </option>
+
+                    <option value="!="
+                        ${condition.operator==="!="?"selected":""}>
+                        !=
+                    </option>
+
+                </select>
+
+                <input
+                    class="condition-value"
+                    value="${condition.value}"
+                >
+
+                <button onclick="removeCondition(this)">
+                    ❌
+                </button>
+
+            </div>
+            `
+        );
+            console.log(
+                "Final Rows:",
+                builder.querySelectorAll(".condition-row").length
+            );
+    });
+
+    //
+    // Keep Actions JSON editor for now
+    //
+
+    //
+    // Populate Visual Action Builder
+    //
+
+    const actionBuilder =
+        document.getElementById("actionBuilder");
+
+    actionBuilder.innerHTML = "";
+
+    const actions = Array.isArray(rule.action_json)
+        ? rule.action_json
+        : [rule.action_json];
+
+    actions.forEach(action => {
+
+        const params = action.params || {};
+
+        actionBuilder.insertAdjacentHTML(
+            "beforeend",
+            `
+            <div class="action-row">
+
+                <select class="action-type">
+
+                    <option value="create_reminder"
+                        ${action.name==="create_reminder"?"selected":""}>
+                        Create Reminder
+                    </option>
+
+                    <option value="add_activity"
+                        ${action.name==="add_activity"?"selected":""}>
+                        Add CRM Activity
+                    </option>
+
+                </select>
+
+                <input
+                    class="action-text"
+                    placeholder="Reminder / Activity Text"
+                    value="${params.text || params.title || ""}"
+                >
+
+                <input
+                    class="action-days"
+                    type="number"
+                    min="1"
+                    value="${params.days || 1}"
+                >
+
+                <button onclick="removeAction(this)">
+                    ❌
+                </button>
+
+            </div>
+            `
+        );
+
+    });
 
     window.currentEditingRule = rule.id;
+updateRuleSummary();
+}
+
+function addAction(){
+
+    const builder =
+        document.getElementById("actionBuilder");
+
+    builder.insertAdjacentHTML(
+        "beforeend",
+        `
+        <div class="action-row">
+
+            <select class="action-type">
+
+                <option value="create_reminder">
+                    Create Reminder
+                </option>
+
+                <option value="add_activity">
+                    Add CRM Activity
+                </option>
+
+            </select>
+
+            <input
+                class="action-text"
+                placeholder="Reminder / Activity Text"
+            >
+
+            <input
+                class="action-days"
+                type="number"
+                value="1"
+                min="1"
+            >
+
+            <button onclick="removeAction(this)">
+                ❌
+            </button>
+
+        </div>
+        `
+    );
+updateRuleSummary();
+}
+
+function removeAction(button){
+
+    button.parentElement.remove();
+
 }
 
 function populateRuleForm(rule){
@@ -4471,6 +5600,60 @@ function populateRuleForm(rule){
     console.log("Rule Loaded");
 
     console.log(rule);
+
+}
+
+function addCondition() {
+    console.trace("addCondition called");
+    const builder =
+        document.getElementById("conditionBuilder");
+
+    builder.insertAdjacentHTML(
+        "beforeend",
+        `
+        <div class="condition-row">
+
+            <select class="condition-field">
+
+                <option value="lead_score">Lead Score</option>
+                <option value="status">Lead Status</option>
+                <option value="priority">Priority</option>
+                <option value="sentiment">Sentiment</option>
+                <option value="intent">Intent</option>
+                <option value="buying_stage">Buying Stage</option>
+                <option value="last_seen_days">Last Seen (Days)</option>
+
+            </select>
+
+            <select class="condition-operator">
+
+                <option value=">=">>=</option>
+                <option value=">">></option>
+                <option value="<="><=</option>
+                <option value="<"><</option>
+                <option value="=">=</option>
+                <option value="!=">!=</option>
+
+            </select>
+
+            <input
+                class="condition-value"
+                placeholder="Value"
+            >
+
+            <button onclick="removeCondition(this)">
+                ❌
+            </button>
+
+        </div>
+        `
+    );
+updateRuleSummary();
+}
+
+function removeCondition(button){
+
+    button.parentElement.remove();
 
 }
 
@@ -4688,14 +5871,134 @@ async function saveRule() {
         return;
     }
 
+    const saveBtn =
+        document.querySelector("#ruleEditor button[onclick='saveRule()']");
+
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = "⏳ Saving...";
+
     try {
+
+        //
+        // Build Conditions
+        //
+
+        const conditions = [];
+
+        document.querySelectorAll(".condition-row")
+            .forEach(row => {
+
+                const value =
+                    row.querySelector(".condition-value").value.trim();
+
+                if (value === "")
+                    return;
+
+                conditions.push({
+
+                    field:
+                        row.querySelector(".condition-field").value,
+
+                    operator:
+                        row.querySelector(".condition-operator").value,
+
+                    value: value
+
+                });
+
+            });
+
+        if (conditions.length === 0) {
+
+            alert("Please add at least one condition.");
+
+            return;
+
+        }
+
+        //
+        // Build Actions
+        //
+
+        const actions = [];
+
+        document.querySelectorAll(".action-row")
+            .forEach(row => {
+
+                const actionType =
+                    row.querySelector(".action-type").value;
+
+                const text =
+                    row.querySelector(".action-text").value.trim();
+
+                const days =
+                    parseInt(
+                        row.querySelector(".action-days").value || 1
+                    );
+
+                if (text === "")
+                    return;
+
+                if (actionType === "create_reminder") {
+
+                    actions.push({
+
+                        name: "create_reminder",
+
+                        params: {
+
+                            text,
+
+                            days
+
+                        }
+
+                    });
+
+                }
+
+                else {
+
+                    actions.push({
+
+                        name: "add_activity",
+
+                        params: {
+
+                            source: "Automation",
+
+                            title: text,
+
+                            description:
+                                "Automation executed successfully."
+
+                        }
+
+                    });
+
+                }
+
+            });
+
+        if (actions.length === 0) {
+
+            alert("Please add at least one action.");
+
+            return;
+
+        }
+
+        //
+        // Payload
+        //
 
         const payload = {
 
-            name: document
-                .getElementById("editorTitle")
-                .innerText
-                .replace("Edit Rule - ", ""),
+            name:
+                document
+                    .getElementById("editorTitle")
+                    .innerText
+                    .replace("Edit Rule - ", ""),
 
             description: "",
 
@@ -4704,25 +6007,27 @@ async function saveRule() {
             trigger_type:
                 document.getElementById("triggerType").value,
 
-            condition_json: JSON.parse(
-                document.getElementById("conditionEditor").value
-            ),
+            condition_json: conditions,
 
-            action_json: JSON.parse(
-                document.getElementById("actionEditor").value
-            )
+            action_json: actions
 
         };
+        updateRuleSummary();
+        console.log("Saving Payload");
+        console.log(payload);
 
         const response = await fetch(
 
             `/automation/rules/${window.currentEditingRule}`,
 
             {
+
                 method: "PUT",
 
                 headers: {
+
                     "Content-Type": "application/json"
+
                 },
 
                 body: JSON.stringify(payload)
@@ -4733,22 +6038,49 @@ async function saveRule() {
 
         const result = await response.json();
 
+        if (!response.ok) {
+
+            console.error(result);
+
+            alert(
+                result.detail
+                    ? JSON.stringify(result.detail)
+                    : "Failed to update rule."
+            );
+
+            return;
+
+        }
+
         console.log(result);
 
-        alert("Rule updated successfully.");
+        alert("✅ Rule updated successfully.");
 
-        loadAutomationRules();
+        document.getElementById("ruleEditor").style.display = "none";
+
+        window.currentEditingRule = null;
+
+        await loadAutomationRules();
 
     }
+
     catch (err) {
 
         console.error(err);
 
-        alert("Invalid JSON or failed to update.");
+        alert("Failed to save rule.");
+
+    }
+
+    finally {
+
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = "💾 Save Rule";
 
     }
 
 }
+
 
 function renderCustomers(customers) {
 
@@ -4756,47 +6088,20 @@ function renderCustomers(customers) {
 
     list.innerHTML = "";
 
-    if (!customers || customers.length === 0) {
-
-        list.innerHTML = `
-
-            <div class="empty-inbox">
-
-                <div style="font-size:60px;">📭</div>
-
-                <h3>No Conversations</h3>
-
-                <p>Customers will appear here once they start chatting.</p>
-
-            </div>
-
-        `;
-
-        return;
-    }
-
-    let currentSection = "";
+    // Keep pinned customers first
+    customers.sort((a, b) => {
+        const ap = pinnedCustomers.has(a.phone) ? 1 : 0;
+        const bp = pinnedCustomers.has(b.phone) ? 1 : 0;
+        return bp - ap;
+    });
 
     customers.forEach(customer => {
 
-        const section = getConversationSection(customer.last_seen);
+        customerCache[customer.phone] = customer;
 
-        if (section !== currentSection) {
-
-            currentSection = section;
-
-            const divider = document.createElement("li");
-
-            divider.className = "customer-section";
-
-            divider.innerHTML = `
-                <span>${currentSection}</span>
-            `;
-
-            list.appendChild(divider);
-        }
-
-        list.appendChild(createCustomerCard(customer));
+        list.appendChild(
+            createCustomerCard(customer)
+        );
 
     });
 
@@ -5266,6 +6571,41 @@ function renderMarkdown(text) {
 
 }
 
+function removeCondition(button) {
+
+    const rows = document.querySelectorAll(".condition-row");
+
+    if (rows.length <= 1) {
+
+        alert("A rule must contain at least one condition.");
+
+        return;
+
+    }
+
+    button.closest(".condition-row").remove();
+
+    updateRuleSummary();
+
+}
+
+function removeAction(button) {
+
+    const rows = document.querySelectorAll(".action-row");
+
+    if (rows.length <= 1) {
+
+        alert("A rule must contain at least one action.");
+
+        return;
+
+    }
+
+    button.closest(".action-row").remove();
+
+    updateRuleSummary();
+
+}
 
 function renderAssistantMessage(msg, animate = false){
 
@@ -5472,82 +6812,48 @@ async function loadStats() {
 
 async function loadBusinessInfo() {
 
-    const userId =
-        document.getElementById("userId").value;
+    const userId = document.getElementById("userId").value;
 
     if (!userId)
         return;
 
-    const response =
-        await fetch(`/customer-number/${userId}`);
+    try {
 
-    const data =
-        await response.json();
+        const response = await fetch(`/customer-number/${userId}`);
 
-    document.getElementById("businessInfo").innerHTML =
-        `
-        User ID: ${userId}<br>
-        WhatsApp: ${data.whatsapp_number || "Not Configured"}
-        `;
-}
+        const data = await response.json();
 
-document
-.getElementById("userId")
-.addEventListener(
-    "change",
-    () => {
+        // Update Header
 
-        loadWebsites();
-        loadCustomers();
-        loadStats();
-        loadBusinessInfo();
-        loadTopCustomers();
-        loadBusinessSettings();
-        loadReminders();
-        loadAutomationRules();   
+        const businessName =
+            document.getElementById("businessNameDisplay");
+
+        if (businessName) {
+
+            businessName.innerText =
+                data.business_name || "Business Name";
+
+        }
+
+        const whatsapp =
+            document.getElementById("whatsappNumberDisplay");
+
+        if (whatsapp) {
+
+            whatsapp.innerText =
+                data.whatsapp_number || "Not Configured";
+
+        }
+
     }
-);
 
-setInterval(() => {
+    catch(err){
 
-    if (!currentCustomer)
-        return;
+        console.error("loadBusinessInfo()", err);
 
-    //loadConversation(currentCustomer);
-    checkConversationUpdates();
+    }
 
-}, 5000);
-
-setInterval(() => {
-
-    const userId =
-        document.getElementById("userId").value;
-
-    if (!userId)
-        return;
-
-    checkCustomerUpdates();
-    //loadCustomers();
-
-}, 15000);
-
-setInterval(() => {
-
-    const userId =
-        document.getElementById("userId").value;
-
-    if (!userId)
-        return;
-
-    loadStats();
-
-    loadDashboardMetrics();
-
-    loadTopCustomers();
-
-    loadReminders();
-    loadAutomationRules();
-}, 60000);
+}
 
 
 async function saveLead(){
@@ -6767,26 +8073,33 @@ window.onload = async function () {
 
     document.getElementById("userId").value = "+14155238886";
 
-        await Promise.all([
-        loadCustomers(),
-        loadStats(),
-        loadDashboardMetrics(),
-        loadBusinessInfo(),
-        loadBusinessSettings(),
-        loadWebsites(),
-       ]);
+    try { await loadCustomers(); }
+    catch(e){ console.error("Customers", e); }
 
-       document.getElementById("reminderPanel").innerHTML = `
+    try { await loadStats(); }
+    catch(e){ console.error("Stats", e); }
 
+    try { await loadDashboardMetrics(); }
+    catch(e){ console.error("Dashboard", e); }
+
+    try { await loadBusinessInfo(); }
+    catch(e){ console.error("Business", e); }
+
+    try { await loadBusinessSettings(); }
+    catch(e){ console.error("Business Settings", e); }
+
+    try { await loadWebsites(); }
+    catch(e){ console.error("Websites", e); }
+
+    try { await loadAutomationRules(); }
+    catch(e){ console.error("Automation", e); }
+
+    document.getElementById("reminderPanel").innerHTML = `
         <div class="empty-state">
-
             <div style="font-size:48px;">📅</div>
-
             <p>Select a customer to view reminders.</p>
-
         </div>
-
-        `;
+    `;
 
 };
 
@@ -6873,6 +8186,143 @@ if(indicator){
 
 }
 
+function updateRuleSummary(){
+
+    const summary =
+        document.getElementById("ruleSummaryContent");
+
+    const conditions = [];
+
+    document
+        .querySelectorAll(".condition-row")
+        .forEach(row=>{
+
+            const value =
+                row.querySelector(".condition-value")
+                    .value.trim();
+
+            if(value==="")
+                return;
+
+            conditions.push(
+
+                `${row.querySelector(".condition-field").value}
+                 ${row.querySelector(".condition-operator").value}
+                 ${value}`
+
+            );
+
+        });
+
+    const actions = [];
+
+    document
+        .querySelectorAll(".action-row")
+        .forEach(row=>{
+
+            const type =
+                row.querySelector(".action-type").value;
+
+            const text =
+                row.querySelector(".action-text").value;
+
+            const days =
+                row.querySelector(".action-days").value;
+
+            if(type==="create_reminder"){
+
+                actions.push(
+                    `Create Reminder:
+                    "${text}"
+                    after ${days} day(s)`
+                );
+
+            }
+
+            else{
+
+                actions.push(
+                    `Add CRM Activity:
+                    "${text}"`
+                );
+
+            }
+
+        });
+
+    summary.innerHTML = `
+
+        <div class="summary-section">
+
+            <strong>When</strong>
+
+            ${
+                conditions.length
+                ? conditions.map(c=>`<div class="summary-item">• ${c}</div>`).join("")
+                : "<div class='summary-item'>No conditions</div>"
+            }
+
+        </div>
+
+        <div class="summary-section">
+
+            <strong>Then</strong>
+
+            ${
+                actions.length
+                ? actions.map(a=>`<div class="summary-item">✓ ${a}</div>`).join("")
+                : "<div class='summary-item'>No actions</div>"
+            }
+
+        </div>
+
+    `;
+}
+function getConditionFieldLabel(field) {
+
+    const labels = {
+
+        lead_score: "🟢 Lead Score",
+
+        priority: "⭐ Priority",
+
+        status: "📌 Lead Status",
+
+        sentiment: "😊 Sentiment",
+
+        intent: "🎯 Intent",
+
+        buying_stage: "🛒 Buying Stage",
+
+        last_seen_days: "🕒 Last Seen"
+
+    };
+
+    return labels[field] || field;
+
+}
+
+function getOperatorLabel(operator) {
+
+    const operators = {
+
+        ">=": "≥",
+
+        "<=": "≤",
+
+        ">": ">",
+
+        "<": "<",
+
+        "=": "=",
+
+        "!=": "≠"
+
+    };
+
+    return operators[operator] || operator;
+
+}
 
 function getStageClass(stage){
 
@@ -7020,6 +8470,89 @@ async function toggleRule(id, enabled){
         console.error(err);
 
         alert("Unable to update rule.");
+
+    }
+
+}
+
+function toggleRuleCard(header){
+
+    const card =
+        header.closest(".automation-card");
+
+    card.classList.toggle("collapsed");
+
+    const icon =
+        header.querySelector(".collapse-icon");
+
+    if(card.classList.contains("collapsed")){
+
+        icon.innerHTML = "▶";
+
+    }else{
+
+        icon.innerHTML = "▼";
+
+    }
+
+}
+async function deleteRule(id){
+
+    if(!confirm("Delete this automation rule?"))
+        return;
+
+    const card =
+        event.target.closest(".automation-card");
+
+    card.style.opacity = ".5";
+
+    card.style.transform = "translateX(20px)";
+
+    try{
+
+        const response = await fetch(
+
+            `/automation/rules/${id}`,
+
+            {
+
+                method:"DELETE"
+
+            }
+
+        );
+
+        const data = await response.json();
+
+        if(data.status=="success"){
+
+            card.style.transition=".35s";
+
+            card.style.opacity="0";
+
+            card.style.transform="translateX(80px)";
+
+            setTimeout(()=>{
+
+                loadAutomationRules();
+
+            },350);
+
+        }
+
+        else{
+
+            loadAutomationRules();
+
+        }
+
+    }
+
+    catch(err){
+
+        console.error(err);
+
+        loadAutomationRules();
 
     }
 
