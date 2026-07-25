@@ -4,7 +4,7 @@ import os
 
 from fastapi import FastAPI
 from twilio.request_validator import RequestValidator
-
+from api import dashboard
 from conversations import init_db
 from crm.customer_mapping import (
     init_customer_mapping,
@@ -87,4 +87,4 @@ app.include_router(misc_router)
 app.include_router(dashboard_router)
 app.include_router(automation_router)
 app.include_router(reminders_router)
-
+app.include_router(dashboard.router)

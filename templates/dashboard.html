@@ -4255,6 +4255,61 @@ animation-delay:.2s;
     transform:scale(.95);
 
 }
+/* =====================================================
+   Dashboard Analytics
+===================================================== */
+
+.dashboard-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:20px;
+
+    margin:25px 0;
+
+}
+
+.dashboard-card{
+
+    background:#fff;
+
+    border-radius:16px;
+
+    padding:20px;
+
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
+
+}
+
+.dashboard-card h3{
+
+    margin-bottom:18px;
+
+    font-size:18px;
+
+    color:#1e293b;
+
+}
+
+.dashboard-card canvas{
+
+    width:100% !important;
+
+    height:320px !important;
+
+}
+
+@media(max-width:1100px){
+
+.dashboard-grid{
+
+    grid-template-columns:1fr;
+
+}
+
+}
     </style>    
 
 </head>
@@ -4636,7 +4691,45 @@ animation-delay:.2s;
 </aside>
 
 </div> 
+<!-- ===================================================== -->
+<!-- DASHBOARD ANALYTICS -->
+<!-- ===================================================== -->
 
+<div class="dashboard-grid">
+
+    <div class="dashboard-card">
+
+        <h3>📊 Lead Distribution</h3>
+
+        <canvas id="leadDistributionChart"></canvas>
+
+    </div>
+
+    <div class="dashboard-card">
+
+        <h3>🥧 Lead Status</h3>
+
+        <canvas id="leadStatusChart"></canvas>
+
+    </div>
+
+    <div class="dashboard-card">
+
+        <h3>📈 Conversation Trend</h3>
+
+        <canvas id="conversationTrendChart"></canvas>
+
+    </div>
+
+    <div class="dashboard-card">
+
+        <h3>💰 Opportunity Pipeline</h3>
+
+        <canvas id="pipelineChart"></canvas>
+
+    </div>
+
+</div>
 <!-- ===================================================== -->
 <!-- CRM DASHBOARD -->
 <!-- ===================================================== -->
@@ -4675,6 +4768,8 @@ animation-delay:.2s;
                 </div>
 
             </div>
+
+            <div id="pipelineChart"></div>
 
             <div id="opportunityPanel"></div>
 
@@ -4925,15 +5020,49 @@ animation-delay:.2s;
 <div id="status"></div>
 </body>
 
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    
+
+// =====================================================
+// CRM Chart Colors
+// =====================================================
+
+const CRM_COLORS = {
+
+    primary: "#2563eb",
+
+    success: "#10b981",
+
+    warning: "#f59e0b",
+
+    danger: "#ef4444",
+
+    purple: "#8b5cf6",
+
+    cyan: "#06b6d4",
+
+    orange: "#f97316",
+
+    gray: "#94a3b8",
+
+    lightGray: "#e2e8f0"
+
+};
+
 let currentCustomer = null;
 let customerCache = {};
 let customerMap = {};
 let lastConversationHash = "";
 let lastCustomerHash = "";
 let pinnedCustomers = new Set();
+let leadDistributionChart = null;
+let leadStatusChart = null;
+let conversationTrendChart = null;
+let pipelineChart = null;
+
+
+
+
 async function addWebsite() {
 
     document.getElementById("status").innerText =
@@ -5045,6 +5174,27 @@ function createRule() {
     document.getElementById("actionBuilder").innerHTML = "";
 
     addAction();
+
+}
+
+async function loadPipelineChart() {
+
+    try {
+
+        const response =
+            await fetch("/dashboard/pipeline");
+
+        const data =
+            await response.json();
+
+        renderPipelineChart(data);
+
+    }
+    catch(err){
+
+        console.error(err);
+
+    }
 
 }
 
@@ -8094,6 +8244,12 @@ window.onload = async function () {
     try { await loadAutomationRules(); }
     catch(e){ console.error("Automation", e); }
 
+    try { await loadPipelineChart(); }
+    catch(e){ console.error("Pipeline", e); }
+
+    try{ await loadDashboardAnalytics(); }
+    catch(e){ console.error("Dashboard Analytics", e); }
+
     document.getElementById("reminderPanel").innerHTML = `
         <div class="empty-state">
             <div style="font-size:48px;">📅</div>
@@ -8555,6 +8711,415 @@ async function deleteRule(id){
         loadAutomationRules();
 
     }
+
+}
+
+async function loadDashboardAnalytics(){
+
+    const userId =
+        document.getElementById("userId").value;
+
+    if(!userId)
+        return;
+
+    const response =
+        await fetch(`/dashboard/analytics/${userId}`);
+
+    const data =
+        await response.json();
+
+    renderLeadDistributionChart(
+        data.lead_distribution
+    );
+
+    renderLeadStatusChart(
+        data.status_distribution
+    );
+
+    renderConversationTrendChart(
+        data.message_trend
+    );
+
+    renderPipelineChart(
+        data.pipeline
+    );
+
+}
+
+function renderLeadDistributionChart(data){
+
+    const ctx =
+        document.getElementById(
+            "leadDistributionChart"
+        );
+
+    if(leadDistributionChart)
+        leadDistributionChart.destroy();
+
+    leadDistributionChart =
+        new Chart(ctx,{
+
+            type:"doughnut",
+
+            data:{
+
+                labels:Object.keys(data),
+
+                datasets:[{
+
+                    data:Object.values(data),
+                    borderWidth:0,
+
+                    hoverOffset:18,
+
+                    borderRadius:8,
+                    backgroundColor:[
+                        CRM_COLORS.danger,
+                        CRM_COLORS.warning,
+                        CRM_COLORS.primary
+                    ]
+
+                }]
+
+            },
+
+            options:{
+
+                cutout:"72%",
+
+                animation:{
+
+                    duration:1200,
+
+                    easing:"easeOutQuart"
+
+                },
+
+                plugins:{
+
+                    legend:{
+
+                        position:"bottom",
+
+                        labels:{
+
+                            padding:18,
+
+                            usePointStyle:true,
+
+                            pointStyle:"circle"
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+}
+
+function renderLeadStatusChart(data){
+
+    const ctx =
+        document.getElementById(
+            "leadStatusChart"
+        );
+
+    if(leadStatusChart)
+        leadStatusChart.destroy();
+
+    leadStatusChart =
+        new Chart(ctx,{
+
+            type:"pie",
+
+            data:{
+
+                labels:Object.keys(data),
+
+                datasets:[{
+
+                    data:Object.values(data),
+                    borderWidth:0,
+
+                    hoverOffset:18,
+
+                    borderRadius:8,
+
+                backgroundColor:[
+                    CRM_COLORS.primary,
+                    CRM_COLORS.success,
+                    CRM_COLORS.warning,
+                    CRM_COLORS.danger,
+                    CRM_COLORS.purple,
+                    CRM_COLORS.cyan,
+                    CRM_COLORS.orange,
+                    CRM_COLORS.gray
+                ]
+
+                }]
+
+            },
+
+            options:{
+
+                cutout:"72%",
+
+                animation:{
+
+                    duration:1200,
+
+                    easing:"easeOutQuart"
+
+                },
+
+                plugins:{
+
+                    legend:{
+
+                        position:"bottom",
+
+                        labels:{
+
+                            padding:18,
+
+                            usePointStyle:true,
+
+                            pointStyle:"circle"
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+}
+
+function renderConversationTrendChart(data){
+
+    const canvas =
+        document.getElementById(
+            "conversationTrendChart"
+        );
+
+    const ctx =
+        canvas.getContext("2d");
+
+    if(conversationTrendChart)
+        conversationTrendChart.destroy();
+
+    //--------------------------------------------------
+    // Gradient Fill
+    //--------------------------------------------------
+
+    const gradient =
+        ctx.createLinearGradient(
+            0,
+            0,
+            0,
+            350
+        );
+
+    gradient.addColorStop(
+        0,
+        "rgba(37,99,235,.45)"
+    );
+
+    gradient.addColorStop(
+        1,
+        "rgba(37,99,235,0)"
+    );
+
+    //--------------------------------------------------
+
+    conversationTrendChart =
+        new Chart(ctx,{
+
+            type:"line",
+
+            data:{
+
+                labels:data.map(x=>{
+
+                    const d=new Date(x.date);
+
+                    return d.toLocaleDateString(
+                        "en-IN",
+                        {
+                            day:"numeric",
+                            month:"short"
+                        }
+                    );
+
+                }),
+
+                datasets:[{
+
+                    label:"Messages",
+
+                    data:data.map(x=>x.count),
+
+                    borderColor:CRM_COLORS.primary,
+
+                    backgroundColor:gradient,
+
+                    fill:true,
+
+                    borderWidth:3,
+
+                    pointRadius:5,
+
+                    pointHoverRadius:8,
+
+                    pointBackgroundColor:
+                        CRM_COLORS.primary,
+
+                    tension:.4,
+                    borderWidth:0,
+
+                    hoverOffset:18,
+
+                    borderRadius:8
+
+                }]
+
+            },
+
+            options:{
+
+                responsive:true,
+
+                animation:{
+
+                    duration:1200,
+
+                    easing:"easeOutQuart"
+
+                },
+
+                plugins:{
+
+                    legend:{
+                        display:false
+                    }
+
+                },
+
+                scales:{
+
+                    x:{
+
+                        grid:{
+                            display:false
+                        }
+
+                    },
+
+                    y:{
+
+                        beginAtZero:true,
+
+                        ticks:{
+                            precision:0
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+}
+
+function renderPipelineChart(data){
+
+    const ctx =
+        document.getElementById(
+            "pipelineChart"
+        );
+
+    if(pipelineChart)
+        pipelineChart.destroy();
+
+    pipelineChart =
+        new Chart(ctx,{
+
+            type:"bar",
+
+            data:{
+
+                labels:Object.keys(data),
+
+                datasets:[{
+
+                label:"Deals",
+
+                data:Object.values(data),
+
+                backgroundColor:CRM_COLORS.success,
+
+                borderRadius:10,
+
+                borderSkipped:false
+
+            }]
+
+            },
+
+            options:{
+
+                responsive:true,
+
+                animation:{
+
+                    duration:1200,
+
+                    easing:"easeOutQuart"
+
+                },
+
+                plugins:{
+
+                    legend:{
+                        display:false
+                    }
+
+                },
+
+                scales:{
+
+                    x:{
+
+                        grid:{
+                            display:false
+                        }
+
+                    },
+
+                    y:{
+
+                        beginAtZero:true,
+
+                        ticks:{
+                            precision:0
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
 
 }
 
