@@ -5021,8 +5021,9 @@ animation-delay:.2s;
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script>
-
+Chart.register(ChartDataLabels);
 // =====================================================
 // CRM Chart Colors
 // =====================================================
@@ -5909,38 +5910,50 @@ async function reindexUser() {
     }
 }
 
-async function loadDashboardMetrics() {
+async function loadDashboardMetrics(){
 
     const userId =
-        document.getElementById(
-            "userId"
-        ).value;
+        document.getElementById("userId").value;
 
-    if (!userId)
+    if(!userId)
         return;
 
     const response =
-        await fetch(
-            `/dashboard-metrics/${userId}`
-        );
+        await fetch(`/dashboard-metrics/${userId}`);
 
     const data =
         await response.json();
 
-    document.getElementById(
-        "customerCount"
-    ).innerText =
-        data.customers;
+    const customerCount =
+        document.getElementById("customerCount");
 
-    document.getElementById(
-        "messageCount"
-    ).innerText =
-        data.messages;
+    if(customerCount){
 
-    document.getElementById(
-        "todayMessages"
-    ).innerText =
-        data.today_messages;
+        customerCount.innerText =
+            data.customers || 0;
+
+    }
+
+    const messageCount =
+        document.getElementById("messageCount");
+
+    if(messageCount){
+
+        messageCount.innerText =
+            data.messages || 0;
+
+    }
+
+    const todayMessages =
+        document.getElementById("todayMessages");
+
+    if(todayMessages){
+
+        todayMessages.innerText =
+            data.today_messages || 0;
+
+    }
+
 }
 
 async function loadCustomers() {
@@ -7198,20 +7211,18 @@ async function loadBusinessSettings(){
     const data =
         await response.json();
 
-    document.getElementById(
-        "businessName"
-    ).value =
-        data.settings.business_name || "";
+    const settings =
+        data.settings || {};
 
-    document.getElementById(
-        "welcomeMessage"
-    ).value =
-        data.settings.welcome_message || "";
+    document.getElementById("businessName").value =
+        settings.business_name || "";
 
-    document.getElementById(
-        "aiInstructions"
-    ).value =
-        data.settings.ai_instructions || "";
+    document.getElementById("welcomeMessage").value =
+        settings.welcome_message || "";
+
+    document.getElementById("aiInstructions").value =
+        settings.ai_instructions || "";
+
 }
 
 async function loadCustomerProfile(customerPhone) {
@@ -8795,25 +8806,37 @@ function renderLeadDistributionChart(data){
 
                 },
 
-                plugins:{
+                plugins: {
 
-                    legend:{
+                    legend: {
+                        display: false
+                    },
 
-                        position:"bottom",
+                    datalabels: {
 
-                        labels:{
+                        color: "#1e293b",
 
-                            padding:18,
+                        anchor: "end",
 
-                            usePointStyle:true,
+                        align: "top",
 
-                            pointStyle:"circle"
+                        font: {
+
+                            weight: "bold",
+
+                            size: 14
+
+                        },
+
+                        formatter: function(value){
+
+                            return value;
 
                         }
 
                     }
 
-                }
+                },
 
             }
 
@@ -8891,6 +8914,22 @@ function renderLeadStatusChart(data){
                             pointStyle:"circle"
 
                         }
+
+                    },
+
+                    datalabels:{
+
+                        color:"#ffffff",
+
+                        font:{
+
+                            weight:"bold",
+
+                            size:14
+
+                        },
+
+                        formatter:value=>value
 
                     }
 
@@ -8982,12 +9021,7 @@ function renderConversationTrendChart(data){
                         CRM_COLORS.primary,
 
                     tension:.4,
-                    borderWidth:0,
-
-                    hoverOffset:18,
-
-                    borderRadius:8
-
+                    
                 }]
 
             },
@@ -9008,6 +9042,26 @@ function renderConversationTrendChart(data){
 
                     legend:{
                         display:false
+                    },
+
+                    datalabels:{
+
+                        align:"top",
+
+                        anchor:"end",
+
+                        color:CRM_COLORS.primary,
+
+                        font:{
+
+                            weight:"bold",
+
+                            size:12
+
+                        },
+
+                        formatter:value=>value
+
                     }
 
                 },
@@ -9087,10 +9141,30 @@ function renderPipelineChart(data){
 
                 },
 
-                plugins:{
+                plugins: {
 
-                    legend:{
-                        display:false
+                    legend: {
+                        display: false
+                    },
+
+                    datalabels: {
+
+                        color: "#1e293b",
+
+                        anchor: "end",
+
+                        align: "top",
+
+                        font: {
+
+                            weight: "bold",
+
+                            size: 14
+
+                        },
+
+                        formatter: value => value
+
                     }
 
                 },
