@@ -1,6 +1,7 @@
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, HTTPException
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 
 from automation.manager import (
@@ -52,7 +53,7 @@ async def list_rules():
 
         "status": "success",
 
-        "rules": get_rules()
+        "rules": await run_in_threadpool(get_rules)
 
     }
 
@@ -64,7 +65,7 @@ async def list_rules():
 @router.get("/automation/rules/{rule_id}")
 async def get_automation_rule(rule_id: int):
 
-    rule = get_rule(rule_id)
+    rule = await run_in_threadpool(get_rule, rule_id)
 
     if rule is None:
 
@@ -89,7 +90,7 @@ async def get_automation_rule(rule_id: int):
 @router.post("/automation/rules")
 async def create_automation_rule(request: AutomationRuleRequest):
 
-    rule_id = create_rule(request.model_dump())
+    rule_id = await run_in_threadpool(create_rule, request.model_dump())
 
     return {
 
@@ -110,14 +111,15 @@ async def update_automation_rule(
     request: AutomationRuleRequest
 ):
 
-    if get_rule(rule_id) is None:
+    if await run_in_threadpool(get_rule, rule_id) is None:
 
         raise HTTPException(
             status_code=404,
             detail="Rule not found"
         )
 
-    update_rule(
+    await run_in_threadpool(
+        update_rule,
         rule_id,
         request.model_dump()
     )
@@ -139,14 +141,15 @@ async def enable_disable_rule(
     request: EnableRuleRequest
 ):
 
-    if get_rule(rule_id) is None:
+    if await run_in_threadpool(get_rule, rule_id) is None:
 
         raise HTTPException(
             status_code=404,
             detail="Rule not found"
         )
 
-    set_enabled(
+    await run_in_threadpool(
+        set_enabled,
         rule_id,
         request.enabled
     )
@@ -165,14 +168,14 @@ async def enable_disable_rule(
 @router.delete("/automation/rules/{rule_id}")
 async def delete_automation_rule(rule_id: int):
 
-    if get_rule(rule_id) is None:
+    if await run_in_threadpool(get_rule, rule_id) is None:
 
         raise HTTPException(
             status_code=404,
             detail="Rule not found"
         )
 
-    delete_rule(rule_id)
+    await run_in_threadpool(delete_rule, rule_id)
 
     return {
 
@@ -186,7 +189,8 @@ async def toggle_rule_enabled(
     payload: dict
 ):
 
-    set_enabled(
+    await run_in_threadpool(
+        set_enabled,
         rule_id,
         payload["enabled"]
     )

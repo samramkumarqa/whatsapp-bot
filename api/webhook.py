@@ -4,6 +4,7 @@ from fastapi import (
     Form,
     HTTPException,
 )
+from fastapi.concurrency import run_in_threadpool
 from config import (
     DEBUG,
     TWILIO_AUTH_TOKEN,
@@ -49,7 +50,12 @@ async def receive_message(
     request: Request,
     From: str = Form(...),
     To: str = Form(...),
-    Body: str = Form(...)
+    Body: str = Form(...),
+    # The sender's WhatsApp display name. Twilio includes this on WhatsApp
+    # messages when the sender has one set; not every message has it, so
+    # it's optional. Used as a best-effort auto-captured customer name -
+    # see save_mapping()/get_customer_stats() for how it's stored/read.
+    ProfileName: str = Form(None)
 ):
     signature = request.headers.get("X-Twilio-Signature")
 
@@ -95,15 +101,21 @@ async def receive_message(
         # -----------------------------
         # Save mapping
         # -----------------------------
-        save_mapping(
+        await run_in_threadpool(
+            save_mapping,
             customer_phone=from_number,
-            business_phone=to_number
+            business_phone=to_number,
+            customer_name=(
+                ProfileName.strip() if ProfileName else None
+            )
         )
 
-        business_user_id = get_customer_by_number(
+        business_user_id = await run_in_threadpool(
+            get_customer_by_number,
             to_number
         )
-        business_id = get_business_id(
+        business_id = await run_in_threadpool(
+            get_business_id,
             business_user_id
         )
         if not business_user_id:
@@ -127,7 +139,8 @@ async def receive_message(
         # -----------------------------
         if user_text.lower() == "reset":
 
-            clear_history(
+            await run_in_threadpool(
+                clear_history,
                 f"{business_id}:{from_number}"
             )
 
@@ -144,20 +157,23 @@ async def receive_message(
             f"{business_id}:{from_number}"
         )
 
-        history = get_history(
+        history = await run_in_threadpool(
+            get_history,
             conversation_id
         )
 
         # -----------------------------
         # Save user message
         # -----------------------------
-        add_message(
+        await run_in_threadpool(
+            add_message,
             conversation_id,
             "user",
             user_text
         )
 
-        increment_unread(
+        await run_in_threadpool(
+            increment_unread,
             conversation_id
         )
 
@@ -173,7 +189,8 @@ async def receive_message(
         # -----------------------------
         # Save assistant reply
         # -----------------------------
-        add_message(
+        await run_in_threadpool(
+            add_message,
             conversation_id,
             "assistant",
             reply
@@ -184,7 +201,15 @@ async def receive_message(
         # -----------------------------
         try:
 
-            analysis = refresh_customer_intelligence(
+            # NOTE: this is an `async def` function - it was previously
+            # called without `await`, which meant `analysis` was actually
+            # an unawaited coroutine object. `analysis.get(...)` below would
+            # then raise AttributeError, get swallowed by the `except`
+            # below, and get logged as "Lead Intelligence failed" - meaning
+            # this entire block silently never ran for real incoming
+            # WhatsApp messages (it did work correctly from api/ai.py and
+            # api/chat.py, which already awaited it properly).
+            analysis = await refresh_customer_intelligence(
                 business_user_id,
                 from_number
             )
@@ -208,29 +233,29 @@ async def receive_message(
                 "Medium"
             )
 
-            if not reminder_exists(from_number):
+            if not await run_in_threadpool(reminder_exists, from_number):
 
-                upsert_reminder(
+                await run_in_threadpool(
+                    upsert_reminder,
                     from_number,
                     f"[{priority}] {next_action}",
                     follow_up_days
                 )
-                add_activity(
-
+                await run_in_threadpool(
+                    add_activity,
                     from_number,
 
                     "Reminder",
 
                     "Follow-up Scheduled",
 
-                    f"""
-
-                {next_action}
-
-                After {follow_up_days} day(s)
-
-                Priority : {priority}
-                """
+                    # No leading/trailing blank lines or indentation - the
+                    # Customer Timeline renders this with
+                    # white-space:pre-wrap, so stray blank lines/spaces
+                    # here would show up as real empty space in the card.
+                    f"{next_action}\n"
+                    f"After {follow_up_days} day(s)\n"
+                    f"Priority : {priority}"
                 )
 
         except Exception as e:

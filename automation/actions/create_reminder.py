@@ -1,7 +1,7 @@
 from reminder_manager import upsert_reminder
 
 
-def execute(customer, params):
+def execute(customer, params, rule=None):
     """
     Create a reminder for a matched customer.
     """
@@ -23,7 +23,9 @@ def execute(customer, params):
     upsert_reminder(
         customer_phone,
         reminder_text,
-        days
+        days,
+        source_rule_id=rule.get("id") if rule else None,
+        source_rule_name=rule.get("name") if rule else None
     )
 
     print(f"✓ Reminder created for {customer_phone}")

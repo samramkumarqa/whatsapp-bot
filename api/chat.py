@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi.concurrency import run_in_threadpool
 import logging
 
 from conversations import (
@@ -31,14 +32,15 @@ async def local_chat(
         )
 
         # Save user message
-        add_message(
+        await run_in_threadpool(
+            add_message,
             phone,
             "user",
             message
         )
 
         # Load updated conversation
-        history = get_history(phone)
+        history = await run_in_threadpool(get_history, phone)
 
         # Generate AI reply
         reply = await handle_rag(
@@ -48,7 +50,8 @@ async def local_chat(
         )
 
         # Save assistant reply
-        add_message(
+        await run_in_threadpool(
+            add_message,
             phone,
             "assistant",
             reply
@@ -97,7 +100,7 @@ async def reset_chat(phone: str):
         f"Conversation reset: {phone}"
     )
 
-    clear_history(phone)
+    await run_in_threadpool(clear_history, phone)
 
     return {
         "status": "success",

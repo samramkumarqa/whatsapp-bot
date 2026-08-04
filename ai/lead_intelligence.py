@@ -17,6 +17,7 @@ from ai.opportunity_coach import analyse_opportunity
 from crm.opportunity_manager import add_opportunity
 from ai.sales_coach import get_next_best_action
 from ai.utils import parse_ai_json
+from ai.lead_ai import LEAD_STATUSES
 
 
 
@@ -32,6 +33,7 @@ Return ONLY valid JSON.
 Schema
 
 {
+    "status":"",
     "intent":"",
     "buying_stage":"",
     "sentiment":"",
@@ -48,6 +50,22 @@ Schema
 }
 
 Rules
+
+Status is the CRM pipeline stage (different from Buying Stage below -
+Buying Stage describes funnel position, Status is the deal's own
+lifecycle). Status MUST be one of
+
+- New
+- Interested
+- Qualified
+- Proposal Sent
+- Closed Won
+- Closed Lost
+
+Only choose Closed Won/Closed Lost if the conversation explicitly says
+the deal was won, purchased, rejected, or cancelled - otherwise prefer
+New/Interested/Qualified/Proposal Sent based on how far along the
+conversation is.
 
 Intent MUST be one of
 
@@ -159,6 +177,8 @@ Do NOT wrap JSON inside ``` blocks.
 
 DEFAULT_RESPONSE = {
 
+    "status": "New",
+
     "intent": "General Inquiry",
 
     "buying_stage": "Interested",
@@ -211,6 +231,12 @@ Do not include markdown.
 
 Do not explain your reasoning.
 """
+
+    # Same enum detect_lead_status()/update_lead() use for a manually-set
+    # status, so an AI-detected status and a manually-set one are always
+    # directly comparable (and automation rule conditions on "status" work
+    # against both).
+    VALID_STATUSES = set(LEAD_STATUSES)
 
     VALID_INTENTS = {
         "Pricing Inquiry",
@@ -273,6 +299,7 @@ Do not explain your reasoning.
         result.setdefault("ai_version", AI_VERSION)
 
         # Normalize string fields
+        result["status"] = str(result["status"]).strip()
         result["intent"] = str(result["intent"]).strip()
         result["buying_stage"] = str(result["buying_stage"]).strip()
         result["sentiment"] = str(result["sentiment"]).strip()
@@ -282,6 +309,9 @@ Do not explain your reasoning.
         result["next_action"] = str(result["next_action"]).strip()
 
         # Validate enum values
+        if result["status"] not in VALID_STATUSES:
+            result["status"] = DEFAULT_RESPONSE["status"]
+
         if result["intent"] not in VALID_INTENTS:
             result["intent"] = DEFAULT_RESPONSE["intent"]
 
@@ -397,6 +427,9 @@ async def refresh_customer_intelligence(
     # Opportunity Detection
     #
 
+    # analyse_opportunity() always returns a fully-populated, validated
+    # dict now (it parses/defaults/validates internally and never raises),
+    # but keep this as a defensive fallback in case that ever changes.
     opportunity = analyse_opportunity(conversation_text)
 
     if isinstance(opportunity, str):
@@ -450,11 +483,11 @@ async def refresh_customer_intelligence(
 
             customer_phone,
 
-            opportunity["type"],
+            opportunity.get("type", "None"),
 
-            opportunity["confidence"],
+            opportunity.get("confidence", 0),
 
-            opportunity["reason"],
+            opportunity.get("reason", ""),
 
             opportunity.get(
                 "estimated_value",
@@ -471,11 +504,11 @@ async def refresh_customer_intelligence(
             "Opportunity Detected",
 
             (
-                f"Type: {opportunity['type']}\n"
-                f"Priority: {opportunity['priority']}\n"
+                f"Type: {opportunity.get('type', 'None')}\n"
+                f"Priority: {opportunity.get('priority', 'Low')}\n"
                 f"Estimated Value: ₹{opportunity.get('estimated_value', 0)}\n"
-                f"Reason: {opportunity['reason']}\n"
-                f"Recommended Action: {opportunity['recommended_action']}"
+                f"Reason: {opportunity.get('reason', '')}\n"
+                f"Recommended Action: {opportunity.get('recommended_action', '')}"
             )
         )
 
@@ -485,7 +518,9 @@ async def refresh_customer_intelligence(
 
     changed = (
 
-        old_lead.get("lead_score") != analysis["lead_score"]
+        old_lead.get("status") != analysis["status"]
+
+        or old_lead.get("lead_score") != analysis["lead_score"]
 
         or old_lead.get("intent") != analysis["intent"]
 
@@ -503,6 +538,8 @@ async def refresh_customer_intelligence(
         details = "\n".join([
 
             f"AI Version: {analysis.get('ai_version', AI_VERSION)}",
+
+            f"Status: {analysis['status']}",
 
             f"Lead Score: {analysis['lead_score']}",
 

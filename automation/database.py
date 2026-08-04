@@ -1,13 +1,15 @@
-import sqlite3
 import json
+
+from database.db import get_conversation_connection
 
 DB_PATH = "conversations.db"
 
 
 def get_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+    # Shares the pooled conversations.db connections from database/db.py
+    # instead of opening its own unpooled sqlite3 connection to the same
+    # file.
+    return get_conversation_connection()
 
 
 def init_automation_db():
@@ -76,8 +78,6 @@ def get_all_rules():
         rules.append(rule)
 
     return rules
-
-import json
 
 
 def save_rule(

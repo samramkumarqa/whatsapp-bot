@@ -44,9 +44,15 @@ def execute_actions(rule, matched_customers):
 
             try:
 
+                # rule is passed through so action handlers can snapshot
+                # which rule (id + current name) produced whatever they
+                # write - e.g. create_reminder uses it to record
+                # source_rule_id/source_rule_name for traceability and
+                # later stale-reminder detection.
                 executor(
                     customer,
-                    action.get("params", action)
+                    action.get("params", action),
+                    rule
                 )
 
             except Exception as ex:

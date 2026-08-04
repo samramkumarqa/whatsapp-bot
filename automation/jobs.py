@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from reminder_manager import get_reminders
@@ -13,7 +14,10 @@ async def send_due_reminders():
 
     logger.info("Running scheduled reminder job")
 
-    reminders = get_reminders()
+    # get_reminders() is synchronous sqlite3 code; this job runs on
+    # APScheduler's asyncio event loop, so calling it directly would block
+    # every other scheduled job (and the whole loop) for its duration.
+    reminders = await asyncio.to_thread(get_reminders)
 
     if not reminders:
         logger.info("No reminders found")

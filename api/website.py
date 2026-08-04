@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 import asyncio
 import logging
@@ -60,7 +61,7 @@ async def reindex(user_id: str):
 @router.get("/websites")
 async def websites():
 
-    sites = get_websites()
+    sites = await run_in_threadpool(get_websites)
 
     return {
         "status": "success",
@@ -86,7 +87,8 @@ async def add_site(request: WebsiteRequest):
 
         if request.crawl:
 
-            discovered_urls = discover_links(
+            discovered_urls = await run_in_threadpool(
+                discover_links,
                 request.url,
                 max_pages=request.max_pages
             )
@@ -101,7 +103,8 @@ async def add_site(request: WebsiteRequest):
                     f"Discovered: {url}"
                 )
 
-                if save_website(
+                if await run_in_threadpool(
+                    save_website,
                     request.user_id,
                     url
                 ):
@@ -113,7 +116,8 @@ async def add_site(request: WebsiteRequest):
 
         else:
 
-            if save_website(
+            if await run_in_threadpool(
+                save_website,
                 request.user_id,
                 request.url
             ):
@@ -173,7 +177,8 @@ async def remove_site(
 
     try:
 
-        removed = delete_website(
+        removed = await run_in_threadpool(
+            delete_website,
             request.user_id,
             request.url
         )
@@ -205,7 +210,7 @@ async def remove_site(
 @router.get("/websites/{user_id}")
 async def list_websites(user_id: str):
 
-    websites = get_websites(user_id)
+    websites = await run_in_threadpool(get_websites, user_id)
 
     return {
         "status": "success",

@@ -1,3 +1,0 @@
-https://www.selenium.dev/documentation
-https://www.selenium.dev/documentation/overview
-

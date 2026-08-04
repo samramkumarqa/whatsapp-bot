@@ -5,8 +5,11 @@ from automation.scheduler import (
 
 from automation.jobs import (
     send_due_reminders,
-    follow_up_leads,
-    generate_daily_sales_summary,
+    # follow_up_leads and generate_daily_sales_summary are still just
+    # placeholders (they log a line and do nothing) - left importable in
+    # automation/jobs.py for whenever real logic gets built, but not
+    # registered on the scheduler so the job list only reflects jobs that
+    # actually do something.
 )
 
 from automation.runner import run_automation
@@ -19,19 +22,6 @@ def initialize_scheduler():
         hour=9,
         minute=0,
         job_id="daily_reminders"
-    )
-
-    add_job(
-        follow_up_leads,
-        interval_minutes=30,
-        job_id="lead_followups"
-    )
-
-    add_job(
-        generate_daily_sales_summary,
-        hour=18,
-        minute=0,
-        job_id="daily_sales_summary"
     )
 
     # ⭐ Automation Engine

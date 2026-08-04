@@ -16,18 +16,30 @@ def evaluate_condition(customer, condition):
         return False
 
     try:
-        # Numeric comparisons
-        if operator == ">=":
-            return value >= target
+        # Numeric comparisons. The rule builder's condition-value input is a
+        # plain text field, so "value" often arrives as a string (e.g. "80")
+        # even for numeric customer fields like lead_score/last_seen_days.
+        # Coercing both sides to float makes ">="/">"/"<="/"<" work whether
+        # the value came in as a number or a numeric string, while still
+        # raising (and being caught below) for genuinely non-numeric fields
+        # like status/sentiment - preserving the existing "graceful False"
+        # behavior for those.
+        if operator in (">=", ">", "<=", "<"):
 
-        elif operator == ">":
-            return value > target
+            value_num = float(value)
+            target_num = float(target)
 
-        elif operator == "<=":
-            return value <= target
+            if operator == ">=":
+                return value_num >= target_num
 
-        elif operator == "<":
-            return value < target
+            elif operator == ">":
+                return value_num > target_num
+
+            elif operator == "<=":
+                return value_num <= target_num
+
+            elif operator == "<":
+                return value_num < target_num
 
         # Equality
         elif operator in ["=", "=="]:
@@ -41,7 +53,7 @@ def evaluate_condition(customer, condition):
         elif operator == "contains":
             return str(target).lower() in str(value).lower()
 
-    except Exception:
+    except (TypeError, ValueError):
         return False
 
     return False

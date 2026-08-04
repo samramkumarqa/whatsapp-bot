@@ -16,6 +16,7 @@ from reminder_manager import init_reminders
 from crm.tag_manager import init_tags
 from crm.activity_manager import init_activity
 from crm.followup_manager import init_followups
+from unread_manager import init_unread
 
 from api.dashboard import router as dashboard_router
 from api.webhook import router as webhook_router
@@ -28,7 +29,6 @@ from api.customer import router as customer_router
 from automation.service import initialize_scheduler
 from automation.database import init_automation_db
 from api.automation import router as automation_router
-from automation.database import init_automation_db
 from api.reminders import router as reminders_router
 from automation.scheduler import start_scheduler
 
@@ -51,6 +51,7 @@ init_reminders()
 init_tags()
 init_activity()
 init_followups()
+init_unread()
 init_automation_db()
 
 @app.on_event("startup")

@@ -1,5 +1,30 @@
 from database.db import get_conversation_connection
 
+
+def init_unread():
+    """
+    Creates the unread_messages table if it doesn't exist.
+
+    This table previously had no init function anywhere in the codebase -
+    it only existed because it had been created manually at some point on
+    the live conversations.db. Any fresh copy of that database (a new
+    environment, a restore from backup, etc.) would make every call in
+    this module fail with "no such table: unread_messages".
+    """
+
+    conn = get_conversation_connection()
+
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS unread_messages (
+        conversation_id TEXT PRIMARY KEY,
+        unread_count INTEGER DEFAULT 0
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
 def increment_unread(conversation_id):
 
     conn = get_conversation_connection()

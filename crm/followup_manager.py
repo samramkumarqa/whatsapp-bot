@@ -23,6 +23,11 @@ def init_followups():
     )
     """)
 
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_ai_followups_customer_phone "
+        "ON ai_followups(customer_phone)"
+    )
+
     conn.commit()
 
     conn.close()

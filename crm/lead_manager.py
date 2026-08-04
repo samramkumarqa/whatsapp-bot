@@ -2,6 +2,17 @@ from ai.lead_ai import calculate_lead_score
 from database.db import get_crm_connection
 
 
+# Terminal pipeline states - once a deal is here, an automated update
+# (AI-driven, from every incoming message) should never silently move it
+# back into an earlier stage. Only a manual edit should do that. Shared by
+# auto_update_lead() and update_lead_intelligence().
+LOCKED_STATUSES = [
+    "Proposal Sent",
+    "Closed Won",
+    "Closed Lost"
+]
+
+
 DEFAULT_LEAD = {
     "customer_phone": "",
     "status": "New",
@@ -32,17 +43,44 @@ def init_leads():
 
     conn = get_crm_connection()
 
+    # NOTE: this previously only defined
+    # (customer_phone, status, notes, confidence, reason, updated_by) -
+    # missing lead_score, intent, buying_stage, sentiment, objection,
+    # probability, next_action, ai_summary, follow_up_days, tags, priority,
+    # and summary, all of which the live production data/app.db actually has
+    # (added via manual ALTER TABLE at some point, never reflected back into
+    # this function) and which update_lead()/update_lead_intelligence() in
+    # this same file write to unconditionally. A fresh copy of this database
+    # would fail immediately on the first update_lead() call with
+    # "table leads has no column named lead_score". Schema below now matches
+    # the real, live table.
     conn.execute("""
     CREATE TABLE IF NOT EXISTS leads (
-    customer_phone TEXT PRIMARY KEY,
-    status TEXT DEFAULT 'New',
-    notes TEXT DEFAULT '',
-    confidence INTEGER DEFAULT 0,
-    reason TEXT DEFAULT '',
-    updated_by TEXT DEFAULT 'Manual'
-)
+        customer_phone TEXT PRIMARY KEY,
+        status TEXT DEFAULT 'New',
+        notes TEXT DEFAULT '',
+        confidence INTEGER DEFAULT 50,
+        reason TEXT DEFAULT '',
+        updated_by TEXT DEFAULT 'Manual',
+        lead_score INTEGER DEFAULT 0,
+        intent TEXT DEFAULT '',
+        buying_stage TEXT DEFAULT '',
+        sentiment TEXT DEFAULT '',
+        objection TEXT DEFAULT '',
+        probability INTEGER DEFAULT 0,
+        next_action TEXT DEFAULT '',
+        ai_summary TEXT DEFAULT '',
+        follow_up_days INTEGER DEFAULT 1,
+        tags TEXT DEFAULT '',
+        priority TEXT DEFAULT 'Medium',
+        summary TEXT DEFAULT ''
+    )
     """)
 
+    # NOTE: also kept in sync with crm/opportunity_manager.py's
+    # init_opportunities(), which creates the same table - see the note
+    # there. init_leads() runs first in main.py, so this definition is the
+    # one that actually applies on a fresh database.
     conn.execute("""
         CREATE TABLE IF NOT EXISTS opportunities (
 
@@ -56,7 +94,10 @@ def init_leads():
 
             reason TEXT,
 
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            status TEXT DEFAULT 'Open',
+            updated_at TIMESTAMP,
+            estimated_value INTEGER DEFAULT 0
         )
         """)
 
@@ -71,6 +112,16 @@ def init_leads():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """)
+
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_opportunities_customer_phone "
+        "ON opportunities(customer_phone)"
+    )
+
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_lead_history_customer_phone "
+        "ON lead_history(customer_phone)"
+    )
 
     conn.commit()
     conn.close()
@@ -278,6 +329,25 @@ def update_lead_intelligence(
     Save AI Lead Intelligence into CRM.
     """
 
+    # BUG FIX: this used to write analysis["buying_stage"] into the
+    # "status" column (a column/value mismatch - buying_stage is a
+    # different vocabulary: Awareness/Interested/Considering/Ready to
+    # Buy/Customer, vs. status's New/Interested/Qualified/Proposal
+    # Sent/Closed Won/Closed Lost). That meant "status" almost never held
+    # a real pipeline status, so any automation condition on Lead Status
+    # rarely matched. analysis["status"] (added to the same LLM call, see
+    # ai/lead_intelligence.py's SYSTEM_PROMPT) is the real one.
+    #
+    # Also: once a deal is in a terminal/locked state (Proposal
+    # Sent/Closed Won/Closed Lost), an automatic per-message update should
+    # never silently move it backwards - only a manual edit should.
+    current = get_lead(customer_phone)
+
+    new_status = analysis["status"]
+
+    if current["status"] in LOCKED_STATUSES:
+        new_status = current["status"]
+
     conn = get_crm_connection()
 
     conn.execute(
@@ -333,7 +403,7 @@ def update_lead_intelligence(
         (
             customer_phone,
 
-            analysis["buying_stage"],
+            new_status,
 
             analysis["confidence"],
 
@@ -384,7 +454,7 @@ def update_lead_intelligence(
         (
             customer_phone,
 
-            analysis["buying_stage"],
+            new_status,
 
             analysis["confidence"],
 
@@ -409,13 +479,7 @@ def auto_update_lead(
 
     current_status = current["status"]
 
-    locked_statuses = [
-        "Proposal Sent",
-        "Closed Won",
-        "Closed Lost"
-    ]
-
-    if current_status in locked_statuses:
+    if current_status in LOCKED_STATUSES:
         return
 
     update_lead(

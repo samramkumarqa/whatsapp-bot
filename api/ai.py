@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 
 from ai.manager_assistant import ask_manager
@@ -27,7 +28,8 @@ async def generate_followup_message(
     customer_phone: str
 ):
 
-    messages = get_conversation(
+    messages = await run_in_threadpool(
+        get_conversation,
         user_id,
         customer_phone
     )
@@ -46,13 +48,15 @@ async def generate_followup_message(
             f"{role}: {msg['content']}\n"
         )
 
-    lead = get_lead(customer_phone)
+    lead = await run_in_threadpool(get_lead, customer_phone)
 
-    followup = generate_followup(
+    followup = await run_in_threadpool(
+        generate_followup,
         conversation,
         lead
     )
-    save_followup(
+    await run_in_threadpool(
+        save_followup,
         customer_phone,
         followup
     )
@@ -67,7 +71,7 @@ async def followups(customer_phone: str):
 
     return {
         "status": "success",
-        "followups": get_followups(customer_phone)
+        "followups": await run_in_threadpool(get_followups, customer_phone)
     }
 
 
@@ -76,7 +80,7 @@ async def executive_dashboard(user_id: str):
 
     return {
         "status": "success",
-        "dashboard": get_dashboard(user_id)
+        "dashboard": await run_in_threadpool(get_dashboard, user_id)
     }
 
 @router.post("/manager-assistant")

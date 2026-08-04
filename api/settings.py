@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 from database.db import get_conversation_connection
 from crm.customer_mapping import (
@@ -33,7 +34,8 @@ async def save_settings(
     request: BusinessSettingsRequest
 ):
 
-    save_business_settings(
+    await run_in_threadpool(
+        save_business_settings,
         request.user_id,
         request.business_name,
         request.welcome_message,
@@ -50,7 +52,8 @@ async def get_settings(
 
     return {
         "status": "success",
-        "settings": get_business_settings(
+        "settings": await run_in_threadpool(
+            get_business_settings,
             user_id
         )
     }
@@ -60,7 +63,8 @@ async def save_number(
     request: CustomerNumberRequest
 ):
 
-    save_customer_number(
+    await run_in_threadpool(
+        save_customer_number,
         request.user_id,
         request.whatsapp_number,
         "business_001"
@@ -75,7 +79,8 @@ async def get_number(
     user_id: str
 ):
 
-    number = get_business_phone_by_user(
+    number = await run_in_threadpool(
+        get_business_phone_by_user,
         user_id
     )
 
@@ -90,19 +95,17 @@ async def get_number(
 async def customers(user_id: str):
     return {
         "status": "success",
-        "customers": get_customers(user_id)
+        "customers": await run_in_threadpool(get_customers, user_id)
     }
 
 @router.get("/customers-last/{user_id}")
 async def customers_last(user_id: str):
     return {
     "status": "success",
-    "last_update": get_last_customer_update(user_id)
+    "last_update": await run_in_threadpool(get_last_customer_update, user_id)
 }
 
-@router.get("/conversation-last/{user_id}/{customer_phone}")
-async def conversation_last(user_id: str, customer_phone: str):
-
+def _fetch_last_message(user_id: str, customer_phone: str):
     conn = get_conversation_connection()
 
     row = conn.execute(
@@ -116,6 +119,17 @@ async def conversation_last(user_id: str, customer_phone: str):
 
     conn.close()
 
+    return row[0] or ""
+
+@router.get("/conversation-last/{user_id}/{customer_phone}")
+async def conversation_last(user_id: str, customer_phone: str):
+
+    last_message = await run_in_threadpool(
+        _fetch_last_message,
+        user_id,
+        customer_phone
+    )
+
     return {
-        "last_message": row[0] or ""
+        "last_message": last_message
     }

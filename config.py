@@ -21,10 +21,11 @@ TWILIO_WHATSAPP_NUMBER = os.getenv("TWILIO_WHATSAPP_NUMBER")
 # ----------------------------------------
 # AI Providers
 # ----------------------------------------
+# NOTE: only Groq is actually used anywhere in this codebase. Removed
+# OPENAI_API_KEY / GOOGLE_API_KEY, which were loaded here but never
+# referenced by any other module.
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # ----------------------------------------
 # Vector Database

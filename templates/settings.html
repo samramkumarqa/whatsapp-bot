@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Settings - Website AI Assistant</title>
+
+    <style>
+
+:root {
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-light: #dbeafe;
+  --color-primary-lighter: #eff6ff;
+  --color-blue: #3b82f6;
+
+  --color-gray-50: #f8fafc;
+  --color-gray-100: #e2e8f0;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #cbd5e1;
+  --color-gray-500: #94a3b8;
+  --color-gray-600: #64748b;
+  --color-gray-700: #475569;
+  --color-text-dark: #1e293b;
+  --color-text-darkest: #0f172a;
+
+  --color-danger: #ef4444;
+  --color-danger-dark: #dc2626;
+  --color-danger-light: #fee2e2;
+
+  --color-warning: #f59e0b;
+  --color-warning-dark: #92400e;
+  --color-warning-light: #fef3c7;
+
+  --color-success: #22c55e;
+  --color-success-dark: #166534;
+  --color-success-light: #dcfce7;
+
+  --shadow-sm: rgba(0, 0, 0, 0.05);
+  --shadow-md: rgba(0, 0, 0, 0.08);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+
+  font-family: "Segoe UI", sans-serif;
+
+  background: #f4f7fb;
+
+  color: var(--color-text-dark);
+
+  padding: 14px;
+}
+
+/* HEADER */
+
+.crm-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  background: white;
+
+  border-radius: 18px;
+
+  padding: 18px 26px;
+
+  margin-bottom: 20px;
+
+  box-shadow: 0 8px 20px var(--shadow-md);
+}
+
+.crm-brand {
+  display: flex;
+
+  align-items: center;
+
+  gap: 18px;
+}
+
+.logo-circle {
+  width: 56px;
+
+  height: 56px;
+
+  border-radius: 16px;
+
+  background: linear-gradient(135deg, var(--color-primary), var(--color-blue));
+
+  color: white;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 28px;
+
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+}
+
+.crm-title {
+  margin: 0;
+  font-size: 28px;
+  color: var(--color-primary);
+}
+
+.crm-header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-link-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: var(--color-gray-50);
+
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  color: var(--color-primary);
+
+  text-decoration: none;
+
+  padding: 10px 18px;
+
+  transition: 0.2s;
+}
+
+.header-link-btn:hover {
+  background: var(--color-primary-lighter);
+}
+
+/* SETTINGS CARD */
+
+.card {
+  background: white;
+  border: none;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px var(--shadow-md);
+}
+
+h2 {
+  margin-bottom: 20px;
+
+  font-size: 32px;
+
+  color: var(--color-primary);
+
+  font-weight: 700;
+}
+
+.card > h3 {
+  margin-bottom: 18px;
+  margin-top: 8px;
+}
+
+/* BUTTONS */
+
+button {
+  background: var(--color-primary);
+
+  color: white;
+
+  border: none;
+
+  border-radius: 10px;
+
+  padding: 10px 18px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+button:hover {
+  background: var(--color-primary-hover);
+
+  transform: translateY(-2px);
+}
+
+/* INPUTS */
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+
+  padding: 10px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 10px;
+
+  margin-top: 5px;
+
+  margin-bottom: 10px;
+}
+
+textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+#websiteList {
+  list-style: none;
+}
+
+#websiteList li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-gray-100);
+}
+
+#status {
+  margin-top: 14px;
+  color: var(--color-gray-600);
+  font-size: 14px;
+}
+
+    </style>
+
+</head>
+
+<body>
+
+<!-- ===================================================== -->
+<!-- HEADER -->
+<!-- ===================================================== -->
+
+<div class="crm-header">
+
+    <div class="crm-brand">
+
+        <div class="logo-circle">
+            ⚙️
+        </div>
+
+        <div>
+
+            <h2 class="crm-title" style="margin:0;">
+                Settings
+            </h2>
+
+        </div>
+
+    </div>
+
+    <div class="crm-header-right">
+
+        <a href="/" class="header-link-btn" title="Back to Dashboard">
+            ← Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- SETTINGS -->
+<!-- ===================================================== -->
+
+<div class="card">
+
+    <h2>⚙️ Settings</h2>
+
+    <!-- ========================= -->
+    <!-- User Settings -->
+    <!-- ========================= -->
+
+    <label>WhatsApp Number</label>
+
+    <input
+        id="userId"
+        placeholder="+14155238886"
+    >
+
+    <label>Website URL</label>
+
+    <input
+        id="websiteUrl"
+        placeholder="https://example.com"
+    >
+
+    <button onclick="addWebsite()">
+        Add Website
+    </button>
+
+    <button onclick="reindexUser()">
+        Reindex
+    </button>
+
+    <hr style="margin:25px 0">
+
+    <h3>🌐 Indexed Websites</h3>
+
+    <ul id="websiteList"></ul>
+
+    <hr style="margin:25px 0">
+
+    <!-- ========================= -->
+    <!-- Business Settings -->
+    <!-- ========================= -->
+
+    <h3>⚙️ Business Settings</h3>
+
+    <input
+        id="businessName"
+        placeholder="Business Name"
+    >
+
+    <textarea
+        id="welcomeMessage"
+        placeholder="Welcome Message"
+    ></textarea>
+
+    <textarea
+        id="aiInstructions"
+        placeholder="AI Instructions"
+    ></textarea>
+
+    <button onclick="saveBusinessSettings()">
+        Save Settings
+    </button>
+
+</div>
+
+<div id="status"></div>
+
+<script>
+
+async function addWebsite() {
+
+    document.getElementById("status").innerText =
+    "⏳ Indexing website...";
+
+    const userId =
+        document.getElementById("userId").value;
+
+    const url =
+        document.getElementById("websiteUrl").value;
+
+    const response = await fetch("/website", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            user_id: userId,
+            url: url,
+            crawl: false,
+            max_pages: 20
+        })
+    });
+
+    const data = await response.json();
+
+    if (data.status === "success") {
+        document.getElementById("status").innerText =
+            `✅ ${data.added_count} website added successfully`;
+
+        document.getElementById("websiteUrl").value = "";
+    } else {
+        document.getElementById("status").innerText =
+            `❌ ${data.message}`;
+    }
+
+    loadWebsites();
+}
+
+async function loadWebsites() {
+
+    const userId =
+        document.getElementById("userId").value;
+
+    if (!userId)
+        return;
+
+    const response =
+        await fetch(`/websites/${userId}`);
+
+    const data =
+        await response.json();
+
+    const list =
+        document.getElementById("websiteList");
+
+    list.innerHTML = "";
+
+    data.websites.forEach(site => {
+
+        const li =
+            document.createElement("li");
+
+        li.innerHTML = `
+            ${site}
+            <button onclick="deleteWebsite('${site}')">
+                Delete
+            </button>
+        `;
+
+        list.appendChild(li);
+    });
+}
+
+async function deleteWebsite(url) {
+
+    const userId =
+        document.getElementById("userId").value;
+
+    const response = await fetch(
+        "/website",
+        {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                url: url
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    document.getElementById("status").innerText =
+        data.message || data.status;
+
+    loadWebsites();
+}
+
+async function reindexUser() {
+
+    const userId =
+        document.getElementById("userId").value;
+
+    document.getElementById("status").innerText =
+        "⏳ Reindexing...";
+
+    const response = await fetch(
+        `/reindex/${userId}`,
+        {
+            method: "POST"
+        }
+    );
+
+    const data = await response.json();
+
+    if (data.status === "success") {
+
+        document.getElementById("status").innerText =
+            "✅ Reindex completed";
+
+    } else {
+
+        document.getElementById("status").innerText =
+            `❌ ${data.message}`;
+    }
+}
+
+async function saveBusinessSettings(){
+
+    const userId =
+        document.getElementById("userId").value;
+
+    const response =
+        await fetch(
+            "/business-settings",
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    user_id:userId,
+                    business_name:
+                        document.getElementById(
+                            "businessName"
+                        ).value,
+                    welcome_message:
+                        document.getElementById(
+                            "welcomeMessage"
+                        ).value,
+                    ai_instructions:
+                        document.getElementById(
+                            "aiInstructions"
+                        ).value
+                })
+            }
+        );
+
+    const data =
+        await response.json();
+
+    alert("Settings saved");
+}
+
+async function loadBusinessSettings(){
+
+    const userId =
+        document.getElementById("userId").value;
+
+    if(!userId)
+        return;
+
+    const response =
+        await fetch(
+            `/business-settings/${userId}`
+        );
+
+    const data =
+        await response.json();
+
+    const settings =
+        data.settings || {};
+
+    document.getElementById("businessName").value =
+        settings.business_name || "";
+
+    document.getElementById("welcomeMessage").value =
+        settings.welcome_message || "";
+
+    document.getElementById("aiInstructions").value =
+        settings.ai_instructions || "";
+
+}
+
+window.onload = async function () {
+
+    document.getElementById("userId").value = "+14155238886";
+
+    try { await loadWebsites(); }
+    catch(e){ console.error("Websites", e); }
+
+    try { await loadBusinessSettings(); }
+    catch(e){ console.error("Business Settings", e); }
+
+};
+
+</script>
+
+</body>
+</html>

@@ -5,10 +5,16 @@ def init_customer_mapping():
     conn = get_crm_connection()
 
     # Business registration table
+    # NOTE: business_id was missing here - the live production data/app.db
+    # has it (added via a manual ALTER TABLE at some point), and
+    # save_customer_number() below writes to it unconditionally. A fresh
+    # database would fail with "table customer_numbers has no column named
+    # business_id" on the very first call.
     conn.execute("""
         CREATE TABLE IF NOT EXISTS customer_numbers (
             user_id TEXT PRIMARY KEY,
-            whatsapp_number TEXT NOT NULL
+            whatsapp_number TEXT NOT NULL,
+            business_id TEXT
         )
     """)
 
@@ -16,9 +22,29 @@ def init_customer_mapping():
     conn.execute("""
         CREATE TABLE IF NOT EXISTS customer_mapping (
             customer_phone TEXT PRIMARY KEY,
-            business_phone TEXT NOT NULL
+            business_phone TEXT NOT NULL,
+            customer_name TEXT
         )
     """)
+
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_customer_mapping_business_phone "
+        "ON customer_mapping(business_phone)"
+    )
+
+    # customer_name existed in a schema created before this column was
+    # added - patch it in for any database created by an older version.
+    existing_columns = {
+        row[1]
+        for row in conn.execute(
+            "PRAGMA table_info(customer_mapping)"
+        ).fetchall()
+    }
+
+    if "customer_name" not in existing_columns:
+        conn.execute(
+            "ALTER TABLE customer_mapping ADD COLUMN customer_name TEXT"
+        )
 
     conn.commit()
     conn.close()
@@ -171,25 +197,89 @@ def get_business_phone_by_user(
 
 def save_mapping(
     customer_phone: str,
-    business_phone: str
+    business_phone: str,
+    customer_name: str = None
 ):
 
     conn = get_crm_connection()
+
+    # Upsert rather than INSERT OR REPLACE: the latter replaces the whole
+    # row, which would wipe out an already-known customer_name (captured
+    # from a previous message's WhatsApp ProfileName, or entered manually)
+    # on every subsequent incoming message. Keep whichever name is already
+    # on file; only fill it in from `customer_name` when nothing is set
+    # yet, so manual edits and previously-captured names both stick.
     conn.execute(
         """
-        INSERT OR REPLACE INTO customer_mapping
-        (customer_phone, business_phone)
-        VALUES (?, ?)
+        INSERT INTO customer_mapping
+            (customer_phone, business_phone, customer_name)
+        VALUES (?, ?, ?)
+        ON CONFLICT(customer_phone) DO UPDATE SET
+            business_phone = excluded.business_phone,
+            customer_name = COALESCE(
+                customer_mapping.customer_name,
+                excluded.customer_name
+            )
         """,
         (
             customer_phone,
-            business_phone
+            business_phone,
+            customer_name
         )
     )
 
     conn.commit()
     conn.close()
 
+
+def set_customer_name(
+    customer_phone: str,
+    customer_name: str
+):
+    """
+    Explicit manual override (e.g. from the Customer Profile panel).
+    Unlike the auto-capture in save_mapping(), this always overwrites -
+    it's a deliberate user action, not a best-effort default.
+    """
+
+    conn = get_crm_connection()
+
+    conn.execute(
+        """
+        UPDATE customer_mapping
+        SET customer_name = ?
+        WHERE customer_phone = ?
+        """,
+        (
+            customer_name,
+            customer_phone
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+
+def get_customer_name(
+    customer_phone: str
+):
+
+    conn = get_crm_connection()
+
+    cursor = conn.execute(
+        """
+        SELECT customer_name
+        FROM customer_mapping
+        WHERE customer_phone = ?
+        """,
+        (customer_phone,)
+    )
+
+    row = cursor.fetchone()
+
+    conn.close()
+
+    return row[0] if row else None
 
 
 def get_business_phone_by_customer(

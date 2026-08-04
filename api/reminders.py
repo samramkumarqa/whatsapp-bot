@@ -1,41 +1,57 @@
 from fastapi import APIRouter
-import sqlite3
+
+from database.db import get_crm_connection
+from reminder_manager import find_stale_reminders, delete_stale_reminders
 
 router = APIRouter()
 
 APP_DB = "data/app.db"   # use your existing DB path
+
+
 def get_connection():
-    conn = sqlite3.connect(APP_DB)
-    conn.row_factory = sqlite3.Row
-    return conn
+    # Shares the pooled data/app.db connections from database/db.py instead
+    # of opening its own unpooled sqlite3 connection to the same file.
+    return get_crm_connection()
+
+# NOTE: this file previously also defined GET /reminders here
+# (get_all_reminders()). api/misc.py registers the exact same path, and
+# since misc_router is included before reminders_router in main.py,
+# misc.py's handler always won - this one was dead, unreachable code.
+# Removed; misc.py's GET /reminders (backed by reminder_manager.get_reminders())
+# is the one that actually serves that path.
 
 # =====================================================
-# GET ALL REMINDERS
+# STALE REMINDERS (preview + cleanup)
+#
+# These have to be registered before GET /reminders/{customer_phone}
+# below - otherwise FastAPI would match "/reminders/stale" against that
+# route's {customer_phone} path parameter (literally looking up a
+# customer named "stale") instead of reaching these.
 # =====================================================
 
-@router.get("/reminders")
-def get_all_reminders():
-    conn = get_connection()
-
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT *
-        FROM reminders
-        ORDER BY due_date ASC
-    """)
-
-    reminders = [
-        dict(row)
-        for row in cursor.fetchall()
-    ]
-
-    conn.close()
+@router.get("/reminders/stale")
+def preview_stale_reminders():
+    """
+    Reminders whose originating rule has since been deleted, no longer
+    has a Create Reminder action, or now says something different - i.e.
+    the reminder text on screen no longer reflects the rule's real,
+    current configuration.
+    """
 
     return {
-        "reminders": reminders
+        "stale": find_stale_reminders()
     }
 
+
+@router.delete("/reminders/stale")
+def clear_stale_reminders():
+
+    deleted = delete_stale_reminders()
+
+    return {
+        "status": "success",
+        "deleted": deleted
+    }
 
 # =====================================================
 # GET REMINDERS FOR ONE CUSTOMER

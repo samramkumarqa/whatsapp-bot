@@ -19,6 +19,11 @@ def init_db():
     )
     """)
 
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_conversations_phone "
+        "ON conversations(phone)"
+    )
+
     conn.commit()
     conn.close()
 
