@@ -1,4 +1,8 @@
+import logging
+
 from analytics.analytics import get_customer_stats
+
+logger = logging.getLogger(__name__)
 
 
 def evaluate_condition(customer, condition):
@@ -59,18 +63,25 @@ def evaluate_condition(customer, condition):
     return False
 
 
-def evaluate_rule(rule, user_id):
+def evaluate_rule(rule, user_id, customers=None):
     """
     Evaluate one automation rule and return matching customers.
+
+    `customers` lets a caller evaluating multiple rules for the same
+    business (see automation/runner.py) fetch get_customer_stats() once
+    and reuse it across every rule, instead of this function re-fetching
+    the same business's customer list from scratch for every single rule.
+    Optional and defaults to fetching internally, so existing direct
+    callers/tests that only care about one rule don't need to change.
     """
 
-    customers = get_customer_stats(user_id)
+    if customers is None:
+        customers = get_customer_stats(user_id)
 
     matched = []
 
-    print("--------------------------------------")
-    print(f"Evaluating Rule : {rule['name']}")
-    print(f"Customers Loaded : {len(customers)}")
+    logger.debug("Evaluating Rule : %s", rule["name"])
+    logger.debug("Customers Loaded : %d", len(customers))
 
     conditions = rule["condition_json"]
 
@@ -156,6 +167,6 @@ def evaluate_rule(rule, user_id):
             ):
                 matched.append(customer)
 
-    print(f"Matched : {len(matched)}")
+    logger.debug("Matched : %d", len(matched))
 
     return matched

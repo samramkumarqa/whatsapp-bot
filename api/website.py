@@ -1,11 +1,13 @@
 from fastapi import APIRouter
 from fastapi.concurrency import run_in_threadpool
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import asyncio
 import logging
 
-from crawler import discover_links
 from incremental_ingest import incremental_ingest
+from site_discovery import MAX_PAGES_PER_SITE
+from doc_tracker import get_indexed_pages, clear_registry
+from vector_store import clear_user_vectorstore
 
 from website_manager import (
     add_website as save_website,
@@ -16,9 +18,21 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+# Mirrors the client-side rules in templates/settings.html
+# (sanitizePhoneInput/sanitizeUrlInput/validate*()) - enforced here too
+# since this route can be called directly, bypassing the UI.
 class WebsiteRequest(BaseModel):
-    user_id: str
-    url: str
+    user_id: str = Field(
+        min_length=7, max_length=16, pattern=r"^\+?[0-9]{7,15}$"
+    )
+    url: str = Field(
+        max_length=500, pattern=r'^https?://[^\s<>"\']+$'
+    )
+    # Multi-page discovery (sitemap-first, capped at
+    # site_discovery.MAX_PAGES_PER_SITE) now happens automatically at
+    # reindex time - see website_ingest.load_website_chunks() - rather
+    # than here at add-time, so a business only ever adds their one root
+    # URL. These fields are kept for API back-compat but are unused.
     crawl: bool = False
     max_pages: int = 50
 
@@ -76,58 +90,34 @@ async def add_site(request: WebsiteRequest):
     try:
 
         logger.info(
-            f"Adding website(s) for {request.user_id}"
+            f"Adding website for {request.user_id}"
         )
 
-        added_urls = []
+        result = await run_in_threadpool(
+            save_website,
+            request.user_id,
+            request.url
+        )
 
         # ------------------------------------
-        # Crawl entire website
+        # Blocked by the 1-website-per-business limit
         # ------------------------------------
 
-        if request.crawl:
+        if result == "limit_reached":
 
-            discovered_urls = await run_in_threadpool(
-                discover_links,
-                request.url,
-                max_pages=request.max_pages
-            )
-
-            logger.info(
-                f"Discovered {len(discovered_urls)} pages"
-            )
-
-            for url in discovered_urls:
-
-                logger.info(
-                    f"Discovered: {url}"
+            return {
+                "status": "limit_reached",
+                "message": (
+                    "Only 1 website can be indexed per business. "
+                    "Remove the existing website before adding a new one."
                 )
-
-                if await run_in_threadpool(
-                    save_website,
-                    request.user_id,
-                    url
-                ):
-                    added_urls.append(url)
-
-        # ------------------------------------
-        # Single page
-        # ------------------------------------
-
-        else:
-
-            if await run_in_threadpool(
-                save_website,
-                request.user_id,
-                request.url
-            ):
-                added_urls.append(request.url)
+            }
 
         # ------------------------------------
         # Nothing new
         # ------------------------------------
 
-        if not added_urls:
+        if result == "exists":
 
             return {
                 "status": "exists",
@@ -135,7 +125,9 @@ async def add_site(request: WebsiteRequest):
             }
 
         # ------------------------------------
-        # Background Reindex
+        # Background Reindex - this is where the site's other pages
+        # actually get discovered (sitemap-first, capped at
+        # MAX_PAGES_PER_SITE) and indexed, not here at add-time.
         # ------------------------------------
 
         logger.info(
@@ -148,11 +140,15 @@ async def add_site(request: WebsiteRequest):
 
             "status": "success",
 
-            "added_count": len(added_urls),
+            "added_count": 1,
 
-            "added_urls": added_urls,
+            "added_urls": [request.url],
 
-            "message": "Background indexing started."
+            "message": (
+                f"Background indexing started - up to "
+                f"{MAX_PAGES_PER_SITE} pages of this site will be "
+                f"discovered and indexed automatically."
+            )
 
         }
 
@@ -189,6 +185,40 @@ async def remove_site(
                 "message": "Website not found"
             }
 
+        # This business has no website configured anymore - clear the
+        # indexed-pages registry AND the actual embeddings in Chroma too,
+        # so neither the Settings page nor the AI's answers keep
+        # reflecting a site that's no longer there.
+        remaining = await run_in_threadpool(
+            get_websites,
+            request.user_id
+        )
+
+        if not remaining:
+
+            await run_in_threadpool(
+                clear_registry,
+                request.user_id
+            )
+
+            await run_in_threadpool(
+                clear_user_vectorstore,
+                request.user_id
+            )
+
+            # Nothing left to reindex - a reindex here would just be a
+            # no-op (see website_ingest.load_website_chunks), so saying
+            # "reindex started" would be misleading now that everything
+            # has already been cleared above.
+            return {
+                "status": "success",
+                "message": "Website removed - all indexed content cleared."
+            }
+
+        # Only reachable if a business ever has more than one website
+        # configured (not currently possible - see website_manager.py's
+        # MAX_WEBSITES_PER_USER - but kept in case that changes): other
+        # sites are still indexed, so a reindex is actually meaningful.
         schedule_reindex(request.user_id)
 
         return {
@@ -216,5 +246,17 @@ async def list_websites(user_id: str):
         "status": "success",
         "count": len(websites),
         "websites": websites
+    }
+
+
+@router.get("/indexed-pages/{user_id}")
+async def indexed_pages(user_id: str):
+
+    pages = await run_in_threadpool(get_indexed_pages, user_id)
+
+    return {
+        "status": "success",
+        "count": len(pages),
+        "pages": pages
     }
 

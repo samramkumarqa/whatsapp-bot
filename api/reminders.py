@@ -1,7 +1,11 @@
 from fastapi import APIRouter
 
 from database.db import get_crm_connection
-from reminder_manager import find_stale_reminders, delete_stale_reminders
+from reminder_manager import (
+    find_stale_reminders,
+    delete_stale_reminders,
+    complete_reminder,
+)
 
 router = APIRouter()
 
@@ -54,6 +58,23 @@ def clear_stale_reminders():
     }
 
 # =====================================================
+# MARK A REMINDER DONE
+#
+# 3 path segments (/reminders/{id}/complete), so this never collides with
+# GET /reminders/{customer_phone} below (2 segments) regardless of
+# registration order.
+# =====================================================
+
+@router.post("/reminders/{reminder_id}/complete")
+def mark_reminder_complete(reminder_id: int):
+
+    complete_reminder(reminder_id)
+
+    return {
+        "status": "success"
+    }
+
+# =====================================================
 # GET REMINDERS FOR ONE CUSTOMER
 # =====================================================
 
@@ -71,6 +92,7 @@ def get_customer_reminders(customer_phone: str):
         FROM reminders
 
         WHERE customer_phone = ?
+        AND completed = 0
 
         ORDER BY due_date ASC
 

@@ -325,6 +325,37 @@ body {
   font-style: italic;
 }
 
+.reminder-footer {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-top: 12px;
+}
+
+.mark-done-btn {
+  border: none;
+
+  border-radius: 8px;
+
+  padding: 6px 14px;
+
+  background: var(--color-success);
+
+  color: white;
+
+  font-weight: 600;
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.mark-done-btn:hover {
+  background: var(--color-success-dark);
+}
+
 .stale-reminders-bar {
   display: flex;
 
@@ -405,6 +436,10 @@ body {
 
         <a href="/" class="header-link-btn" title="Back to Dashboard">
             ← Dashboard
+        </a>
+
+        <a href="/logout" class="header-link-btn" title="Logout">
+            Logout
         </a>
 
     </div>
@@ -582,6 +617,17 @@ async function loadAllReminders() {
 
                 </div>
 
+                <div class="reminder-footer">
+
+                    <button
+                        class="mark-done-btn"
+                        onclick="completeReminder(${reminder.id})"
+                    >
+                        ✅ Mark Done
+                    </button>
+
+                </div>
+
             </div>
 
             `;
@@ -638,6 +684,25 @@ async function loadAllReminders() {
         ${html}
 
     `;
+}
+
+async function completeReminder(reminderId) {
+
+    try {
+
+        await fetch(`/reminders/${reminderId}/complete`, {
+            method: "POST"
+        });
+
+        await loadAllReminders();
+
+    } catch (e) {
+
+        console.error("Complete reminder", e);
+        alert("Failed to mark reminder done.");
+
+    }
+
 }
 
 async function clearStaleReminders() {

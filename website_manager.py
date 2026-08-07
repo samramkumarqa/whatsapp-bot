@@ -11,6 +11,11 @@ os.makedirs(
     exist_ok=True
 )
 
+# Each business's AI assistant is only meant to answer from one site's
+# indexed content - allowing more than one silently mixes two businesses'
+# knowledge bases into a single AI reply with no way to tell them apart.
+MAX_WEBSITES_PER_USER = 1
+
 def normalize_url(url):
 
     url = url.strip()
@@ -41,6 +46,15 @@ def get_websites(user_id):
         ]
 
 def add_website(user_id, url):
+    """
+    Adds a website to be indexed for this user.
+
+    Returns one of:
+        "added"         - the url was new and has been saved
+        "exists"        - this exact url was already indexed
+        "limit_reached" - this user already has MAX_WEBSITES_PER_USER
+                           website(s) indexed and this url isn't one of them
+    """
 
     url = normalize_url(url)
 
@@ -51,7 +65,10 @@ def add_website(user_id, url):
     websites = get_websites(user_id)
 
     if url in websites:
-        return False
+        return "exists"
+
+    if len(websites) >= MAX_WEBSITES_PER_USER:
+        return "limit_reached"
 
     website_file = get_user_file(user_id)
 
@@ -63,7 +80,7 @@ def add_website(user_id, url):
 
         f.write(url + "\n")
 
-    return True
+    return "added"
 
 def delete_website(user_id, url):
 

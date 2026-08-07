@@ -18,6 +18,48 @@ def init_customer_mapping():
         )
     """)
 
+    # customer_numbers is this app's tenant registry - one row per
+    # business. These three columns turn it from a lookup table into
+    # something an activation flow and per-business automation can
+    # actually use:
+    #
+    #   status              - 'active' businesses are the ones
+    #                          automation/runner.py evaluates rules for
+    #                          (see get_active_businesses() below) and,
+    #                          eventually, the ones allowed to log in.
+    #                          Existing rows default to 'active' so the
+    #                          current single tenant keeps working
+    #                          unchanged through this migration.
+    #   owner_whatsapp_number - a *separate* personal WhatsApp number for
+    #                          the business owner/admin, distinct from
+    #                          `whatsapp_number` (the Twilio-connected
+    #                          number the bot sends/receives from). A
+    #                          WhatsApp Business API number generally
+    #                          isn't readable in a normal WhatsApp client,
+    #                          so a login OTP has to go to a real personal
+    #                          number instead.
+    #   created_at          - when this business was registered.
+    existing_business_columns = {
+        row[1] for row in
+        conn.execute("PRAGMA table_info(customer_numbers)").fetchall()
+    }
+
+    if "status" not in existing_business_columns:
+        conn.execute(
+            "ALTER TABLE customer_numbers ADD COLUMN status TEXT DEFAULT 'active'"
+        )
+
+    if "owner_whatsapp_number" not in existing_business_columns:
+        conn.execute(
+            "ALTER TABLE customer_numbers ADD COLUMN owner_whatsapp_number TEXT"
+        )
+
+    if "created_at" not in existing_business_columns:
+        conn.execute(
+            "ALTER TABLE customer_numbers ADD COLUMN created_at "
+            "TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+        )
+
     # Customer → Business mapping table
     conn.execute("""
         CREATE TABLE IF NOT EXISTS customer_mapping (
@@ -74,9 +116,16 @@ def get_customers(user_id):
         row[0]
         for row in cursor.fetchall()
     ]
-    return customers
 
+    # BUG FIX: conn.close() used to sit after `return customers`, so it
+    # was unreachable dead code - every call to this function permanently
+    # checked a pooled connection out of database/db.py's 5-connection
+    # pool and never returned it. Enough calls (this is exercised by
+    # tests/test_crm_managers.py) would exhaust the pool and start
+    # blocking/erroring on get_crm_connection().
     conn.close()
+
+    return customers
 def get_user_id_by_business_id(business_id):
 
     conn = get_crm_connection()
@@ -120,6 +169,217 @@ def get_business_id(user_id):
         return None
 
     return row[0]
+
+def get_active_businesses():
+    """
+    Every registered business with status='active' - the tenant list
+    automation/runner.py loops over to evaluate each business's own rules
+    against its own customers, instead of the old hardcoded single
+    business_id. Rows with business_id or whatsapp_number missing are
+    skipped (not yet fully registered) rather than raising - a partially
+    set up business just doesn't run automation until it's complete.
+    """
+
+    conn = get_crm_connection()
+
+    rows = conn.execute(
+        """
+        SELECT user_id, whatsapp_number, business_id
+        FROM customer_numbers
+        WHERE status = 'active'
+        """
+    ).fetchall()
+
+    conn.close()
+
+    return [
+        {
+            "user_id": row[0],
+            "whatsapp_number": row[1],
+            "business_id": row[2]
+        }
+        for row in rows
+        if row[2]
+    ]
+
+
+def list_businesses():
+    """
+    Every registered business, active or not - backs the admin
+    Businesses page (GET /businesses, templates/businesses.html). Unlike
+    get_active_businesses(), this includes inactive/incomplete rows too,
+    since the admin page's whole job is showing what's registered and
+    letting an admin activate/deactivate/delete it.
+    """
+
+    conn = get_crm_connection()
+
+    rows = conn.execute(
+        """
+        SELECT
+            user_id,
+            whatsapp_number,
+            business_id,
+            status,
+            owner_whatsapp_number,
+            created_at
+        FROM customer_numbers
+        ORDER BY created_at DESC
+        """
+    ).fetchall()
+
+    conn.close()
+
+    return [
+        {
+            "user_id": row[0],
+            "whatsapp_number": row[1],
+            "business_id": row[2],
+            "status": row[3],
+            "owner_whatsapp_number": row[4],
+            "created_at": row[5],
+        }
+        for row in rows
+    ]
+
+
+def _generate_business_id(conn):
+    """
+    "business_001", "business_002", ... - matches the naming the one real
+    business in production already has (business_001, assigned manually
+    before this registry existed). Looks at the highest existing
+    business_NNN number rather than just COUNT(*), so a deleted business
+    in the middle of the sequence doesn't get its number reused and
+    collide with a business_id some other table (automation_rules,
+    customer_mapping) might still reference.
+    """
+
+    rows = conn.execute(
+        "SELECT business_id FROM customer_numbers WHERE business_id LIKE 'business\\_%' ESCAPE '\\'"
+    ).fetchall()
+
+    highest = 0
+
+    for row in rows:
+
+        suffix = row[0].replace("business_", "", 1)
+
+        if suffix.isdigit():
+            highest = max(highest, int(suffix))
+
+    return f"business_{highest + 1:03d}"
+
+
+def register_business(
+    user_id: str,
+    whatsapp_number: str,
+    owner_whatsapp_number: str = None
+):
+    """
+    The "add business WhatsApp number" step of the admin activation flow -
+    generates a business_id and inserts a new row with status explicitly
+    set to 'inactive'. Deliberately not save_customer_number() (which
+    INSERT OR REPLACEs and leans on the status column's schema DEFAULT
+    'active' - the right behavior for the pre-registry single-tenant
+    migration, wrong here: a newly registered business shouldn't start
+    running automation before an admin has actually clicked Activate).
+
+    Returns None if user_id is already registered - the caller (see
+    api/businesses.py) turns that into a 409 rather than silently
+    overwriting an existing business's row.
+    """
+
+    conn = get_crm_connection()
+
+    # register_business() still needs an upfront existence check (unlike
+    # set_business_status()/delete_business() below) - it has to know
+    # *before* generating a business_id whether this is a genuinely new
+    # business, since an UPDATE/INSERT-based rowcount check can't tell
+    # "already registered" apart from "just inserted".
+    existing = conn.execute(
+        "SELECT 1 FROM customer_numbers WHERE user_id = ?",
+        (user_id,)
+    ).fetchone()
+
+    if existing:
+        conn.close()
+        return None
+
+    business_id = _generate_business_id(conn)
+
+    conn.execute(
+        """
+        INSERT INTO customer_numbers
+        (user_id, whatsapp_number, business_id, status, owner_whatsapp_number)
+        VALUES (?, ?, ?, 'inactive', ?)
+        """,
+        (user_id, whatsapp_number, business_id, owner_whatsapp_number)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return {
+        "user_id": user_id,
+        "whatsapp_number": whatsapp_number,
+        "business_id": business_id,
+        "status": "inactive",
+        "owner_whatsapp_number": owner_whatsapp_number,
+    }
+
+
+def set_business_status(user_id: str, status: str):
+    """
+    Flips a registered business active/inactive - 'active' is what makes
+    get_active_businesses() (and therefore automation/runner.py) pick it
+    up. Returns False if user_id isn't registered, so the route can 404
+    instead of silently no-opping.
+    """
+
+    conn = get_crm_connection()
+
+    # One round trip instead of a SELECT-then-UPDATE: cursor.rowcount
+    # after the UPDATE already says whether a matching row existed,
+    # without a separate existence query first.
+    cursor = conn.execute(
+        "UPDATE customer_numbers SET status = ? WHERE user_id = ?",
+        (status, user_id)
+    )
+
+    updated = cursor.rowcount > 0
+
+    conn.commit()
+    conn.close()
+
+    return updated
+
+
+def delete_business(user_id: str):
+    """
+    Removes a business from the tenant registry only - it does not touch
+    that business's automation rules, leads, opportunities, or
+    conversations (see automation/database.py, crm/lead_manager.py, etc.),
+    which stay in place but become unreachable through the normal
+    business_id-scoped routes once this row is gone. Returns False if
+    user_id isn't registered.
+    """
+
+    conn = get_crm_connection()
+
+    # Same one-round-trip approach as set_business_status() above -
+    # cursor.rowcount after the DELETE says whether a row existed.
+    cursor = conn.execute(
+        "DELETE FROM customer_numbers WHERE user_id = ?",
+        (user_id,)
+    )
+
+    deleted = cursor.rowcount > 0
+
+    conn.commit()
+    conn.close()
+
+    return deleted
+
 
 def save_customer_number(
     user_id: str,

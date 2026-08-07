@@ -64,6 +64,38 @@ def is_changed(user_id, url, new_hash):
 
     return old != new_hash
 
+
+def get_indexed_pages(user_id):
+    """
+    Returns the currently indexed pages for this user as a list of
+    {"url": ..., "chunk_count": ...} dicts, sorted by url - the shape the
+    Settings page's "pages indexed" list is built from.
+    """
+
+    registry = load_registry(user_id)
+
+    return sorted(
+        (
+            {
+                "url": url,
+                "chunk_count": info.get("chunk_count", 0)
+            }
+            for url, info in registry.items()
+        ),
+        key=lambda page: page["url"]
+    )
+
+
+def clear_registry(user_id):
+    """
+    Wipes all indexed-page tracking for this user - used when their one
+    website is deleted entirely, so the Settings page doesn't keep showing
+    pages from a site that's no longer configured.
+    """
+
+    save_registry(user_id, {})
+
+
 def _path(user_id):
     os.makedirs("data/doc_registry", exist_ok=True)
     return f"data/doc_registry/{user_id}.json"

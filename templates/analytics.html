@@ -300,6 +300,118 @@ body {
   }
 }
 
+/* RULE PERFORMANCE TABLE */
+
+.rule-performance-empty {
+  color: var(--color-gray-600);
+
+  font-size: 14px;
+
+  padding: 30px 0;
+
+  text-align: center;
+}
+
+.rule-performance-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  font-size: 13px;
+}
+
+.rule-performance-table th {
+  text-align: left;
+
+  padding: 10px 8px;
+
+  color: var(--color-gray-600);
+
+  font-size: 11px;
+
+  text-transform: uppercase;
+
+  letter-spacing: .04em;
+
+  border-bottom: 2px solid var(--color-gray-200);
+}
+
+.rule-performance-table td {
+  padding: 12px 8px;
+
+  border-bottom: 1px solid var(--color-gray-100);
+
+  vertical-align: middle;
+}
+
+.rule-performance-table tr:last-child td {
+  border-bottom: none;
+}
+
+.rule-name-cell {
+  font-weight: 600;
+
+  color: var(--color-text-dark);
+}
+
+.rule-status-pill {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 3px 10px;
+
+  border-radius: 20px;
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+.rule-status-pill.enabled {
+  background: var(--color-success-light);
+
+  color: var(--color-success-dark);
+}
+
+.rule-status-pill.disabled {
+  background: var(--color-gray-100);
+
+  color: var(--color-gray-600);
+}
+
+.rule-win-rate {
+  font-weight: 700;
+}
+
+.rule-win-rate.zero {
+  color: var(--color-gray-500);
+}
+
+.rule-dead-weight-tag {
+  display: inline-block;
+
+  margin-left: 6px;
+
+  padding: 2px 8px;
+
+  border-radius: 20px;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: .03em;
+
+  background: var(--color-danger-light);
+
+  color: var(--color-danger-dark);
+}
+
     </style>
 
 </head>
@@ -332,6 +444,10 @@ body {
 
         <a href="/" class="header-link-btn" title="Back to Dashboard">
             ← Dashboard
+        </a>
+
+        <a href="/logout" class="header-link-btn" title="Logout">
+            Logout
         </a>
 
     </div>
@@ -402,6 +518,46 @@ body {
         <h3>💰 Opportunity Pipeline</h3>
 
         <canvas id="pipelineChart"></canvas>
+
+    </div>
+
+    <div class="dashboard-card">
+
+        <h3>💵 Won Revenue Trend</h3>
+
+        <canvas id="revenueTrendChart"></canvas>
+
+    </div>
+
+    <div class="dashboard-card rule-performance-card">
+
+        <h3>🎯 Automation Rule Performance</h3>
+
+        <!-- Which of the 5 rule slots (see MAX_AUTOMATION_RULES) are
+             actually converting customers vs. sitting there doing
+             nothing - so a rule that fires constantly but never leads to
+             a Closed Won deal is easy to spot and swap out. See
+             automation/rule_stats.py for how this is computed. -->
+        <div id="rulePerformanceEmpty" class="rule-performance-empty" style="display:none;">
+            No automation rules yet.
+        </div>
+
+        <table class="rule-performance-table" id="rulePerformanceTable" style="display:none;">
+
+            <thead>
+                <tr>
+                    <th>Rule</th>
+                    <th>Status</th>
+                    <th>Matched</th>
+                    <th>Fires</th>
+                    <th>Won</th>
+                    <th>Win Rate</th>
+                </tr>
+            </thead>
+
+            <tbody id="rulePerformanceBody"></tbody>
+
+        </table>
 
     </div>
 
@@ -545,6 +701,7 @@ let leadDistributionChart = null;
 let leadStatusChart = null;
 let conversationTrendChart = null;
 let pipelineChart = null;
+let revenueTrendChart = null;
 
 async function loadDashboardAnalytics(){
 
@@ -574,6 +731,14 @@ async function loadDashboardAnalytics(){
 
     renderPipelineChart(
         data.pipeline
+    );
+
+    renderRevenueTrendChart(
+        data.revenue_trend
+    );
+
+    renderRulePerformanceTable(
+        data.rule_performance
     );
 
 }
@@ -1149,6 +1314,186 @@ function renderPipelineChart(data){
             }
 
         });
+
+}
+
+function renderRevenueTrendChart(data){
+
+    const ctx =
+        document.getElementById(
+            "revenueTrendChart"
+        );
+
+    if(revenueTrendChart)
+        revenueTrendChart.destroy();
+
+    const labels = (data && data.labels) || [];
+    const values = (data && data.values) || [];
+
+    revenueTrendChart =
+        new Chart(ctx,{
+
+            type:"bar",
+
+            data:{
+
+                labels: labels,
+
+                datasets:[{
+
+                    label: "Won Revenue",
+
+                    data: values,
+
+                    backgroundColor: CRM_COLORS.success,
+
+                    borderRadius: 10,
+
+                    borderSkipped: false
+
+                }]
+
+            },
+
+            options:{
+
+                responsive: true,
+
+                animation:{
+
+                    duration: 1200,
+
+                    easing: "easeOutQuart"
+
+                },
+
+                plugins: {
+
+                    legend: {
+                        display: false
+                    },
+
+                    tooltip: {
+
+                        callbacks: {
+
+                            label: function(context){
+                                return " ₹" + context.parsed.y.toLocaleString();
+                            }
+
+                        }
+
+                    },
+
+                    datalabels: {
+
+                        color: "#1e293b",
+
+                        anchor: "end",
+
+                        align: "top",
+
+                        font: {
+
+                            weight: "bold",
+
+                            size: 11
+
+                        },
+
+                        formatter: value =>
+                            value ? "₹" + value.toLocaleString() : ""
+
+                    }
+
+                },
+
+                scales:{
+
+                    x:{
+
+                        grid:{
+                            display: false
+                        }
+
+                    },
+
+                    y:{
+
+                        beginAtZero: true,
+
+                        ticks:{
+
+                            precision: 0,
+
+                            callback: value => "₹" + value.toLocaleString()
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+}
+
+// A rule counts as "dead weight" once it's had a real chance to prove
+// itself - fired for at least DEAD_WEIGHT_MIN_MATCHES distinct customers
+// - but has never once led to a Closed Won deal. The minimum-sample
+// threshold exists so a brand-new rule that's only matched one customer
+// so far isn't flagged before it's had a fair shot.
+const DEAD_WEIGHT_MIN_MATCHES = 3;
+
+function renderRulePerformanceTable(data){
+
+    const rules = data || [];
+
+    const emptyEl = document.getElementById("rulePerformanceEmpty");
+    const tableEl = document.getElementById("rulePerformanceTable");
+    const bodyEl = document.getElementById("rulePerformanceBody");
+
+    if(!rules.length){
+        emptyEl.style.display = "block";
+        tableEl.style.display = "none";
+        return;
+    }
+
+    emptyEl.style.display = "none";
+    tableEl.style.display = "table";
+
+    bodyEl.innerHTML = rules.map(rule => {
+
+        const isDeadWeight =
+            rule.enabled &&
+            rule.customers_matched >= DEAD_WEIGHT_MIN_MATCHES &&
+            rule.won_count === 0;
+
+        return `
+            <tr>
+                <td class="rule-name-cell">
+                    ${escapeHtml(rule.rule_name)}
+                    ${isDeadWeight ? '<span class="rule-dead-weight-tag">Dead Weight</span>' : ""}
+                </td>
+                <td>
+                    <span class="rule-status-pill ${rule.enabled ? "enabled" : "disabled"}">
+                        ${rule.enabled ? "Enabled" : "Disabled"}
+                    </span>
+                </td>
+                <td>${rule.customers_matched}</td>
+                <td>${rule.fire_count}</td>
+                <td>${rule.won_count}</td>
+                <td>
+                    <span class="rule-win-rate ${rule.win_rate === 0 ? "zero" : ""}">
+                        ${rule.win_rate}%
+                    </span>
+                </td>
+            </tr>
+        `;
+
+    }).join("");
 
 }
 

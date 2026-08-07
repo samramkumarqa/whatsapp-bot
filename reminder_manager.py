@@ -54,7 +54,14 @@ def init_reminders():
     conn.commit()
     conn.close()
 
-def complete_reminder(customer_phone):
+def complete_reminder(reminder_id):
+    """
+    Marks a single reminder done (completed=1) by id - not by
+    customer_phone, since a customer can have more than one active
+    reminder at once (e.g. one from each automation rule that fired for
+    them) and "Mark Done" on one card should only resolve that card, not
+    every reminder for that customer.
+    """
 
     conn = get_crm_connection()
 
@@ -64,10 +71,10 @@ def complete_reminder(customer_phone):
 
         SET completed=1
 
-        WHERE customer_phone=?
+        WHERE id=?
         AND completed=0
         """,
-        (customer_phone,)
+        (reminder_id,)
     )
 
     conn.commit()
@@ -109,6 +116,13 @@ def create_reminder(
 
 
 def get_reminders():
+    """
+    Active (not yet marked done) reminders only - this backs the global
+    /reminders list (Follow-ups page) and the dashboard bell badge's
+    overdue count. Without the completed=0 filter, a reminder the user has
+    already handled via "Mark Done" would keep showing up here and keep
+    counting toward the overdue badge forever.
+    """
 
     conn = get_crm_connection()
 
@@ -123,6 +137,7 @@ def get_reminders():
             source_rule_id,
             source_rule_name
         FROM reminders
+        WHERE completed = 0
         ORDER BY due_date ASC
         """
     )

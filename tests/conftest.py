@@ -47,6 +47,7 @@ def isolated_db(tmp_path, monkeypatch):
     from conversations import init_db as init_conversations
     from unread_manager import init_unread
     from automation.database import init_automation_db
+    from automation.rule_stats import init_rule_executions
 
     init_customer_mapping()
     init_business_settings()
@@ -59,5 +60,6 @@ def isolated_db(tmp_path, monkeypatch):
     init_conversations()
     init_unread()
     init_automation_db()
+    init_rule_executions()
 
     yield

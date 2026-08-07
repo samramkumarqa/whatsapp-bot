@@ -22,6 +22,9 @@ from crm.customer_mapping import (
     get_business_id
 )
 
+from crm.lead_manager import get_lead, pause_ai
+from ai.handoff import detect_explicit_handoff_request, is_negative_complaint
+
 from conversations import (
     get_history,
     add_message,
@@ -178,6 +181,80 @@ async def receive_message(
         )
 
         # -----------------------------
+        # Human Handoff - already paused
+        # -----------------------------
+        # See crm/lead_manager.py's pause_ai()/resume_ai() and
+        # ai/handoff.py. Once a conversation is paused the AI stops
+        # replying entirely (no reply generated, nothing sent) until a
+        # team member resumes it from the dashboard - the message above
+        # is still saved and counted unread so it shows up in the inbox
+        # for a human to handle.
+        existing_lead = await run_in_threadpool(get_lead, from_number)
+
+        if existing_lead.get("ai_paused"):
+
+            await run_in_threadpool(
+                add_activity,
+                from_number,
+                "Handoff",
+                "Message received while AI paused",
+                user_text
+            )
+
+            logger.info(
+                f"AI paused for {from_number} - skipping auto-reply"
+            )
+
+            return {
+                "status": "success"
+            }
+
+        # -----------------------------
+        # Human Handoff - explicit request
+        # -----------------------------
+        # Checked on the raw incoming text before generating any AI reply,
+        # so an explicit "let me talk to a person" gets a short handoff
+        # acknowledgment instead of an unrelated AI answer bolted onto it.
+        handoff_phrase = detect_explicit_handoff_request(user_text)
+
+        if handoff_phrase:
+
+            await run_in_threadpool(
+                pause_ai,
+                from_number,
+                f'Customer asked for a human ("{handoff_phrase}")'
+            )
+
+            handoff_reply = (
+                "Got it - I'm connecting you with a member of our team "
+                "who will follow up with you shortly."
+            )
+
+            await run_in_threadpool(
+                add_message,
+                conversation_id,
+                "assistant",
+                handoff_reply
+            )
+
+            await run_in_threadpool(
+                add_activity,
+                from_number,
+                "Handoff",
+                "AI paused - customer asked for a human",
+                f'Trigger phrase: "{handoff_phrase}"'
+            )
+
+            await send_message(
+                from_number,
+                handoff_reply
+            )
+
+            return {
+                "status": "success"
+            }
+
+        # -----------------------------
         # Generate AI Reply
         # -----------------------------
         reply = await handle_rag(
@@ -217,6 +294,33 @@ async def receive_message(
             logger.info(
                 f"Lead Intelligence: {analysis}"
             )
+
+            # -----------------------------
+            # Human Handoff - negative complaint
+            # -----------------------------
+            # This message's reply has already been generated above and
+            # still gets sent below - it's a real answer to what the
+            # customer just asked. The pause only takes effect for their
+            # *next* message onward. Sentiment alone is too noisy to pause
+            # on by itself (see ai/handoff.py's is_negative_complaint
+            # docstring) - this requires Negative sentiment AND Complaint
+            # intent together.
+            if is_negative_complaint(analysis):
+
+                await run_in_threadpool(
+                    pause_ai,
+                    from_number,
+                    "Negative sentiment + complaint detected: "
+                    + analysis.get("summary", "")[:200]
+                )
+
+                await run_in_threadpool(
+                    add_activity,
+                    from_number,
+                    "Handoff",
+                    "AI paused - complaint detected",
+                    analysis.get("summary", "")
+                )
 
             next_action = analysis.get(
                 "next_action",

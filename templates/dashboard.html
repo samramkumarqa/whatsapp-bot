@@ -164,6 +164,80 @@ select {
   gap: 18px;
 }
 
+.chat-composer {
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  gap: 10px;
+
+  padding: 14px 20px;
+
+  border-top: 1px solid var(--color-gray-200, #e5e7eb);
+
+  background: white;
+}
+
+.chat-composer-input-wrap {
+  flex: 1;
+
+  min-width: 0;
+}
+
+.chat-composer textarea {
+  margin: 0;
+
+  resize: none;
+
+  max-height: 120px;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  line-height: 1.4;
+}
+
+.chat-composer textarea:disabled {
+  background: var(--color-gray-50, #f8fafc);
+
+  cursor: not-allowed;
+}
+
+.chat-composer-send-btn {
+  flex-shrink: 0;
+
+  width: 44px;
+
+  height: 44px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: var(--color-primary);
+
+  color: white;
+
+  font-size: 18px;
+
+  cursor: pointer;
+
+  transition: .2s;
+}
+
+.chat-composer-send-btn:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.chat-composer-send-btn:disabled {
+  background: var(--color-gray-300, #cbd5e1);
+
+  cursor: not-allowed;
+}
+
 /* Day Divider */
 
 .chat-day {
@@ -244,6 +318,12 @@ select {
 
 .ai-avatar {
   background: #10b981;
+
+  color: white;
+}
+
+.manual-avatar {
+  background: var(--color-primary);
 
   color: white;
 }
@@ -337,6 +417,16 @@ select {
   border: 1px solid var(--color-gray-200);
 
   box-shadow: 0 3px 10px var(--shadow-sm);
+}
+
+.manual-message {
+  background: var(--color-primary-lighter, #eff6ff);
+
+  border-color: var(--color-primary-light, #dbeafe);
+}
+
+.manual-message .ai-label {
+  color: var(--color-primary);
 }
 
 /* AI Label */
@@ -735,6 +825,9 @@ select {
   background: var(--color-success);
 
   border: 2px solid white;
+}
+.presence-dot.offline {
+  background: var(--color-gray-300);
 }
 .customer-main {
   flex: 1;
@@ -1622,17 +1715,23 @@ select {
 
   padding: 15px;
 
-  background: var(--color-gray-50);
+  background: white;
 
-  border: 1px solid var(--color-primary-light);
+  border: 1px solid rgba(124, 58, 237, 0.15);
 
   border-radius: 10px;
+
+  box-shadow: 0 2px 6px var(--shadow-sm);
 }
 
 .rule-summary h4 {
   margin-top: 0;
 
   color: var(--color-primary);
+}
+
+.rule-section--summary h4 {
+  color: #6d28d9;
 }
 
 .summary-section {
@@ -1660,6 +1759,68 @@ select {
   font-size: 12px;
 
   font-weight: 700;
+}
+.handoff-banner {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin: 0 15px 12px;
+
+  padding: 10px 14px;
+
+  border-radius: 12px;
+
+  background: var(--color-warning-light);
+
+  border: 1px solid var(--color-warning);
+}
+.handoff-banner-text {
+  font-size: 12px;
+
+  color: var(--color-warning-dark);
+}
+.handoff-banner-text strong {
+  display: block;
+
+  font-size: 13px;
+
+  margin-bottom: 2px;
+}
+.handoff-resume-btn {
+  flex-shrink: 0;
+
+  padding: 7px 14px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background: var(--color-warning-dark);
+
+  color: white;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+.handoff-resume-btn:hover {
+  opacity: .88;
+}
+.inbox-handoff-badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  margin-left: 6px;
+
+  font-size: 11px;
 }
 .profile-header-main {
   flex: 1;
@@ -1801,31 +1962,6 @@ html {
   background: var(--color-primary-lighter);
 }
 
-.bell-badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-
-  min-width: 18px;
-  height: 18px;
-
-  padding: 0 4px;
-
-  border-radius: 999px;
-
-  background: var(--color-danger);
-
-  color: white;
-
-  font-size: 11px;
-  font-weight: 700;
-
-  display: none;
-  align-items: center;
-  justify-content: center;
-
-  box-shadow: 0 0 0 2px white;
-}
 .header-link-btn {
   display: flex;
   align-items: center;
@@ -1853,6 +1989,32 @@ html {
 
 .header-link-btn:hover {
   background: var(--color-primary-lighter);
+}
+
+.bell-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+
+  min-width: 18px;
+  height: 18px;
+
+  padding: 0 4px;
+
+  border-radius: 999px;
+
+  background: var(--color-danger);
+
+  color: white;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 0 0 2px white;
 }
 .status-chip {
   padding: 4px 10px;
@@ -1919,6 +2081,30 @@ html {
   font-size: 13px;
 }
 
+.handoff-count-badge {
+  display: flex;
+
+  align-items: center;
+
+  gap: 4px;
+
+  margin-top: 6px;
+
+  padding: 3px 10px;
+
+  border-radius: 20px;
+
+  width: fit-content;
+
+  background: var(--color-warning-light);
+
+  color: var(--color-warning-dark);
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
 .online-dot {
   width: 8px;
 
@@ -1929,6 +2115,11 @@ html {
   background: var(--color-success);
 
   box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+}
+.online-dot.offline {
+  background: var(--color-gray-300);
+
+  box-shadow: none;
 }
 
 .inbox-actions {
@@ -2356,6 +2547,37 @@ html {
   margin-top: 6px;
 
   font-style: italic;
+}
+
+.reminder-footer {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-top: 12px;
+}
+
+.mark-done-btn {
+  border: none;
+
+  border-radius: 8px;
+
+  padding: 6px 14px;
+
+  background: var(--color-success);
+
+  color: white;
+
+  font-weight: 600;
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.mark-done-btn:hover {
+  background: var(--color-success-dark);
 }
 
 .stale-reminders-bar {
@@ -3309,18 +3531,218 @@ html {
 /* ===============================
    Inbox Date Sections
 ================================= */
+
+/* ===============================
+   Rule Editor - step cards
+================================= */
+.rule-editor-card {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px var(--shadow-md);
+  border: 1px solid var(--color-gray-100);
+  background: white;
+}
+
+.rule-editor-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #7c3aed 100%);
+  padding: 22px 26px;
+  color: white;
+}
+
+.rule-editor-header h3 {
+  font-size: 22px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+}
+
+.rule-editor-subtitle {
+  margin-top: 6px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.rule-editor-body {
+  padding: 24px;
+}
+
 .rule-section {
-  margin-top: 20px;
+  background: var(--color-gray-50);
 
-  padding-top: 15px;
+  border: 1px solid var(--color-gray-100);
 
-  border-top: 1px solid var(--color-gray-200);
+  border-left: 4px solid var(--color-primary-light);
+
+  border-radius: 14px;
+
+  padding: 18px 20px;
+
+  margin-top: 18px;
+
+  transition: 0.2s;
+}
+
+.rule-section:first-child {
+  margin-top: 0;
+}
+
+.rule-section:hover {
+  box-shadow: 0 4px 14px var(--shadow-sm);
+}
+
+.rule-section--conditions {
+  border-left-color: var(--color-blue);
+}
+
+.rule-section--actions {
+  border-left-color: var(--color-warning);
+}
+
+.rule-section--summary {
+  border-left-color: #7c3aed;
+  background: linear-gradient(135deg, #f5f3ff 0%, #eff6ff 100%);
 }
 
 .rule-section h4 {
-  margin-bottom: 12px;
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 14px;
 
   color: #374151;
+
+  font-size: 15px;
+}
+
+.section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: white;
+  box-shadow: 0 2px 6px var(--shadow-sm);
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+/* Enabled toggle switch (replaces the old plain checkbox) */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--color-gray-300);
+  border-radius: 999px;
+  transition: 0.2s;
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.2s;
+  box-shadow: 0 2px 4px var(--shadow-sm);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--color-success);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+.automation-help {
+  margin-top: 25px;
+
+  padding: 18px 20px;
+
+  background: var(--color-gray-50);
+
+  border: 1px solid var(--color-gray-200);
+
+  border-radius: 12px;
+
+  color: var(--color-gray-700);
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+.automation-help summary {
+  margin: 0 0 10px;
+
+  color: var(--color-text-dark);
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  user-select: none;
+}
+
+.automation-help[open] summary {
+  margin-bottom: 14px;
+}
+
+.automation-help h4 {
+  margin: 0 0 10px;
+
+  color: var(--color-text-dark);
+}
+
+.automation-help h4:not(:first-child) {
+  margin-top: 18px;
+}
+
+.automation-help p {
+  margin: 0 0 10px;
+}
+
+.automation-help ul {
+  margin: 0 0 10px;
+
+  padding-left: 20px;
+}
+
+.automation-help li {
+  margin-bottom: 10px;
+}
+
+.automation-help a {
+  color: var(--color-primary);
 }
 
 .condition-row,
@@ -3332,10 +3754,38 @@ html {
   align-items: center;
 
   margin-bottom: 10px;
+
+  background: white;
+
+  border: 1px solid var(--color-gray-100);
+
+  border-radius: 12px;
+
+  padding: 10px 12px;
+
+  box-shadow: 0 2px 6px var(--shadow-sm);
+
+  transition: 0.2s;
+}
+
+.condition-row:hover,
+.action-row:hover {
+  border-color: var(--color-primary-light);
 }
 
 .condition-row select {
   width: 170px;
+  margin: 0;
+}
+
+.condition-field-hint {
+  flex-shrink: 0;
+
+  cursor: help;
+
+  color: var(--color-gray-600);
+
+  font-size: 15px;
 }
 
 /* Create Reminder is the only action type left ("Add CRM Activity" was
@@ -3352,21 +3802,72 @@ html {
   color: var(--color-gray-600);
 }
 
+.action-days {
+  flex: 0 0 70px !important;
+}
+
 .condition-row input,
-.action-row input {
+.action-row input,
+.condition-row select,
+.action-row select {
   flex: 1;
+  margin: 0;
 }
 
-.condition-row button,
-.action-row button {
+.remove-row-btn {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  font-size: 12px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.remove-row-btn:hover {
   background: var(--color-danger);
-
   color: white;
+  transform: scale(1.08);
 }
 
-.condition-row button:hover,
-.action-row button:hover {
-  background: var(--color-danger-dark);
+.add-row-btn {
+  width: 100%;
+
+  background: transparent;
+
+  border: 1.5px dashed var(--color-primary-light);
+
+  color: var(--color-primary);
+
+  border-radius: 10px;
+
+  padding: 10px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.add-row-btn:hover {
+  background: var(--color-primary-lighter);
+
+  border-color: var(--color-primary);
+
+  transform: none;
 }
 .customer-section {
   list-style: none;
@@ -3429,31 +3930,105 @@ html {
 }
 
 .create-rule-btn {
-  background: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #7c3aed 100%);
   color: white;
   border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
+  padding: 12px 22px;
+  border-radius: 10px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.28);
 }
 
 .create-rule-btn:hover {
-  background: var(--color-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.38);
+}
+
+.rule-limit-note {
+  margin-top: 12px;
+
+  padding: 10px 14px;
+
+  background: var(--color-warning-light);
+
+  border-radius: 8px;
+
+  color: var(--color-warning-dark);
+
+  font-size: 13px;
+}
+
+/* Field validation - character counters and inline error text, shared by
+   every validated input/textarea on this page (Customer Name, Lead
+   Notes, Rule Name, Rule Description, Reminder Text, Days). Mirrors
+   settings.html's .char-counter/.field-error. */
+.char-counter {
+  display: block;
+
+  margin-top: 2px;
+
+  font-size: 12px;
+
+  color: var(--color-gray-500);
+
+  text-align: right;
+}
+
+.char-counter.char-counter-limit {
+  color: var(--color-danger-dark);
+  font-weight: 600;
+}
+
+.field-error {
+  display: none;
+
+  margin-top: 2px;
+
+  font-size: 12px;
+
+  color: var(--color-danger-dark);
+}
+
+.field-error.visible {
+  display: block;
+}
+
+input.field-invalid,
+textarea.field-invalid {
+  border-color: var(--color-danger);
+}
+
+.save-rule-btn {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  padding: 12px 26px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  flex: 1;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.28);
+}
+
+.save-rule-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.38);
 }
 
 .cancel-rule-btn {
   background: var(--color-gray-100, #f1f5f9);
   color: var(--color-gray-600, #475569);
   border: 1px solid var(--color-gray-300, #cbd5e1);
-  padding: 10px 18px;
-  border-radius: 8px;
+  padding: 12px 22px;
+  border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
 }
 
 .cancel-rule-btn:hover {
   background: var(--color-gray-200, #e2e8f0);
+  transform: none;
 }
 
 .automation-empty {
@@ -3822,7 +4397,7 @@ html {
 
     <div class="crm-live-stats">
 
-        <div class="mini-stat">
+        <div class="mini-stat" title="Total customers in conversation">
 
             <span>👥</span>
 
@@ -3830,7 +4405,7 @@ html {
 
         </div>
 
-        <div class="mini-stat">
+        <div class="mini-stat" title="Total messages">
 
             <span>💬</span>
 
@@ -3838,7 +4413,7 @@ html {
 
         </div>
 
-        <div class="mini-stat">
+        <div class="mini-stat" title="Qualified leads (lead score ≥ 80)">
 
             <span>🎯</span>
 
@@ -3846,7 +4421,7 @@ html {
 
         </div>
 
-        <div class="mini-stat">
+        <div class="mini-stat" title="Open opportunities">
 
             <span>💰</span>
 
@@ -3858,9 +4433,7 @@ html {
 
     <div class="crm-header-right">
 
-        <a href="/analytics" class="header-link-btn" title="Analytics">
-            📊 Analytics
-        </a>
+        <a href="/analytics" class="header-btn" title="Analytics">📊</a>
 
         <a href="/follow-ups" class="header-btn" title="Upcoming Follow-ups">
             🔔
@@ -3869,9 +4442,11 @@ html {
 
         <a href="/settings" class="header-btn" title="Settings">⚙️</a>
 
-        <div class="user-avatar">
-            RS
-        </div>
+        <a href="/businesses" class="header-btn" title="Businesses">🏢</a>
+
+        <a href="/logout" class="header-link-btn" title="Logout">
+            Logout
+        </a>
 
     </div>
 
@@ -3914,6 +4489,16 @@ html {
 
                         </div>
 
+                        <!-- Aggregate signal for how many conversations are
+                             currently paused for human handoff (see
+                             crm/lead_manager.py's pause_ai()) - without
+                             this, the only way to notice one needs a reply
+                             was the per-row 🤝 badge, easy to miss below
+                             the fold in a long inbox. Hidden when 0. -->
+                        <div id="handoffCountBadge" class="handoff-count-badge" style="display:none;">
+                            🤝 <span id="handoffCountText"></span> need a reply
+                        </div>
+
                     </div>
 
                     <div class="inbox-actions">
@@ -3942,7 +4527,9 @@ html {
                         id="customerSearch"
                         class="search-box"
                         placeholder="Search by customer, phone or message..."
-                        onkeyup="searchCustomers()">
+                        maxlength="100"
+                        oninput="sanitizeSearchInput(this)"
+                        onkeyup="debouncedSearchCustomers()">
 
                 </div>
 
@@ -4011,6 +4598,40 @@ html {
 
             </div>
 
+            <!-- Manual reply box - sends a real WhatsApp message via
+                 POST /conversation/{user_id}/{phone}/reply (api/customer.py).
+                 Sending here always pauses the AI for this customer
+                 afterward (human takeover) - see crm/lead_manager.py's
+                 pause_ai(). Disabled until a customer is selected. -->
+            <div class="chat-composer">
+
+                <div class="chat-composer-input-wrap">
+
+                    <textarea
+                        id="manualReplyInput"
+                        placeholder="Select a customer to reply..."
+                        maxlength="4096"
+                        rows="1"
+                        disabled
+                        oninput="sanitizeReplyInput(this); autoGrowReplyBox(this);"
+                        onkeydown="handleReplyKeydown(event)"></textarea>
+
+                    <div id="manualReplyInputCount" class="char-counter"></div>
+                    <div id="manualReplyInputError" class="field-error"></div>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="sendManualReplyBtn"
+                    class="chat-composer-send-btn"
+                    disabled
+                    onclick="sendManualReply()">
+                    ➤
+                </button>
+
+            </div>
+
         </div>
 
     </main>
@@ -4049,7 +4670,10 @@ html {
                     <input
                         id="customerNameInput"
                         type="text"
-                        placeholder="Customer name">
+                        placeholder="Customer name"
+                        maxlength="100"
+                        oninput="sanitizeNameInput(this)">
+                    <div id="customerNameInputError" class="field-error"></div>
 
                     <button
                         type="button"
@@ -4071,6 +4695,24 @@ html {
                 </div>
 
             </div>
+
+        </div>
+
+        <!-- Shown when this customer's AI replies are paused (human
+             handoff - either they explicitly asked for a person, or the
+             AI detected a genuine complaint). See crm/lead_manager.py's
+             pause_ai()/resume_ai() and ai/handoff.py. Hidden by default;
+             toggled in loadLead(). -->
+        <div id="handoffBanner" class="handoff-banner" style="display:none;">
+
+            <div class="handoff-banner-text">
+                <strong>🤝 AI Paused - Handoff Active</strong>
+                <div id="handoffBannerReason"></div>
+            </div>
+
+            <button type="button" class="handoff-resume-btn" onclick="resumeAi()">
+                Resume AI
+            </button>
 
         </div>
 
@@ -4114,7 +4756,11 @@ html {
 
                     <textarea
                         id="leadNotes"
-                        rows="5"></textarea>
+                        rows="5"
+                        maxlength="1000"
+                        oninput="sanitizeFreeTextInput(this)"></textarea>
+                    <span id="leadNotesCount" class="char-counter">0/1000</span>
+                    <div id="leadNotesError" class="field-error"></div>
 
                     <button onclick="saveLead()">
                         Save Lead
@@ -4211,7 +4857,7 @@ html {
      stays one click away instead of behind an extra page. -->
 
 <!-- #userId itself moved to settings.html too, but ~16 functions on this
-     page (loadCustomers, loadStats, loadAutomationRules, etc.) still read
+     page (loadCustomers, loadAutomationRules, etc.) still read
      document.getElementById("userId").value, so this hidden field keeps
      them working. Hardcoded default set in window.onload below, same
      convention as settings.html/analytics.html. -->
@@ -4228,12 +4874,18 @@ html {
     <div style="margin:18px 0;">
 
         <button
+            id="createRuleBtn"
             onclick="createRule()"
             class="create-rule-btn">
 
             ➕ Create New Rule
 
         </button>
+
+        <div id="ruleLimitNote" class="rule-limit-note" style="display:none;">
+            Only 5 automation rules can exist at once. Delete an existing
+            rule below before creating a new one.
+        </div>
 
     </div>
 
@@ -4272,117 +4924,203 @@ html {
     <!-- Rule Editor -->
     <!-- ========================= -->
 
-    <div id="ruleEditor" style="display:none;">
+    <div id="ruleEditor" class="rule-editor-card" style="display:none;">
 
-        <h3 id="editorTitle">
-            Edit Rule
-        </h3>
+        <div class="rule-editor-header">
 
-        <!-- Name & Description -->
+            <h3 id="editorTitle">
+                🤖 Edit Rule
+            </h3>
 
-        <div class="rule-section">
-
-            <h4>📝 Rule Name</h4>
-
-            <input
-                id="ruleName"
-                placeholder="e.g. High Value Lead"
-            >
+            <p class="rule-editor-subtitle">
+                Automatically act when a customer matches your conditions.
+            </p>
 
         </div>
 
-        <div class="rule-section">
+        <div class="rule-editor-body">
 
-            <h4>🗒️ Description</h4>
+            <!-- Name, Description & Enabled -->
 
-            <textarea
-                id="ruleDescription"
-                placeholder="Optional - shown under the rule name"
-            ></textarea>
+            <div class="rule-section">
 
-        </div>
+                <h4><span class="section-icon">📝</span> Rule Details</h4>
 
-        <div class="rule-section">
+                <input
+                    id="ruleName"
+                    placeholder="e.g. High Value Lead"
+                    maxlength="100"
+                    oninput="sanitizeNameInput(this)"
+                >
+                <span id="ruleNameCount" class="char-counter">0/100</span>
+                <div id="ruleNameError" class="field-error"></div>
 
-            <label style="display:flex; align-items:center; gap:8px; font-weight:600;">
+                <textarea
+                    id="ruleDescription"
+                    placeholder="Optional - shown under the rule name"
+                    maxlength="300"
+                    oninput="sanitizeFreeTextInput(this)"
+                ></textarea>
+                <span id="ruleDescriptionCount" class="char-counter">0/300</span>
 
-                <input type="checkbox" id="ruleEnabled" checked>
-                Enabled
+                <div class="toggle-row" style="margin-top:6px;">
 
-            </label>
+                    <span style="font-weight:600; color:#374151;">
+                        Enabled
+                    </span>
 
-        </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="ruleEnabledToggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
 
-        <!-- Conditions -->
-
-        <div class="rule-section">
-
-            <h4>🧩 Conditions</h4>
-
-            <div id="conditionBuilder">
+                </div>
 
             </div>
 
-            <button onclick="addCondition()">
-                ➕ Add Condition
-            </button>
+            <!-- Conditions -->
 
-        </div>
+            <div class="rule-section rule-section--conditions">
 
-        <!-- Actions -->
+                <h4><span class="section-icon">🧩</span> Conditions</h4>
 
-        <div class="rule-section">
+                <div id="conditionBuilder">
 
-            <h4>⚡ Actions</h4>
+                </div>
 
-            <div id="actionBuilder">
-
-            </div>
-
-            <button onclick="addAction()">
-                ➕ Add Action
-            </button>
-
-        </div>
-
-        <!-- Summary -->
-
-        <div class="rule-section">
-
-            <h4>📋 Rule Summary</h4>
-
-            <div
-                id="ruleSummaryContent"
-                class="rule-summary"
-            >
-
-                No rule selected.
+                <button class="add-row-btn" onclick="addCondition()">
+                    ➕ Add Condition
+                </button>
 
             </div>
 
-        </div>
+            <!-- Actions -->
 
-        <!-- Save / Cancel -->
+            <div class="rule-section rule-section--actions">
 
-        <div class="rule-section" style="display:flex; gap:10px;">
+                <h4><span class="section-icon">⚡</span> Actions</h4>
 
-            <button
-                class="save-rule-btn"
-                onclick="saveRule()"
-            >
-                💾 Save Rule
-            </button>
+                <div id="actionBuilder">
 
-            <button
-                class="cancel-rule-btn"
-                onclick="cancelRuleEdit()"
-            >
-                ✖ Cancel
-            </button>
+                </div>
+
+                <button class="add-row-btn" onclick="addAction()">
+                    ➕ Add Action
+                </button>
+
+            </div>
+
+            <!-- Summary -->
+
+            <div class="rule-section rule-section--summary">
+
+                <h4><span class="section-icon">📋</span> Rule Summary</h4>
+
+                <div
+                    id="ruleSummaryContent"
+                    class="rule-summary"
+                >
+
+                    No rule selected.
+
+                </div>
+
+            </div>
+
+            <!-- Save / Cancel -->
+
+            <div style="display:flex; gap:10px; margin-top:20px;">
+
+                <button
+                    class="save-rule-btn"
+                    onclick="saveRule()"
+                >
+                    💾 Save Rule
+                </button>
+
+                <button
+                    class="cancel-rule-btn"
+                    onclick="cancelRuleEdit()"
+                >
+                    ✖ Cancel
+                </button>
+
+            </div>
 
         </div>
 
     </div>
+
+    <!-- ========================= -->
+    <!-- Help text -->
+    <!-- ========================= -->
+
+    <details id="automationHelp" class="automation-help">
+
+        <summary>ℹ️ How Automation Rules work</summary>
+
+        <p>
+            Every rule you create is checked against all of your customers
+            automatically, once a minute, in the background - you don't
+            need to open a conversation or check anything manually. When a
+            customer matches <strong>every</strong> condition on an
+            enabled rule at the same time, that rule's action runs for
+            them right away.
+        </p>
+
+        <p>
+            Right now the only action is <strong>Create Reminder</strong>:
+            it adds a follow-up card (with the text and due date you set)
+            to that customer's Follow-up Reminders and to the
+            <a href="/follow-ups">🔔 Follow-ups page</a>, so it's ready
+            for you the moment it's due.
+        </p>
+
+        <h4>🧩 What each Condition option means</h4>
+
+        <ul>
+            <li>
+                <strong>Lead Score</strong> (0-100) - the AI's overall
+                score for how sales-ready this lead is right now, combining
+                their pipeline stage and the AI's confidence. Use
+                <em>≥</em> to catch your hottest leads (e.g. Lead Score
+                ≥ 80).
+            </li>
+            <li>
+                <strong>Lead Status</strong> - the deal stage shown in
+                Lead Management: New, Interested, Qualified, Proposal
+                Sent, Closed Won, or Closed Lost. Only <em>equals</em> (=)
+                and <em>does not equal</em> (≠) make sense here, since
+                it's a name, not a number.
+            </li>
+            <li>
+                <strong>Sentiment</strong> - how the customer is coming
+                across in the conversation, per the AI: Positive, Neutral,
+                or Negative. Also uses = / ≠.
+            </li>
+            <li>
+                <strong>Last Seen (Days)</strong> - how many days it's
+                been since the customer's last message. Good for catching
+                people who've gone quiet - e.g. Last Seen (Days) ≥ 5
+                to flag anyone silent for 5+ days.
+            </li>
+            <li>
+                <strong>AI Confidence</strong> (0-100) - how confident the
+                AI is in its own read of this customer's intent and stage.
+                A low value alongside other conditions can be a sign the
+                AI's assessment needs a second look.
+            </li>
+        </ul>
+
+        <p>
+            Combining conditions narrows the match: a rule with both
+            "Lead Score ≥ 80" and "Last Seen (Days) ≥ 3" only fires for
+            customers who are both hot <strong>and</strong> have gone
+            quiet for a few days - not for everyone who meets just one of
+            those.
+        </p>
+
+    </details>
 
 </div>
 </body>
@@ -4396,6 +5134,16 @@ let customerMap = {};
 let lastConversationHash = "";
 let lastCustomerHash = "";
 let pinnedCustomers = new Set();
+
+// Whether loadAutomationRules() has already decided the "How Automation
+// Rules work" panel's open/collapsed state once this page load. It should
+// auto-open only for a business with zero rules (first-time education)
+// and stay collapsed once at least one rule exists - but loadAutomationRules()
+// re-runs after every rule create/edit/delete/enable/disable, and forcing
+// open/collapsed on every one of those would yank the panel away from a
+// user who deliberately opened or closed it mid-session. Deciding once,
+// on first load, avoids that.
+let automationHelpAutoSet = false;
 
 // Escapes text that came from a customer's own WhatsApp message (or any
 // other untrusted/AI-derived text) before it's inserted via innerHTML.
@@ -4416,7 +5164,159 @@ function escapeHtml(text) {
         .replace(/'/g, "&#39;");
 }
 
+// ===============================================================
+// Field validation - Customer Name, Lead Notes, Search, Rule Name, Rule
+// Description, Reminder Text, Days. Same two-layer pattern as
+// settings.html: sanitize*Input() strips disallowed characters as the
+// user types (wired via oninput on each field), validate*() does a final
+// check right before a value is actually submitted. The server
+// (api/customer.py, api/automation.py) enforces the same limits
+// independently, since these routes can be called directly, bypassing
+// the UI.
+// ===============================================================
 
+const FIELD_LIMITS = {
+    customerNameInput: 100,
+    customerSearch: 100,
+    leadNotes: 1000,
+    ruleName: 100,
+    ruleDescription: 300,
+    manualReplyInput: 4096,
+};
+
+const ACTION_TEXT_MAX_LENGTH = 200;
+const ACTION_DAYS_MIN = 1;
+const ACTION_DAYS_MAX = 365;
+
+function showFieldError(fieldId, message) {
+
+    const input = document.getElementById(fieldId);
+    const errorEl = document.getElementById(`${fieldId}Error`);
+
+    if (input)
+        input.classList.add("field-invalid");
+
+    if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.classList.add("visible");
+    }
+
+}
+
+function clearFieldError(fieldId) {
+
+    const input = document.getElementById(fieldId);
+    const errorEl = document.getElementById(`${fieldId}Error`);
+
+    if (input)
+        input.classList.remove("field-invalid");
+
+    if (errorEl) {
+        errorEl.textContent = "";
+        errorEl.classList.remove("visible");
+    }
+
+}
+
+function updateCharCounter(fieldId) {
+
+    const input = document.getElementById(fieldId);
+    const counter = document.getElementById(`${fieldId}Count`);
+
+    if (!input || !counter)
+        return;
+
+    const max = FIELD_LIMITS[fieldId];
+    const len = input.value.length;
+
+    counter.textContent = `${len}/${max}`;
+    counter.classList.toggle("char-counter-limit", len >= max);
+
+}
+
+// Names (Customer Name, Rule Name): letters, numbers, spaces, and common
+// punctuation ( & - ' . , ) - blocks characters like < > { } ; that have
+// no place in a name.
+function sanitizeNameInput(el) {
+
+    el.value = el.value.replace(/[^a-zA-Z0-9À-ÿ &'\-.,]/g, "");
+
+    updateCharCounter(el.id);
+    clearFieldError(el.id);
+
+}
+
+// Free text (Lead Notes, Rule Description, Reminder Text): full sentences
+// with normal punctuation/emoji are fine, only HTML-ish angle brackets
+// are stripped as a light markup-injection guard.
+function sanitizeFreeTextInput(el) {
+
+    el.value = el.value.replace(/[<>]/g, "");
+
+    updateCharCounter(el.id);
+    clearFieldError(el.id);
+
+}
+
+// Search box: not submitted anywhere sensitive (server-side search query,
+// already sent via encodeURIComponent), so this only strips control
+// characters rather than restricting punctuation - people search using
+// phone numbers, partial messages, emoji, etc.
+function sanitizeSearchInput(el) {
+
+    el.value = el.value.replace(/[\x00-\x1F\x7F]/g, "");
+
+}
+
+// Numeric fields (condition Value, Days): clamps to the field's min/max
+// as the user types instead of only complaining on submit.
+function clampNumberInput(el) {
+
+    if (el.value === "")
+        return;
+
+    const num = Number(el.value);
+
+    if (Number.isNaN(num))
+        return;
+
+    const min = el.min !== "" ? Number(el.min) : null;
+    const max = el.max !== "" ? Number(el.max) : null;
+
+    if (min !== null && num < min)
+        el.value = min;
+
+    if (max !== null && num > max)
+        el.value = max;
+
+}
+
+function validateName(value, label) {
+
+    if (!value)
+        return `${label} is required.`;
+
+    if (value.length > 100)
+        return `${label} must be 100 characters or fewer.`;
+
+    if (!/^[a-zA-Z0-9À-ÿ &'\-.,]+$/.test(value))
+        return `${label} can only contain letters, numbers, spaces, and & - ' . ,`;
+
+    return null;
+
+}
+
+function validateFreeText(value, maxLen, label) {
+
+    if (value.length > maxLen)
+        return `${label} must be ${maxLen} characters or fewer.`;
+
+    if (/[<>]/.test(value))
+        return `${label} can't contain < or >.`;
+
+    return null;
+
+}
 
 
 function convertLinks(text) {
@@ -4449,7 +5349,37 @@ function convertLinks(text) {
     );
 }
 
+// Matches automation/manager.py's MAX_AUTOMATION_RULES - kept in sync
+// manually since this is plain JS with no shared config with the backend.
+const MAX_AUTOMATION_RULES = 5;
+
+// Once the cap is hit, disable "Create New Rule" from the UI instead of
+// letting the click round-trip to the server just to be rejected (same
+// pattern as settings.html's updateWebsiteLimitUI for the website cap).
+function updateRuleLimitUI(totalRules) {
+
+    const limitReached = totalRules >= MAX_AUTOMATION_RULES;
+
+    const createBtn = document.getElementById("createRuleBtn");
+    const note = document.getElementById("ruleLimitNote");
+
+    if (createBtn)
+        createBtn.disabled = limitReached;
+
+    if (note)
+        note.style.display = limitReached ? "block" : "none";
+
+}
+
 function createRule() {
+
+    if (document.getElementById("createRuleBtn").disabled) {
+        alert(
+            `Only ${MAX_AUTOMATION_RULES} automation rules are allowed. ` +
+            `Delete an existing rule before creating a new one.`
+        );
+        return;
+    }
 
     window.currentEditingRule = null;
 
@@ -4475,7 +5405,12 @@ function createRule() {
 
     document.getElementById("ruleDescription").value = "";
 
-    document.getElementById("ruleEnabled").checked = true;
+    updateCharCounter("ruleName");
+    updateCharCounter("ruleDescription");
+    clearFieldError("ruleName");
+    clearFieldError("ruleDescription");
+
+    document.getElementById("ruleEnabledToggle").checked = true;
 
     //
     // Reset Conditions
@@ -4531,11 +5466,25 @@ async function loadAutomationRules() {
 
     try {
 
-        const response = await fetch("/automation/rules");
+        const userId = document.getElementById("userId").value;
+
+        const response = await fetch(`/automation/rules/${userId}`);
 
         const data = await response.json();
 
         const totalRules = data.rules.length;
+
+        if (!automationHelpAutoSet) {
+
+            automationHelpAutoSet = true;
+
+            const automationHelp =
+                document.getElementById("automationHelp");
+
+            if (automationHelp)
+                automationHelp.open = (totalRules === 0);
+
+        }
 
         const enabledRules =
             data.rules.filter(r => r.enabled).length;
@@ -4546,6 +5495,8 @@ async function loadAutomationRules() {
         document.getElementById("ruleTotal").innerText = totalRules;
         document.getElementById("ruleEnabled").innerText = enabledRules;
         document.getElementById("ruleDisabled").innerText = disabledRules;
+
+        updateRuleLimitUI(totalRules);
 
         if (!data.rules || data.rules.length === 0) {
 
@@ -4820,7 +5771,9 @@ async function editRule(ruleId, buttonEl) {
     console.log("Editing rule:", ruleId);
     console.count("editRule called");
 
-    const response = await fetch("/automation/rules");
+    const userId = document.getElementById("userId").value;
+
+    const response = await fetch(`/automation/rules/${userId}`);
 
     const data = await response.json();
 
@@ -4863,7 +5816,12 @@ async function editRule(ruleId, buttonEl) {
     document.getElementById("ruleDescription").value =
         rule.description || "";
 
-    document.getElementById("ruleEnabled").checked =
+    updateCharCounter("ruleName");
+    updateCharCounter("ruleDescription");
+    clearFieldError("ruleName");
+    clearFieldError("ruleDescription");
+
+    document.getElementById("ruleEnabledToggle").checked =
         !!rule.enabled;
 
     //
@@ -5195,21 +6153,23 @@ function buildActionRowHTML(action) {
             <input
                 class="action-text"
                 placeholder="Reminder Text"
-                value="${params.text || params.title || ""}"
-                oninput="onActionTextEdited(this)"
+                maxlength="200"
+                value="${escapeHtml(params.text || params.title || "")}"
+                oninput="onActionTextEdited(this); sanitizeFreeTextInput(this)"
             >
 
             <input
                 class="action-days"
                 type="number"
                 min="1"
+                max="365"
                 value="${params.days || 1}"
-                oninput="onActionDaysEdited(this)"
+                oninput="onActionDaysEdited(this); clampNumberInput(this)"
                 ${daysAutofilledAttr}
             >
 
-            <button onclick="removeAction(this)">
-                ❌
+            <button class="remove-row-btn" onclick="removeAction(this)" title="Remove action">
+                ✕
             </button>
 
         </div>
@@ -5246,26 +6206,34 @@ function populateRuleForm(rule){
 // anything. This table is the single source of truth both the initial
 // row (addCondition/populate) and the live field-change handler
 // (onConditionFieldChange) build from.
+// "hint" backs the ⓘ tooltip next to the field dropdown in each condition
+// row (see buildConditionRowHTML()/onConditionFieldChange()) - a short,
+// just-in-time reminder of what the selected field means and how to use
+// it, right where someone's actually picking it. The fuller writeup for
+// all 5 fields lives in the "How Automation Rules work" panel above.
 const CONDITION_FIELD_CONFIG = {
 
     lead_score: {
         kind: "number",
         operators: [">=", ">", "<=", "<", "=", "!="],
         min: 0,
-        max: 100
+        max: 100,
+        hint: "The AI's overall 0-100 score for how sales-ready this lead is. Try ≥ 80 to catch your hottest leads."
     },
 
     last_seen_days: {
         kind: "number",
         operators: [">=", ">", "<=", "<", "=", "!="],
-        min: 0
+        min: 0,
+        hint: "Days since the customer's last message. Try ≥ 5 to flag anyone who's gone quiet."
     },
 
     confidence: {
         kind: "number",
         operators: [">=", ">", "<=", "<", "=", "!="],
         min: 0,
-        max: 100
+        max: 100,
+        hint: "How confident the AI is (0-100) in its own read of this customer's intent and stage."
     },
 
     status: {
@@ -5278,7 +6246,8 @@ const CONDITION_FIELD_CONFIG = {
             "Proposal Sent",
             "Closed Won",
             "Closed Lost"
-        ]
+        ],
+        hint: "The deal stage from Lead Management. A name, not a number - only equals/does not equal apply."
     },
 
     sentiment: {
@@ -5288,7 +6257,8 @@ const CONDITION_FIELD_CONFIG = {
             "Positive",
             "Neutral",
             "Negative"
-        ]
+        ],
+        hint: "How the customer is coming across in the conversation, per the AI."
     }
 
 };
@@ -5333,7 +6303,8 @@ function buildConditionValueFieldHTML(field, value) {
             ${config.min !== undefined ? `min="${config.min}"` : ""}
             ${config.max !== undefined ? `max="${config.max}"` : ""}
             placeholder="Value"
-            value="${value !== undefined && value !== null ? value : ""}"
+            value="${escapeHtml(value !== undefined && value !== null ? value : "")}"
+            oninput="clampNumberInput(this)"
             onchange="onConditionValueChange(this)"
         >
     `;
@@ -5357,14 +6328,19 @@ function buildConditionRowHTML(condition) {
 
             </select>
 
+            <span
+                class="condition-field-hint"
+                title="${escapeHtml(getConditionFieldConfig(condition.field).hint || "")}"
+            >ⓘ</span>
+
             <select class="condition-operator">
                 ${buildConditionOperatorOptionsHTML(condition.field, condition.operator)}
             </select>
 
             ${buildConditionValueFieldHTML(condition.field, condition.value)}
 
-            <button onclick="removeCondition(this)">
-                ❌
+            <button class="remove-row-btn" onclick="removeCondition(this)" title="Remove condition">
+                ✕
             </button>
 
         </div>
@@ -5377,6 +6353,11 @@ function onConditionFieldChange(select) {
     const row = select.closest(".condition-row");
     const field = select.value;
     const config = getConditionFieldConfig(field);
+
+    // Keep the ⓘ tooltip in sync with whichever field is now selected.
+    const hintEl = row.querySelector(".condition-field-hint");
+    if (hintEl)
+        hintEl.title = config.hint || "";
 
     // Switching fields resets the operator and value to sensible defaults
     // for the new field's type - carrying over e.g. ">=" and "80" from
@@ -5454,6 +6435,36 @@ async function searchCustomers() {
     renderCustomers(data.customers);
 }
 
+// The search box used to call searchCustomers() directly on every
+// keyup, firing a full server round trip (a customer-list query plus an
+// unindexed LOWER(content) LIKE scan over conversation history - see
+// analytics/customer_stats.py's search_customers()) on every single
+// keystroke. Debouncing collapses a burst of keystrokes into one request
+// fired 300ms after the user stops typing, which is the standard search
+// UX tradeoff (feels instant, doesn't spam the server) and cuts DB load
+// on fast typers/paste substantially.
+let _searchCustomersDebounceTimer = null;
+
+function debouncedSearchCustomers() {
+
+    clearTimeout(_searchCustomersDebounceTimer);
+
+    _searchCustomersDebounceTimer = setTimeout(
+        searchCustomers,
+        300
+    );
+}
+
+// Single source of truth for the header's 👥 Customers, 💬 Messages, and
+// 💰 Opportunities stats - all three come from /dashboard-metrics so each
+// is computed exactly once server-side. (🎯 Qualified is set separately in
+// loadCustomers(), since it needs the per-customer lead_score list that
+// function already fetches to render the inbox - no separate query for
+// that one is worth it.) open_opportunities is a real count from the
+// opportunities table, the same one the Opportunity Pipeline chart reads
+// from - this used to be a customers.filter(lead_score >= 60).length
+// heuristic in loadCustomers() with no real connection to actual tracked
+// opportunities.
 async function loadDashboardMetrics(){
 
     const userId =
@@ -5488,15 +6499,19 @@ async function loadDashboardMetrics(){
 
     }
 
-    const todayMessages =
-        document.getElementById("todayMessages");
+    const opportunityCount =
+        document.getElementById("opportunityCount");
 
-    if(todayMessages){
+    if(opportunityCount){
 
-        todayMessages.innerText =
-            data.today_messages || 0;
+        opportunityCount.innerText =
+            data.open_opportunities || 0;
 
     }
+
+    // #todayMessages has no element on this page - ai/manager_assistant.py
+    // is the only consumer of data.today_messages, via its own call to
+    // get_dashboard_metrics().
 
 }
 
@@ -5522,38 +6537,29 @@ async function loadCustomers() {
 
         // ----------------------------
         // Dashboard Numbers
+        //
+        // Customers/Messages/Opportunities used to also be recomputed
+        // here and written to the same header elements loadDashboardMetrics()
+        // writes to - two DB round trips (this one via /customer-details,
+        // that one via /dashboard-metrics) computing overlapping numbers,
+        // with whichever call finished last silently winning. Only
+        // Qualified Leads is kept here, since it needs this function's
+        // already-fetched per-customer lead_score list and isn't computed
+        // anywhere else.
         // ----------------------------
 
         const totalCustomers = customers.length;
 
-        const totalMessages = customers.reduce(
-            (sum, c) => sum + (c.message_count || 0),
-            0
-        );
-
         const qualifiedLeads = customers.filter(
             c => (c.lead_score || 0) >= 80
-        ).length;
-
-        const opportunities = customers.filter(
-            c => (c.lead_score || 0) >= 60
         ).length;
 
         // ----------------------------
         // Header KPIs
         // ----------------------------
 
-        document.getElementById("customerCount").innerText =
-            totalCustomers;
-
-        document.getElementById("messageCount").innerText =
-            totalMessages;
-
         document.getElementById("qualifiedCount").innerText =
             qualifiedLeads;
-
-        document.getElementById("opportunityCount").innerText =
-            opportunities;
 
         // ----------------------------
         // Inbox Header Badge
@@ -5561,6 +6567,32 @@ async function loadCustomers() {
 
         document.getElementById("customerCountBadge").innerText =
             totalCustomers;
+
+        // ----------------------------
+        // "Active Customers" subtitle + dot above the inbox
+        //
+        // This used to be static text ("Active Customers") next to a
+        // permanently-green dot - the element id (onlineCustomers) shows
+        // it was meant to show a real live count, but nothing ever set
+        // it. Now it reflects how many customers have messaged within
+        // the last ONLINE_THRESHOLD_MINUTES minutes (see isOnlineNow()),
+        // the same real signal now used for the per-customer presence
+        // dots and the chat header's Online/Last seen status.
+        // ----------------------------
+
+        const onlineNowCount = customers.filter(
+            c => isOnlineNow(c.last_seen)
+        ).length;
+
+        document.getElementById("onlineCustomers").innerText =
+            onlineNowCount === 1
+                ? "1 Active Now"
+                : `${onlineNowCount} Active Now`;
+
+        const onlineDot = document.querySelector(".online-dot");
+
+        if(onlineDot)
+            onlineDot.classList.toggle("offline", onlineNowCount === 0);
 
     }
     catch (err) {
@@ -5581,8 +6613,59 @@ async function saveRule() {
     const ruleName =
         document.getElementById("ruleName").value.trim();
 
-    if (!ruleName) {
-        alert("Please enter a rule name.");
+    const ruleNameError = validateName(ruleName, "Rule Name");
+
+    if (ruleNameError) {
+        showFieldError("ruleName", ruleNameError);
+        return;
+    }
+
+    clearFieldError("ruleName");
+
+    const ruleDescription =
+        document.getElementById("ruleDescription").value.trim();
+
+    const ruleDescriptionError = validateFreeText(
+        ruleDescription, FIELD_LIMITS.ruleDescription, "Description"
+    );
+
+    if (ruleDescriptionError) {
+        showFieldError("ruleDescription", ruleDescriptionError);
+        return;
+    }
+
+    clearFieldError("ruleDescription");
+
+    // Every Reminder Text field across all action rows must be valid
+    // before saving - checked up front (rather than inline in the
+    // actions-building loop below) so the error points at the specific
+    // row that's wrong.
+    let actionRowError = null;
+
+    document.querySelectorAll(".action-row").forEach(row => {
+
+        if (actionRowError)
+            return;
+
+        const textEl = row.querySelector(".action-text");
+        const text = textEl.value.trim();
+
+        if (!text)
+            return;
+
+        const error = validateFreeText(
+            text, ACTION_TEXT_MAX_LENGTH, "Reminder Text"
+        );
+
+        if (error) {
+            actionRowError = error;
+            textEl.classList.add("field-invalid");
+        }
+
+    });
+
+    if (actionRowError) {
+        alert(actionRowError);
         return;
     }
 
@@ -5665,10 +6748,17 @@ async function saveRule() {
 
                 const daysEl = row.querySelector(".action-days");
 
-                const days =
+                let days =
                     parseInt(
                         (daysEl && daysEl.value) || 1
                     );
+
+                if (Number.isNaN(days))
+                    days = 1;
+
+                days = Math.min(
+                    Math.max(days, ACTION_DAYS_MIN), ACTION_DAYS_MAX
+                );
 
                 if (text === "")
                     return;
@@ -5705,11 +6795,10 @@ async function saveRule() {
 
             name: ruleName,
 
-            description:
-                document.getElementById("ruleDescription").value.trim(),
+            description: ruleDescription,
 
             enabled:
-                document.getElementById("ruleEnabled").checked,
+                document.getElementById("ruleEnabledToggle").checked,
 
             // There's no separate "Trigger" step anymore - Conditions are
             // the single source of truth. trigger_type is still stored
@@ -5729,11 +6818,13 @@ async function saveRule() {
 
         const isNewRule = !window.currentEditingRule;
 
+        const userId = document.getElementById("userId").value;
+
         const response = await fetch(
 
             isNewRule
-                ? "/automation/rules"
-                : `/automation/rules/${window.currentEditingRule}`,
+                ? `/automation/rules/${userId}`
+                : `/automation/rules/${userId}/${window.currentEditingRule}`,
 
             {
 
@@ -5762,6 +6853,20 @@ async function saveRule() {
                     ? JSON.stringify(result.detail)
                     : `Failed to ${isNewRule ? "create" : "update"} rule.`
             );
+
+            return;
+
+        }
+
+        // POST /automation/rules returns HTTP 200 with status="limit_reached"
+        // (not an error status code) when the 5-rule cap is already hit -
+        // response.ok is true here, so this has to be checked explicitly
+        // or it'd fall through and claim the rule was created.
+        if (result.status === "limit_reached") {
+
+            alert(`⚠️ ${result.message}`);
+
+            await loadAutomationRules();
 
             return;
 
@@ -5807,11 +6912,23 @@ function renderCustomers(customers) {
 
     list.innerHTML = "";
 
-    // Keep pinned customers first
+    // Handoff-paused customers first (need a human right now - the most
+    // time-sensitive state a conversation can be in), then pinned
+    // customers, then everything else in whatever order the server sent
+    // it (last_seen DESC - see analytics/customer_stats.py).
     customers.sort((a, b) => {
+
+        const aHandoff = a.ai_paused ? 1 : 0;
+        const bHandoff = b.ai_paused ? 1 : 0;
+
+        if (aHandoff !== bHandoff)
+            return bHandoff - aHandoff;
+
         const ap = pinnedCustomers.has(a.phone) ? 1 : 0;
         const bp = pinnedCustomers.has(b.phone) ? 1 : 0;
+
         return bp - ap;
+
     });
 
     customers.forEach(customer => {
@@ -5823,6 +6940,27 @@ function renderCustomers(customers) {
         );
 
     });
+
+    renderHandoffCountBadge(customers);
+
+}
+
+// Aggregate "N need a reply" pill above the inbox - see the per-row 🤝
+// badge in createCustomerCard() for the individual-conversation signal;
+// this is the "at a glance, across everyone" complement to it.
+function renderHandoffCountBadge(customers) {
+
+    const count = customers.filter(c => c.ai_paused).length;
+
+    const badge = document.getElementById("handoffCountBadge");
+    const textEl = document.getElementById("handoffCountText");
+
+    if (count > 0) {
+        textEl.textContent = count;
+        badge.style.display = "flex";
+    } else {
+        badge.style.display = "none";
+    }
 
 }
 
@@ -5887,7 +7025,7 @@ function createCustomerCard(customer) {
                 ${escapeHtml(avatarText)}
             </div>
 
-            <div class="presence-dot"></div>
+            <div class="presence-dot ${isOnlineNow(customer.last_seen) ? "" : "offline"}"></div>
 
         </div>
 
@@ -5902,6 +7040,10 @@ function createCustomerCard(customer) {
                         ${customer.name
                             ? escapeHtml(customer.name)
                             : escapeHtml(customer.phone)}
+
+                        ${customer.ai_paused
+                            ? `<span class="inbox-handoff-badge" title="AI paused - handoff active">🤝</span>`
+                            : ""}
 
                     </div>
 
@@ -5965,13 +7107,12 @@ function createCustomerCard(customer) {
 
                 <div class="customer-actions">
 
-                    <button
-                        class="customer-action-btn"
-                        title="Call">
-
-                        📞
-
-                    </button>
+                    <!-- Call and More (⋮) buttons removed - neither had a
+                         click handler (no calling feature exists in this
+                         app, and no menu existed for More to open), so
+                         both looked clickable but silently did nothing.
+                         Pin is the only action here now, and is fully
+                         wired (see togglePin() below). -->
 
                     <button
                         class="customer-action-btn"
@@ -5979,14 +7120,6 @@ function createCustomerCard(customer) {
                         onclick="event.stopPropagation(); togglePin('${customer.phone}')">
 
                         ${pinnedCustomers.has(customer.phone) ? "📍" : "📌"}
-
-                    </button>
-
-                    <button
-                        class="customer-action-btn"
-                        title="More">
-
-                        ⋮
 
                     </button>
 
@@ -6104,6 +7237,29 @@ function formatTime(dateString){
 
 }
 
+// WhatsApp's Business API doesn't expose real live presence to us - the
+// only signal available is last_seen (the timestamp of a customer's most
+// recent message). "Online" here means "sent a message within the last
+// ONLINE_THRESHOLD_MINUTES minutes", a reasonable proxy for active-right-now
+// rather than a true presence feed. This one function backs every place
+// that used to hardcode an "online" look regardless of actual recency:
+// the per-customer presence dot in the inbox list, the conversation
+// header's status line, and the "Active Customers" count/dot above the
+// inbox.
+const ONLINE_THRESHOLD_MINUTES = 5;
+
+function isOnlineNow(lastSeen){
+
+    if(!lastSeen)
+        return false;
+
+    const diffMinutes =
+        (new Date() - new Date(lastSeen)) / 60000;
+
+    return diffMinutes >= 0 && diffMinutes < ONLINE_THRESHOLD_MINUTES;
+
+}
+
 function updateChatHeader(customerPhone){
 
     const customer =
@@ -6120,10 +7276,20 @@ function updateChatHeader(customerPhone){
 
     const lastSeen = customer.last_seen;
 
-    if(lastSeen){
+    if(isOnlineNow(lastSeen)){
 
+        // Sent a message in the last ONLINE_THRESHOLD_MINUTES minutes.
         document.getElementById("chatPresence").innerHTML =
-            `<span style="color:#22c55e">● Online recently</span>`;
+            `<span style="color:#22c55e">● Online</span>`;
+
+    }else if(lastSeen){
+
+        // Was previously seen, just not recently - shows a real relative
+        // time (e.g. "3h", "Yesterday", "30 Jul") instead of the old
+        // "Online recently" label, which used to show for ANY customer
+        // with a last_seen at all, even one from months ago.
+        document.getElementById("chatPresence").innerHTML =
+            `<span>Last seen ${formatTime(lastSeen)}</span>`;
 
     }else{
 
@@ -6398,20 +7564,26 @@ function renderAssistantMessage(msg, animate = false){
 
     div.className = "message-row assistant";
 
+    // sender === "Manual" means a team member sent this from the
+    // dashboard's reply box (see api/customer.py's send_manual_reply()),
+    // not the AI - shown with a distinct avatar/label so the transcript
+    // makes clear who actually said what.
+    const isManual = msg.sender === "Manual";
+
     div.innerHTML = `
 
-        <div class="message-avatar ai-avatar">
+        <div class="message-avatar ${isManual ? "manual-avatar" : "ai-avatar"}">
 
-            🤖
+            ${isManual ? "🧑‍💼" : "🤖"}
 
         </div>
 
-        <div class="message-bubble assistant-message">
+        <div class="message-bubble assistant-message ${isManual ? "manual-message" : ""}">
 
             <div class="ai-header">
 
                 <span class="ai-label">
-                    AI Assistant
+                    ${isManual ? "You (Manual Reply)" : "AI Assistant"}
                 </span>
 
                 <button
@@ -6567,32 +7739,131 @@ async function loadConversation(customerPhone) {
 
     scrollConversation(true);
 
+    // Enable the reply box now that a real conversation is loaded -
+    // matches sendManualReply()'s own currentCustomer guard, but also
+    // gives an immediate visual/interactive signal rather than only
+    // failing silently on send.
+    const replyInput = document.getElementById("manualReplyInput");
+    const sendBtn = document.getElementById("sendManualReplyBtn");
+
+    replyInput.disabled = false;
+    sendBtn.disabled = false;
+    replyInput.placeholder = "Type a reply...";
+
 }
 
 
+// Strips only control characters (keeps newlines/tabs) rather than the
+// stricter allowlists used for CRM fields (sanitizeNameInput/
+// sanitizeFreeTextInput) - this is freeform chat content sent straight
+// to a WhatsApp customer, not structured data, and the backend already
+// safely HTML-escapes it before rendering (see renderMarkdownBody()).
+function sanitizeReplyInput(el) {
 
-async function loadStats() {
+    el.value = el.value.replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F]/g, "");
 
-    const userId =
-        document.getElementById("userId").value;
+    updateCharCounter(el.id);
+    clearFieldError(el.id);
 
-    if (!userId)
+}
+
+// Grows the textarea with its content (up to the CSS max-height, which
+// then scrolls) instead of staying a fixed single-line box - a manual
+// reply is often more than one line.
+function autoGrowReplyBox(el) {
+
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+
+}
+
+// Enter sends (matching WhatsApp's own desktop client); Shift+Enter
+// inserts a newline instead of submitting.
+function handleReplyKeydown(event) {
+
+    if (event.key === "Enter" && !event.shiftKey) {
+
+        event.preventDefault();
+        sendManualReply();
+
+    }
+
+}
+
+async function sendManualReply() {
+
+    if (!currentCustomer)
         return;
 
-    const response =
-        await fetch(`/stats/${userId}`);
+    const input = document.getElementById("manualReplyInput");
+    const sendBtn = document.getElementById("sendManualReplyBtn");
 
-    const data =
-        await response.json();
+    const message = input.value.trim();
 
-    document.getElementById(
-        "websiteCount"
-    ).innerText = data.websites;
+    if (!message)
+        return;
 
-    document.getElementById(
-        "customerCount"
-    ).innerText = data.customers;
+    // Only a length check here, deliberately not validateFreeText() -
+    // that also rejects < and >, appropriate for CRM fields but too
+    // strict for a freeform chat message (the backend already escapes
+    // this safely before rendering; see sanitizeReplyInput() above).
+    if (message.length > FIELD_LIMITS.manualReplyInput) {
+        showFieldError(
+            "manualReplyInput",
+            `Message must be ${FIELD_LIMITS.manualReplyInput} characters or fewer.`
+        );
+        return;
+    }
+
+    clearFieldError("manualReplyInput");
+
+    const userId = document.getElementById("userId").value;
+
+    sendBtn.disabled = true;
+    input.disabled = true;
+
+    try {
+
+        const response = await fetch(
+            `/conversation/${userId}/${encodeURIComponent(currentCustomer)}/reply`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message })
+            }
+        );
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.detail || "Send failed");
+        }
+
+        input.value = "";
+        input.style.height = "auto";
+        updateCharCounter("manualReplyInput");
+
+        // Refresh the transcript (shows the new message) and the
+        // handoff banner (sending always pauses AI - see
+        // api/customer.py's send_manual_reply()).
+        await loadConversation(currentCustomer);
+        await loadLead(currentCustomer);
+        await loadCustomers();
+
+    } catch (err) {
+
+        console.error("sendManualReply()", err);
+        alert("Failed to send message. Please try again.");
+
+    } finally {
+
+        sendBtn.disabled = false;
+        input.disabled = false;
+        input.focus();
+
+    }
+
 }
+
 
 async function loadBusinessInfo() {
 
@@ -6603,9 +7874,18 @@ async function loadBusinessInfo() {
 
     try {
 
-        const response = await fetch(`/customer-number/${userId}`);
+        // /customer-number gives us the configured WhatsApp number;
+        // /business-settings gives us the business name saved on the
+        // Settings page - neither endpoint returns both, so both are
+        // fetched here and merged into the header.
+        const [numberResponse, settingsResponse] = await Promise.all([
+            fetch(`/customer-number/${userId}`),
+            fetch(`/business-settings/${userId}`)
+        ]);
 
-        const data = await response.json();
+        const numberData = await numberResponse.json();
+        const settingsData = await settingsResponse.json();
+        const settings = settingsData.settings || {};
 
         // Update Header
 
@@ -6615,7 +7895,7 @@ async function loadBusinessInfo() {
         if (businessName) {
 
             businessName.innerText =
-                data.business_name || "Business Name";
+                settings.business_name || "Business Name";
 
         }
 
@@ -6625,7 +7905,7 @@ async function loadBusinessInfo() {
         if (whatsapp) {
 
             whatsapp.innerText =
-                data.whatsapp_number || "Not Configured";
+                numberData.whatsapp_number || "Not Configured";
 
         }
 
@@ -6654,6 +7934,17 @@ async function saveLead(){
         document.getElementById(
             "leadNotes"
         ).value;
+
+    const notesError = validateFreeText(
+        notes, FIELD_LIMITS.leadNotes, "Notes"
+    );
+
+    if (notesError) {
+        showFieldError("leadNotes", notesError);
+        return;
+    }
+
+    clearFieldError("leadNotes");
 
     const response =
         await fetch(
@@ -6720,6 +8011,67 @@ async function loadLead(
         "leadNotes"
     ).value =
         data.lead.notes;
+
+    // .value= doesn't fire oninput, so the counter needs a manual refresh
+    // after loading a saved lead's notes.
+    updateCharCounter("leadNotes");
+    clearFieldError("leadNotes");
+
+    renderHandoffBanner(data.lead);
+
+}
+
+
+// Shows/hides the "AI Paused - Handoff Active" banner in the Customer
+// Info panel based on this customer's leads.ai_paused flag (see
+// crm/lead_manager.py's pause_ai()/resume_ai() and ai/handoff.py).
+function renderHandoffBanner(lead){
+
+    const banner = document.getElementById("handoffBanner");
+    const reasonEl = document.getElementById("handoffBannerReason");
+
+    if(!lead || !lead.ai_paused){
+        banner.style.display = "none";
+        return;
+    }
+
+    // Reuses the same relative-time formatting the chat header already
+    // uses for "Last seen ${formatTime(...)}", so "how long has this
+    // customer been waiting" reads consistently across the app (its
+    // output - "Now"/"35m"/"3h"/"Yesterday"/"30 Jul" - already reads
+    // correctly after "Paused " without needing a trailing "ago").
+    const pausedSince = lead.ai_paused_at
+        ? ` · Paused ${formatTime(lead.ai_paused_at)}`
+        : "";
+
+    reasonEl.textContent = (lead.ai_paused_reason || "") + pausedSince;
+    banner.style.display = "flex";
+
+}
+
+async function resumeAi(){
+
+    if(!currentCustomer)
+        return;
+
+    try{
+
+        await fetch(
+            `/lead/${encodeURIComponent(currentCustomer)}/resume-ai`,
+            { method: "POST" }
+        );
+
+        document.getElementById("handoffBanner").style.display = "none";
+
+        // Refreshes the inbox badge for this customer too.
+        await loadCustomers();
+
+    }catch(err){
+
+        console.error("resumeAi()", err);
+        alert("Failed to resume AI.");
+
+    }
 
 }
 
@@ -6918,6 +8270,30 @@ async function saveCustomerName(){
     const input = document.getElementById("customerNameInput");
     const name = input.value.trim();
 
+    // Empty is allowed here (clears back to showing the phone number),
+    // so only validate format/length when something was actually typed.
+    if (name) {
+
+        if (name.length > FIELD_LIMITS.customerNameInput) {
+            showFieldError(
+                "customerNameInput",
+                `Customer name must be ${FIELD_LIMITS.customerNameInput} characters or fewer.`
+            );
+            return;
+        }
+
+        if (!/^[a-zA-Z0-9À-ÿ &'\-.,]+$/.test(name)) {
+            showFieldError(
+                "customerNameInput",
+                "Customer name can only contain letters, numbers, spaces, and & - ' . ,"
+            );
+            return;
+        }
+
+    }
+
+    clearFieldError("customerNameInput");
+
     try {
 
         const response = await fetch("/customer-name", {
@@ -7021,11 +8397,11 @@ async function loadCustomerTimeline(customerPhone) {
 
         // activity_type covers both merged sources: "AI"/"Manual" for a
         // status transition (crm/lead_manager.py's lead_history), or
-        // "AI"/"Manual"/"Sales Coach"/"Tags"/"Reminder" for an ai_activity
-        // row (crm/activity_manager.py) - anything else falls back to a
-        // generic note icon. "Automation" (the "Add CRM Activity" rule
-        // action) is deliberately excluded server-side, see
-        // timeline_manager.get_customer_timeline().
+        // "AI"/"Manual"/"Sales Coach"/"Tags"/"Reminder"/"Handoff" for an
+        // ai_activity row (crm/activity_manager.py) - anything else falls
+        // back to a generic note icon. "Automation" (the "Add CRM
+        // Activity" rule action) is deliberately excluded server-side,
+        // see timeline_manager.get_customer_timeline().
         let icon = "📝";
 
         if (item.activity_type === "AI") {
@@ -7038,6 +8414,8 @@ async function loadCustomerTimeline(customerPhone) {
             icon = "🏷️";
         } else if (item.activity_type === "Reminder") {
             icon = "⏰";
+        } else if (item.activity_type === "Handoff") {
+            icon = "🤝";
         }
 
         html += `
@@ -7470,6 +8848,17 @@ async function loadReminders(customerPhone) {
 
             </div>
 
+            <div class="reminder-footer">
+
+                <button
+                    class="mark-done-btn"
+                    onclick="completeReminder(${reminder.id})"
+                >
+                    ✅ Mark Done
+                </button>
+
+            </div>
+
         </div>
 
         `;
@@ -7509,6 +8898,28 @@ async function loadReminders(customerPhone) {
         ${html}
 
     `;
+
+}
+
+async function completeReminder(reminderId) {
+
+    try {
+
+        await fetch(`/reminders/${reminderId}/complete`, {
+            method: "POST"
+        });
+
+        if (currentCustomer)
+            await loadReminders(currentCustomer);
+
+        await loadBellBadge();
+
+    } catch (e) {
+
+        console.error("Complete reminder", e);
+        alert("Failed to mark reminder done.");
+
+    }
 
 }
 
@@ -7557,9 +8968,6 @@ window.onload = async function () {
 
     try { await loadCustomers(); }
     catch(e){ console.error("Customers", e); }
-
-    try { await loadStats(); }
-    catch(e){ console.error("Stats", e); }
 
     try { await loadDashboardMetrics(); }
     catch(e){ console.error("Dashboard", e); }
@@ -7859,51 +9267,15 @@ async function checkConversationUpdates(){
 }
 
 
-async function deleteRule(id){
-
-    if(!confirm("Delete this automation rule?"))
-        return;
-
-    try{
-
-        const response = await fetch(
-            `/automation/rules/${id}`,
-            {
-                method:"DELETE"
-            }
-        );
-
-        const data = await response.json();
-
-        if(data.status=="success"){
-
-            alert("Rule deleted successfully.");
-
-            loadAutomationRules();
-
-        }else{
-
-            alert("Unable to delete rule.");
-
-        }
-
-    }catch(err){
-
-        console.error(err);
-
-        alert("Delete failed.");
-
-    }
-
-}
-
 async function toggleRule(id, enabled){
 
     try{
 
+        const userId = document.getElementById("userId").value;
+
         const response = await fetch(
 
-            `/automation/rules/${id}/enabled`,
+            `/automation/rules/${userId}/${id}/enabled`,
 
             {
 
@@ -7969,9 +9341,11 @@ async function deleteRule(id){
 
     try{
 
+        const userId = document.getElementById("userId").value;
+
         const response = await fetch(
 
-            `/automation/rules/${id}`,
+            `/automation/rules/${userId}/${id}`,
 
             {
 

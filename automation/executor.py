@@ -1,4 +1,9 @@
+import logging
+
 from automation.actions.registry import ACTION_REGISTRY
+
+logger = logging.getLogger(__name__)
+
 
 def execute_actions(rule, matched_customers):
     """
@@ -30,13 +35,13 @@ def execute_actions(rule, matched_customers):
             #
             action_name = action.get("type")
 
-        print(f"\nExecuting action : {action_name}")
+        logger.debug("Executing action : %s", action_name)
 
         executor = ACTION_REGISTRY.get(action_name)
 
         if executor is None:
 
-            print(f"Unknown action : {action_name}")
+            logger.warning("Unknown action : %s", action_name)
 
             continue
 
@@ -55,9 +60,8 @@ def execute_actions(rule, matched_customers):
                     rule
                 )
 
-            except Exception as ex:
+            except Exception:
 
-                print(
-                    f"Action failed for "
-                    f"{customer['phone']} : {ex}"
+                logger.exception(
+                    "Action failed for %s", customer["phone"]
                 )

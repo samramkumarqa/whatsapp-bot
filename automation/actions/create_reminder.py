@@ -1,4 +1,8 @@
+import logging
+
 from reminder_manager import upsert_reminder
+
+logger = logging.getLogger(__name__)
 
 
 def execute(customer, params, rule=None):
@@ -28,4 +32,4 @@ def execute(customer, params, rule=None):
         source_rule_name=rule.get("name") if rule else None
     )
 
-    print(f"✓ Reminder created for {customer_phone}")
+    logger.debug("Reminder created for %s", customer_phone)

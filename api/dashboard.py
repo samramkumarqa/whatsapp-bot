@@ -9,6 +9,9 @@ from analytics.analytics import (
     get_sales_funnel,
     get_lead_score_dashboard,
 )
+from analytics.revenue_stats import get_won_revenue_trend
+from automation.rule_stats import get_rule_performance
+from crm.customer_mapping import get_business_id, get_business_phone_by_user
 
 # NOTE: these routes are `async def` but the functions they call (get_dashboard,
 # get_stats, etc.) are synchronous sqlite3 code. Calling them directly would
@@ -71,16 +74,85 @@ async def lead_score_dashboard(user_id: str):
     }
 
 @router.get("/dashboard/analytics/{user_id}")
-def dashboard_analytics(user_id: str):
+async def dashboard_analytics(user_id: str):
+
+    # This route used to be a plain `def` doing blocking sqlite3 calls
+    # directly on FastAPI's event loop - every other route in this file
+    # routes its DB work through run_in_threadpool (see the module note
+    # above), this one just hadn't. Wrapping the whole body here rather
+    # than converting every fetchall_* call individually, since it's all
+    # one synchronous unit of work today.
+    return await run_in_threadpool(_build_dashboard_analytics, user_id)
+
+
+def _build_dashboard_analytics(user_id: str):
+
+    # ----------------------------------------
+    # Multi-tenancy: every query below used to run with no business
+    # filter at all, so every business's leads/opportunities/messages
+    # were mixed into one dashboard regardless of which user_id asked
+    # for it. business_id/business_phone resolve which rows actually
+    # belong to this business - customer_phones is the resulting scope
+    # for leads/opportunities (neither table has a business column of
+    # its own, only customer_mapping does - see crm/lead_manager.py and
+    # crm/opportunity_manager.py), and business_id doubles as the
+    # "{business_id}:{customer_phone}" prefix conversations.phone is
+    # stored under (see analytics/customer_stats.py for the same
+    # pattern).
+    # ----------------------------------------
+
+    business_id = get_business_id(user_id)
+    business_phone = get_business_phone_by_user(user_id)
+
+    if not business_id or not business_phone:
+
+        return {
+
+            "lead_distribution": {"Hot": 0, "Warm": 0, "Cold": 0},
+
+            "status_distribution": {},
+
+            "pipeline": {},
+
+            "message_trend": [],
+
+            "revenue_trend": get_won_revenue_trend(user_id, months=6),
+
+            "rule_performance": []
+
+        }
+
+    customer_phone_rows = fetchall_crm(
+        """
+        SELECT customer_phone
+        FROM customer_mapping
+        WHERE business_phone = ?
+        """,
+        (business_phone,)
+    )
+
+    customer_phones = [row["customer_phone"] for row in customer_phone_rows]
 
     # ----------------------------------------
     # Lead Score Distribution
     # ----------------------------------------
 
-    lead_rows = fetchall_crm("""
-        SELECT lead_score, status
-        FROM leads
-    """)
+    if customer_phones:
+
+        placeholders = ",".join("?" for _ in customer_phones)
+
+        lead_rows = fetchall_crm(
+            f"""
+            SELECT lead_score, status
+            FROM leads
+            WHERE customer_phone IN ({placeholders})
+            """,
+            customer_phones
+        )
+
+    else:
+
+        lead_rows = []
 
     hot = 0
     warm = 0
@@ -115,15 +187,23 @@ def dashboard_analytics(user_id: str):
     # Opportunity Pipeline
     # ----------------------------------------
 
-    opportunity_rows = fetchall_crm("""
+    if customer_phones:
 
-        SELECT
-            status,
-            COUNT(*) AS total
-        FROM opportunities
-        GROUP BY status
+        opportunity_rows = fetchall_crm(
+            f"""
+            SELECT
+                status,
+                COUNT(*) AS total
+            FROM opportunities
+            WHERE customer_phone IN ({placeholders})
+            GROUP BY status
+            """,
+            customer_phones
+        )
 
-    """)
+    else:
+
+        opportunity_rows = []
 
     pipeline = {}
 
@@ -135,16 +215,18 @@ def dashboard_analytics(user_id: str):
     # Message Trend (Last 7 Days)
     # ----------------------------------------
 
-    message_rows = fetchall_conversation("""
-
+    message_rows = fetchall_conversation(
+        """
         SELECT
             DATE(created_at) AS day,
             COUNT(*) AS total
         FROM conversations
+        WHERE phone LIKE ?
         GROUP BY DATE(created_at)
         ORDER BY DATE(created_at)
-
-    """)
+        """,
+        (f"{business_id}:%",)
+    )
 
     message_trend = []
 
@@ -155,6 +237,18 @@ def dashboard_analytics(user_id: str):
             "count": row["total"]
         })
 
+    # ----------------------------------------
+    # Won Revenue Trend (last 6 months)
+    # ----------------------------------------
+
+    revenue_trend = get_won_revenue_trend(user_id, months=6)
+
+    # ----------------------------------------
+    # Automation Rule Performance
+    # ----------------------------------------
+
+    rule_performance = get_rule_performance(business_id)
+
     return {
 
         "lead_distribution": lead_distribution,
@@ -163,6 +257,10 @@ def dashboard_analytics(user_id: str):
 
         "pipeline": pipeline,
 
-        "message_trend": message_trend
+        "message_trend": message_trend,
+
+        "revenue_trend": revenue_trend,
+
+        "rule_performance": rule_performance
 
     }

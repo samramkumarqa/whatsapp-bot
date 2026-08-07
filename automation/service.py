@@ -25,10 +25,11 @@ def initialize_scheduler():
     )
 
     # ⭐ Automation Engine
+    # add_job() already logs "Registered interval job: automation_runner"
+    # (see automation/scheduler.py) - no need to say it again here.
     add_job(
         run_automation,
         interval_minutes=1,
         job_id="automation_runner"
     )
-    print("Automation Runner job registered")
     start_scheduler()

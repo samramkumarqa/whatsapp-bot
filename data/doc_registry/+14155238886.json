@@ -1,6 +1,98 @@
 {
-  "https://www.solarrun.in": {
-    "hash": "3821e543121ef2a9fb33da307458e091",
+  "https://www.tatapower.com": {
+    "hash": "c0ed8cc2aba852521a206504064e3312",
+    "chunk_count": 4
+  },
+  "https://www.tatapower.com/our-legacy": {
+    "hash": "11877111e55f7af0c134bffc2a359743",
     "chunk_count": 5
+  },
+  "https://www.tatapower.com/our-legacy/our-story": {
+    "hash": "ac4ecca10a03ec567305cf6970615017",
+    "chunk_count": 14
+  },
+  "https://www.tatapower.com/our-legacy/our-vision": {
+    "hash": "ec4402c315c80b1dacea8d7e7ca1e7c2",
+    "chunk_count": 3
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership": {
+    "hash": "fe7ee1a9ca0f7be8c0ed5d3142a1659e",
+    "chunk_count": 1
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/renewables-leadership": {
+    "hash": "94de4f9977d39816d0c88c270331d5a6",
+    "chunk_count": 1
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/mr-natarajan-chandrasekaran": {
+    "hash": "30dff821e6f23fc0ff8ada228b75e4d3",
+    "chunk_count": 5
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/ms-anjali-bansal": {
+    "hash": "15391de8e51d250e6c64e448460fb8d2",
+    "chunk_count": 4
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/ms-vibha-padalkar": {
+    "hash": "31901f93ff0bb06eafa5367c99910f07",
+    "chunk_count": 2
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/mr-sanjay-v-bhandarkar": {
+    "hash": "6b5ff3f8559042a4704895b2e15d5610",
+    "chunk_count": 4
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/mr-saurabh-agrawal": {
+    "hash": "4624495f0d1b86afaef4a6659407d0d1",
+    "chunk_count": 3
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/mr-ashok-sinha": {
+    "hash": "2a15a16d5378bca95847a27c15cd35e4",
+    "chunk_count": 3
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/mr-rajiv-mehrishi": {
+    "hash": "9bdfb8f8a78d4be34f89e0074a57dafa",
+    "chunk_count": 4
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/mr-tarun-bajaj": {
+    "hash": "cf788049ea9004803ee6b61227617a53",
+    "chunk_count": 5
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/dr-praveer-sinha": {
+    "hash": "98f4c8b4e5083f010da63d5ae25fdf7c",
+    "chunk_count": 3
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/mr-sanjeev-churiwala": {
+    "hash": "d8560aabe3feb5075a6932833d7a7f78",
+    "chunk_count": 4
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/mr-vispi-s-patel": {
+    "hash": "5fff577a62a3e5b1f99a64ce18714e98",
+    "chunk_count": 2
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/mr-sanjay-banga": {
+    "hash": "1bb7a981625a473749afcafef5d85898",
+    "chunk_count": 3
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/mr-himal-tewari": {
+    "hash": "bbda432c36f61d03591830d07660e32a",
+    "chunk_count": 2
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/mr-ajay-kapoor": {
+    "hash": "d6b6c997f53cddf8c36b2d2cd953945d",
+    "chunk_count": 5
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/mrs-anjali-kulkarni": {
+    "hash": "7dcec03e6db3069a440d459faa1216a5",
+    "chunk_count": 1
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/mr-edward-winter": {
+    "hash": "f1da9ee4cfcb07e72f10edbf7eb47d98",
+    "chunk_count": 3
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/mr-seethapathy-chander": {
+    "hash": "c81497c56b1a228121a58334944a87cc",
+    "chunk_count": 3
+  },
+  "https://www.tatapower.com/our-legacy/our-leadership/ms-nishi-vasudeva": {
+    "hash": "8cc6e0bee90731dd67e3c7aa34a26253",
+    "chunk_count": 3
   }
 }

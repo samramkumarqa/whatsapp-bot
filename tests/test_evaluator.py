@@ -160,3 +160,33 @@ def test_evaluate_rule_no_matches_returns_empty_list(isolated_db):
     }
 
     assert evaluate_rule(rule, "biz4") == []
+
+
+def test_evaluate_rule_accepts_a_prefetched_customer_list(isolated_db, monkeypatch):
+    # automation/runner.py fetches get_customer_stats() once per business
+    # and reuses it across every one of that business's rules, instead of
+    # evaluate_rule() re-fetching it internally for every single rule -
+    # passing `customers` explicitly must skip the internal fetch
+    # entirely (not just override its result).
+    _seed_customer("biz5", "biz5", "+10000000005", "+19990000008", lead_score=90, status="Qualified")
+
+    def _fail_if_called(user_id):
+        raise AssertionError(
+            "get_customer_stats() should not be called when customers "
+            "is passed explicitly"
+        )
+
+    monkeypatch.setattr(
+        "automation.evaluator.get_customer_stats", _fail_if_called
+    )
+
+    prefetched = [{"phone": "+19990000008", "lead_score": 90, "status": "Qualified"}]
+
+    rule = {
+        "name": "prefetched",
+        "condition_json": [{"field": "lead_score", "operator": ">=", "value": 80}],
+    }
+
+    matched = evaluate_rule(rule, "biz5", customers=prefetched)
+
+    assert [c["phone"] for c in matched] == ["+19990000008"]

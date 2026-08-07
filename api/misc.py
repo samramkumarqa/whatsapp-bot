@@ -45,6 +45,14 @@ async def settings_page(request: Request):
         name="settings.html"
     )
 
+@router.get("/businesses")
+async def businesses_page(request: Request):
+
+    return templates.TemplateResponse(
+        request=request,
+        name="businesses.html"
+    )
+
 @router.get("/health")
 async def health_check():
 

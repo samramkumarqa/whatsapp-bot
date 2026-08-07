@@ -101,6 +101,7 @@ def get_customer_stats(user_id):
     ]
 
     name_by_phone = {}
+    lead_by_phone = {}
 
     if customer_phones:
 
@@ -119,6 +120,57 @@ def get_customer_stats(user_id):
             r[0]: r[1] for r in name_cursor.fetchall()
         }
 
+        # Batch-fetch lead info (score/status/intent/...) for every
+        # customer in this business in one query, instead of one query per
+        # customer inside the loop below (was an N+1 pattern - the
+        # unread/name batching above already got this treatment, this one
+        # slipped through).
+        lead_cursor = crm_conn.execute(
+            f"""
+            SELECT
+                customer_phone,
+                lead_score,
+                status,
+                intent,
+                buying_stage,
+                sentiment,
+                priority,
+                confidence,
+                ai_paused
+            FROM leads
+            WHERE customer_phone IN ({placeholders})
+            """,
+            customer_phones
+        )
+
+        lead_by_phone = {
+            r[0]: r for r in lead_cursor.fetchall()
+        }
+
+    # Batch-fetch each customer's single latest message in one query -
+    # MAX(id) is used as "latest" (an autoincrement id only ever grows with
+    # insert order, so it's equivalent to ORDER BY created_at DESC LIMIT 1
+    # here but doesn't need a per-row subquery) instead of one query per
+    # customer inside the loop below (was also an N+1 pattern).
+    last_message_cursor = conv_conn.execute(
+        """
+        SELECT c.phone, c.content
+        FROM conversations c
+        INNER JOIN (
+            SELECT phone, MAX(id) as max_id
+            FROM conversations
+            WHERE phone LIKE ?
+            GROUP BY phone
+        ) latest
+        ON c.phone = latest.phone AND c.id = latest.max_id
+        """,
+        (f"{business_id}:%",)
+    )
+
+    last_message_by_conversation = {
+        r[0]: r[1] for r in last_message_cursor.fetchall()
+    }
+
     customers = []
 
     for row in rows:
@@ -133,52 +185,24 @@ def get_customer_stats(user_id):
 
         unread_count = unread_by_conversation.get(conversation_id, 0)
 
-        last_message_cursor = conv_conn.execute(
-            """
-            SELECT content
-            FROM conversations
-            WHERE phone = ?
-            ORDER BY created_at DESC
-            LIMIT 1
-            """,
-            (conversation_id,)
+        last_message = last_message_by_conversation.get(
+            conversation_id, ""
         )
 
-        last_message_row = last_message_cursor.fetchone()
-
-        last_message = (
-            last_message_row[0]
-            if last_message_row
-            else ""
-        )
-
-        lead_cursor = crm_conn.execute(
-            """
-            SELECT
-                lead_score,
-                status,
-                intent,
-                buying_stage,
-                sentiment,
-                priority,
-                confidence
-            FROM leads
-            WHERE customer_phone = ?
-            """,
-            (customer_phone,)
-        )
-
-        lead_row = lead_cursor.fetchone()
+        lead_row = lead_by_phone.get(customer_phone)
 
         if lead_row:
 
-            lead_score = lead_row[0]
-            lead_status = lead_row[1]
-            intent = lead_row[2]
-            buying_stage = lead_row[3]
-            sentiment = lead_row[4]
-            priority = lead_row[5]
-            confidence = lead_row[6]
+            # lead_row columns: customer_phone, lead_score, status, intent,
+            # buying_stage, sentiment, priority, confidence, ai_paused
+            lead_score = lead_row[1]
+            lead_status = lead_row[2]
+            intent = lead_row[3]
+            buying_stage = lead_row[4]
+            sentiment = lead_row[5]
+            priority = lead_row[6]
+            confidence = lead_row[7]
+            ai_paused = bool(lead_row[8])
 
         else:
 
@@ -189,6 +213,7 @@ def get_customer_stats(user_id):
             sentiment = ""
             priority = ""
             confidence = 0
+            ai_paused = False
 
         try:
 
@@ -233,6 +258,8 @@ def get_customer_stats(user_id):
             "last_seen_days": last_seen_days,
 
             "confidence": confidence,
+
+            "ai_paused": ai_paused,
 
         })
 
@@ -330,7 +357,8 @@ def get_conversation(
         """
         SELECT role,
                content,
-               created_at
+               created_at,
+               sender
         FROM conversations
         WHERE phone = ?
         ORDER BY id
@@ -346,13 +374,42 @@ def get_conversation(
         {
             "role": row[0],
             "content": row[1],
-            "created_at": row[2]
+            "created_at": row[2],
+            "sender": row[3]
         }
         for row in rows
     ]
 
 
 def get_dashboard_metrics(user_id):
+    """
+    Single source of truth for the 4 header stat cards (Customers,
+    Messages, Qualified Leads, Open Opportunities) on the dashboard.
+
+    Previously this and templates/dashboard.html's loadCustomers() each
+    computed customer/message counts independently from the same
+    conversations rows - two DB round trips producing numbers that happen
+    to agree today only because both used an identical (business_id:%)
+    filter, but with no shared source of truth to guarantee that stays
+    true. loadCustomers() has been trimmed back to only compute what only
+    it can (qualified-lead count, from the customer list it already has to
+    fetch to render the inbox); this function now owns customers/messages/
+    open_opportunities so there's exactly one place each is computed.
+
+    "today_messages" is kept even though no element on dashboard.html
+    displays it (#todayMessages doesn't exist there) - ai/manager_assistant.py
+    reads metrics['today_messages'] when answering "what are my metrics"
+    style questions, so removing it would break that feature.
+
+    "open_opportunities" is new: the header's 💰 stat used to be
+    customers.filter(lead_score >= 60).length, a heuristic that has
+    nothing to do with the actual opportunities table (the same one the
+    Opportunity Pipeline chart and per-customer Opportunity Pipeline card
+    read from) - it could over- or under-count real tracked opportunities
+    depending on where lead scores happen to land. This counts real open
+    rows from that table instead, so the header number matches what
+    "Opportunities" means everywhere else in the app.
+    """
 
     business_id = get_business_id(user_id)
 
@@ -360,21 +417,22 @@ def get_dashboard_metrics(user_id):
         return {
             "customers": 0,
             "messages": 0,
-            "today_messages": 0
+            "today_messages": 0,
+            "open_opportunities": 0
         }
 
-    conn = get_conversation_connection()
+    conv_conn = get_conversation_connection()
 
-    customer_count = conn.execute(
+    customer_rows = conv_conn.execute(
         """
-        SELECT COUNT(DISTINCT phone)
+        SELECT DISTINCT phone
         FROM conversations
         WHERE phone LIKE ?
         """,
         (f"{business_id}:%",)
-    ).fetchone()[0]
+    ).fetchall()
 
-    message_count = conn.execute(
+    message_count = conv_conn.execute(
         """
         SELECT COUNT(*)
         FROM conversations
@@ -383,7 +441,7 @@ def get_dashboard_metrics(user_id):
         (f"{business_id}:%",)
     ).fetchone()[0]
 
-    today_count = conn.execute(
+    today_count = conv_conn.execute(
         """
         SELECT COUNT(*)
         FROM conversations
@@ -393,12 +451,38 @@ def get_dashboard_metrics(user_id):
         (f"{business_id}:%",)
     ).fetchone()[0]
 
-    conn.close()
+    conv_conn.close()
+
+    customer_phones = [
+        row[0].split(":")[1] if ":" in row[0] else row[0]
+        for row in customer_rows
+    ]
+
+    open_opportunities = 0
+
+    if customer_phones:
+
+        crm_conn = get_crm_connection()
+
+        placeholders = ",".join("?" for _ in customer_phones)
+
+        open_opportunities = crm_conn.execute(
+            f"""
+            SELECT COUNT(*)
+            FROM opportunities
+            WHERE status = 'Open'
+            AND customer_phone IN ({placeholders})
+            """,
+            customer_phones
+        ).fetchone()[0]
+
+        crm_conn.close()
 
     return {
-        "customers": customer_count,
+        "customers": len(customer_phones),
         "messages": message_count,
-        "today_messages": today_count
+        "today_messages": today_count,
+        "open_opportunities": open_opportunities
     }
 
 

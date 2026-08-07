@@ -13,6 +13,8 @@ from crm.lead_manager import (
     get_lead,
     get_lead_timeline,
     update_lead,
+    resume_ai,
+    pause_ai,
 )
 
 from crm.opportunity_manager import (
@@ -28,19 +30,63 @@ from crm.activity_manager import (
 from timeline_manager import get_customer_timeline
 from crm.customer_mapping import get_business_id, set_customer_name
 from unread_manager import clear_unread
+from conversations import add_message
+from whatsapp import send_message
 
 router = APIRouter()
 
-from pydantic import BaseModel
+from typing import Literal
 
+from pydantic import BaseModel, Field, field_validator
+
+# Mirrors the client-side rules in templates/dashboard.html
+# (sanitizeFreeTextInput/sanitizeNameInput/validate*()) - enforced here too
+# since these routes can be called directly, bypassing the UI.
 class LeadRequest(BaseModel):
     customer_phone: str
-    status: str
-    notes: str
+
+    # Matches the fixed set of options in the Status <select> - anything
+    # else is rejected rather than silently stored.
+    status: Literal[
+        "New", "Interested", "Qualified",
+        "Proposal Sent", "Closed Won", "Closed Lost"
+    ]
+
+    # Free text (full sentences) - only angle brackets are disallowed, as
+    # a light markup-injection guard.
+    notes: str = Field(default="", max_length=1000, pattern=r"^[^<>]*$")
 
 class CustomerNameRequest(BaseModel):
     customer_phone: str
-    name: str
+
+    # Letters, numbers, spaces, and common name punctuation (& - ' . ,) -
+    # empty is allowed (clears the name back to showing the phone number).
+    name: str = Field(
+        default="", max_length=100,
+        pattern=r"^[a-zA-Z0-9À-ÿ &'\-.,]*$"
+    )
+
+
+class ManualReplyRequest(BaseModel):
+
+    # No angle-bracket restriction here unlike LeadRequest/CustomerNameRequest
+    # above - this is real chat content sent to a WhatsApp customer, not
+    # structured CRM data, and the dashboard already safely HTML-escapes
+    # it before rendering (see renderMarkdownBody() in dashboard.html,
+    # same escaping AI replies go through). 4096 matches WhatsApp's own
+    # text message length limit.
+    message: str = Field(min_length=1, max_length=4096)
+
+    @field_validator("message")
+    @classmethod
+    def require_non_blank_message(cls, value):
+
+        stripped = value.strip()
+
+        if not stripped:
+            raise ValueError("Message cannot be empty.")
+
+        return stripped
 
 
 @router.get("/customer-details/{user_id}")
@@ -97,6 +143,64 @@ async def conversation_view(
             user_id,
             customer_phone
         )
+    }
+
+
+@router.post("/conversation/{user_id}/{customer_phone}/reply")
+async def send_manual_reply(
+    user_id: str,
+    customer_phone: str,
+    request: ManualReplyRequest
+):
+    """
+    Sends a real WhatsApp message on the business's behalf from the
+    dashboard's reply box - the "close the loop" complement to human
+    handoff (see crm/lead_manager.py's pause_ai() and ai/handoff.py).
+
+    The message is sent via Twilio first, and only saved/logged/paused
+    afterward - if the send itself fails (bad number, outside the 24h
+    session window without an approved template, Twilio error), nothing
+    gets written, so the transcript never shows a message that was never
+    actually delivered.
+
+    Sending a manual reply always (re)pauses the AI for this customer
+    afterward, even if it wasn't already paused - once a team member has
+    stepped in, the bot shouldn't jump back in and answer the customer's
+    next message on top of what a human just said. A team member resumes
+    the AI explicitly via the Customer Info panel's "Resume AI" button
+    when they're done.
+    """
+
+    business_id = await run_in_threadpool(get_business_id, user_id)
+
+    conversation_id = f"{business_id}:{customer_phone}"
+
+    await send_message(customer_phone, request.message)
+
+    await run_in_threadpool(
+        add_message,
+        conversation_id,
+        "assistant",
+        request.message,
+        "Manual"
+    )
+
+    await run_in_threadpool(
+        pause_ai,
+        customer_phone,
+        "Team member sent a manual reply"
+    )
+
+    await run_in_threadpool(
+        add_activity,
+        customer_phone,
+        "Manual",
+        "Manual reply sent",
+        request.message
+    )
+
+    return {
+        "status": "success"
     }
 
 
@@ -177,6 +281,19 @@ async def save_lead(request: LeadRequest):
         "message": "Lead updated successfully",
         "lead": await run_in_threadpool(get_lead, request.customer_phone)
     }
+
+@router.post("/lead/{customer_phone}/resume-ai")
+async def resume_ai_route(customer_phone: str):
+
+    # See crm/lead_manager.py's pause_ai()/resume_ai() and
+    # ai/handoff.py - called from the Customer Info panel's "Resume AI"
+    # button once a team member has picked up a handed-off conversation.
+    await run_in_threadpool(resume_ai, customer_phone)
+
+    return {
+        "status": "success"
+    }
+
 
 @router.get("/lead-timeline/{customer_phone}")
 async def lead_timeline(customer_phone: str):

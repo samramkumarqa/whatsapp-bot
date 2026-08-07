@@ -1,8 +1,11 @@
 import json
+import logging
 
-from database.db import get_conversation_connection
+from database.db import get_conversation_connection, get_crm_connection
 
 DB_PATH = "conversations.db"
+
+logger = logging.getLogger(__name__)
 
 
 def get_connection():
@@ -39,23 +42,117 @@ def init_automation_db():
     )
     """)
 
+    # Multi-tenancy: automation rules used to be entirely global - every
+    # business shared the same 5 rule slots and the same rule list. This
+    # column lets rules be scoped per business (see automation/manager.py,
+    # which the create/list/update/delete API routes actually use).
+    existing_columns = {
+        row[1] for row in
+        conn.execute("PRAGMA table_info(automation_rules)").fetchall()
+    }
+
+    if "business_id" not in existing_columns:
+
+        conn.execute(
+            "ALTER TABLE automation_rules ADD COLUMN business_id TEXT"
+        )
+
+        _backfill_business_id(conn)
+
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_automation_rules_business_id "
+        "ON automation_rules(business_id)"
+    )
+
     conn.commit()
     conn.close()
 
-def get_all_rules():
+
+def _backfill_business_id(conn):
     """
-    Returns all automation rules.
+    One-time backfill for rules created before business_id existed (every
+    rule in the live database as of this migration). Only backfills when
+    there's exactly one distinct, known business_id registered in
+    customer_numbers (data/app.db - a different database file, hence the
+    separate connection/query rather than a SQL subquery) - with more than
+    one candidate there's no way to know which business pre-existing rules
+    actually belong to, so they're left NULL (invisible to every business
+    rather than silently misattributed to the wrong one) and logged for
+    manual follow-up.
+    """
+
+    crm_conn = get_crm_connection()
+
+    business_ids = {
+        row[0] for row in crm_conn.execute(
+            "SELECT DISTINCT business_id FROM customer_numbers "
+            "WHERE business_id IS NOT NULL"
+        ).fetchall()
+    }
+
+    crm_conn.close()
+
+    orphaned_count = conn.execute(
+        "SELECT COUNT(*) FROM automation_rules WHERE business_id IS NULL"
+    ).fetchone()[0]
+
+    if orphaned_count == 0:
+        return
+
+    if len(business_ids) != 1:
+        logger.warning(
+            "Skipping automation_rules.business_id backfill: found %d "
+            "orphaned rule(s) but %d candidate business_id(s) in "
+            "customer_numbers (need exactly 1 to backfill safely).",
+            orphaned_count, len(business_ids)
+        )
+        return
+
+    only_business_id = next(iter(business_ids))
+
+    conn.execute(
+        "UPDATE automation_rules SET business_id = ? WHERE business_id IS NULL",
+        (only_business_id,)
+    )
+
+    logger.info(
+        "Backfilled %d automation_rules row(s) to business_id=%r",
+        orphaned_count, only_business_id
+    )
+
+
+def get_all_rules(business_id=None):
+    """
+    Returns automation rules, filtered to one business when business_id is
+    given. automation/runner.py passes it explicitly, looping over each
+    active business in turn - the old behavior (no filter, every rule from
+    every business) is kept as the default only for backward compatibility
+    with existing direct callers/tests that don't pass one.
     """
 
     conn = get_connection()
 
     cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT *
-        FROM automation_rules
-        ORDER BY id DESC
-    """)
+    if business_id is not None:
+
+        cursor.execute(
+            """
+            SELECT *
+            FROM automation_rules
+            WHERE business_id = ?
+            ORDER BY id DESC
+            """,
+            (business_id,)
+        )
+
+    else:
+
+        cursor.execute("""
+            SELECT *
+            FROM automation_rules
+            ORDER BY id DESC
+        """)
 
     rows = cursor.fetchall()
 
@@ -86,7 +183,8 @@ def save_rule(
     trigger_type,
     conditions,
     actions,
-    enabled=True
+    enabled=True,
+    business_id=None
 ):
     """
     Save a new automation rule.
@@ -105,10 +203,11 @@ def save_rule(
             enabled,
             trigger_type,
             condition_json,
-            action_json
+            action_json,
+            business_id
         )
         VALUES
-        (?, ?, ?, ?, ?, ?)
+        (?, ?, ?, ?, ?, ?, ?)
         """,
         (
             name,
@@ -116,7 +215,8 @@ def save_rule(
             1 if enabled else 0,
             trigger_type,
             json.dumps(conditions),
-            json.dumps(actions)
+            json.dumps(actions),
+            business_id
         )
     )
 
@@ -143,9 +243,10 @@ def create_rule(rule: dict):
             enabled,
             trigger_type,
             condition_json,
-            action_json
+            action_json,
+            business_id
         )
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
         """,
         (
             rule["name"],
@@ -153,7 +254,8 @@ def create_rule(rule: dict):
             1 if rule.get("enabled", True) else 0,
             rule["trigger_type"],
             json.dumps(rule["condition_json"]),
-            json.dumps(rule["action_json"])
+            json.dumps(rule["action_json"]),
+            rule.get("business_id")
         )
     )
 

@@ -390,6 +390,23 @@ def test_customer_to_business_mapping(isolated_db):
     assert get_business_phone_by_customer("+19998887777") == "+10000000001"
     assert get_customers("biz1") == ["+19998887777"]
 
+
+def test_get_customers_returns_its_connection_to_the_pool(isolated_db):
+    """
+    Regression test: get_customers() used to have `conn.close()` written
+    after its `return` statement, making it unreachable - every call
+    permanently checked a connection out of database/db.py's
+    5-connection pool and never returned it. Calling it more times than
+    the pool size used to deadlock on the 6th call (_ConnectionPool.get()
+    blocks once every connection is checked out and none are free) - if
+    this test hangs, the leak is back.
+    """
+
+    save_customer_number("biz1", "+10000000001", "biz1")
+
+    for _ in range(20):
+        get_customers("biz1")
+
     delete_mapping("+19998887777")
     assert get_business_phone_by_customer("+19998887777") is None
 

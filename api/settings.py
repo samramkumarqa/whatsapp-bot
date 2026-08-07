@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from fastapi.concurrency import run_in_threadpool
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from database.db import get_conversation_connection
 from crm.customer_mapping import (
     save_business_settings,
@@ -14,13 +14,28 @@ from conversations import get_last_customer_update
 
 router = APIRouter()
 
+# Mirrors the client-side rules in templates/settings.html (sanitize*Input/
+# validate*() there) - the server enforces the same limits independently
+# since these routes can be called directly, bypassing any UI checks.
 class BusinessSettingsRequest(
     BaseModel
 ):
-    user_id: str
-    business_name: str
-    welcome_message: str
-    ai_instructions: str
+    user_id: str = Field(
+        min_length=7, max_length=16, pattern=r"^\+?[0-9]{7,15}$"
+    )
+
+    # Letters, numbers, spaces, and common business-name punctuation
+    # (& - ' . ,) - same allowlist as the Business Name field's
+    # sanitizeBusinessNameInput() on the settings page.
+    business_name: str = Field(
+        min_length=1, max_length=100,
+        pattern=r"^[a-zA-Z0-9À-ÿ &'\-.,]+$"
+    )
+
+    # Free text (full sentences, punctuation, emoji all allowed) - only
+    # angle brackets are disallowed, as a light markup-injection guard.
+    welcome_message: str = Field(default="", max_length=300, pattern=r"^[^<>]*$")
+    ai_instructions: str = Field(default="", max_length=1000, pattern=r"^[^<>]*$")
 
 class CustomerNumberRequest(
     BaseModel

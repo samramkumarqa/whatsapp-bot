@@ -8,24 +8,18 @@ from urllib.parse import (
 
 
 def is_valid_url(url):
+    """
+    True if this looks like a real page worth crawling - not a login/
+    cart/admin/search/legal URL or a non-HTML asset. Delegates to
+    site_discovery.is_content_url() so the link-crawl fallback and the
+    sitemap path agree on what counts as "content" for a general business
+    site (this used to have its own narrower, docs-site-specific list -
+    see site_discovery.py for why that was replaced).
+    """
 
-    blocked_patterns = [
-        "/tag/",
-        "/login",
-        "/logout",
-        "/signup",
-        "/privacy",
-        "/terms",
-        "/account",
-        "/search",
-        "mailto:",
-        "javascript:"
-    ]
+    from site_discovery import is_content_url
 
-    return not any(
-        pattern in url.lower()
-        for pattern in blocked_patterns
-    )
+    return is_content_url(url)
 
 
 def discover_links(
@@ -47,28 +41,6 @@ def discover_links(
     domain = urlparse(
         start_url
     ).netloc
-
-    ALLOWED_PATHS = [
-        "/documentation/",
-        "/webdriver/",
-        "/api/",
-        "/docs/"
-    ]
-
-    BLOCKED_PATHS = [
-        "/ja/",
-        "/zh-cn/",
-        "/pt-br/",
-        "/es/",
-        "/fr/",
-        "/events",
-        "/sponsor",
-        "/sponsors",
-        "/project",
-        "/history",
-        "/about",
-        "/ecosystem"
-    ]
 
     while queue and len(visited) < max_pages:
 
@@ -131,22 +103,9 @@ def discover_links(
                 if parsed.netloc != domain:
                     continue
 
-                # Metadata filtering
+                # Metadata filtering (login/cart/admin/search/legal/
+                # asset URLs - see site_discovery.is_content_url)
                 if not is_valid_url(href):
-                    continue
-
-                # Block unwanted sections
-                if any(
-                    blocked in href
-                    for blocked in BLOCKED_PATHS
-                ):
-                    continue
-
-                # Documentation-only mode
-                if not any(
-                    allowed in href
-                    for allowed in ALLOWED_PATHS
-                ):
                     continue
 
                 if (

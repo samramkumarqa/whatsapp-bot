@@ -1,3 +1,5 @@
+import logging
+
 from groq import Groq
 import json
 
@@ -6,6 +8,8 @@ from config import GROQ_API_KEY
 client = Groq(
     api_key=GROQ_API_KEY
 )
+
+logger = logging.getLogger(__name__)
 
 LEAD_STATUSES = [
     "New",
@@ -114,9 +118,9 @@ Example:
             "reason": reason
         }
 
-    except Exception as e:
+    except Exception:
 
-        print(f"Lead AI Error: {e}")
+        logger.exception("Lead AI error")
 
         return {
             "status": "New",

@@ -19,6 +19,24 @@ def init_db():
     )
     """)
 
+    # Distinguishes a "role=assistant" message actually written by the AI
+    # (sender NULL - the vast majority of rows, before this column
+    # existed) from one a team member sent manually from the dashboard's
+    # reply box (sender='Manual') - see api/customer.py's manual reply
+    # route. "role" alone can't tell them apart since both are stored the
+    # same way (they need to look identical to the LLM as prior assistant
+    # turns), so the dashboard's chat view uses this column instead to
+    # show "You" vs "AI Assistant" on each bubble.
+    existing_columns = {
+        row[1] for row in
+        conn.execute("PRAGMA table_info(conversations)").fetchall()
+    }
+
+    if "sender" not in existing_columns:
+        conn.execute(
+            "ALTER TABLE conversations ADD COLUMN sender TEXT"
+        )
+
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_conversations_phone "
         "ON conversations(phone)"
@@ -28,17 +46,17 @@ def init_db():
     conn.close()
 
 
-def add_message(phone, role, content):
+def add_message(phone, role, content, sender=None):
 
     conn = get_connection()
 
     conn.execute(
         """
         INSERT INTO conversations
-        (phone, role, content)
-        VALUES (?, ?, ?)
+        (phone, role, content, sender)
+        VALUES (?, ?, ?, ?)
         """,
-        (phone, role, content)
+        (phone, role, content, sender)
     )
 
     conn.commit()

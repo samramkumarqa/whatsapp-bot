@@ -36,7 +36,11 @@ DEFAULT_LEAD = {
     "summary": "",
     "ai_summary": "",
 
-    "tags": ""
+    "tags": "",
+
+    "ai_paused": 0,
+    "ai_paused_reason": "",
+    "ai_paused_at": None
 }
 
 def init_leads():
@@ -76,6 +80,31 @@ def init_leads():
         summary TEXT DEFAULT ''
     )
     """)
+
+    # Human handoff: once a customer either explicitly asks for a person
+    # or the AI detects a genuine complaint (Negative sentiment + Complaint
+    # intent - see ai/handoff.py), ai_paused=1 stops api/webhook.py from
+    # auto-replying to that customer's future messages until a human
+    # resumes AI from the dashboard (see pause_ai()/resume_ai() below).
+    existing_lead_columns = {
+        row[1] for row in
+        conn.execute("PRAGMA table_info(leads)").fetchall()
+    }
+
+    if "ai_paused" not in existing_lead_columns:
+        conn.execute(
+            "ALTER TABLE leads ADD COLUMN ai_paused INTEGER DEFAULT 0"
+        )
+
+    if "ai_paused_reason" not in existing_lead_columns:
+        conn.execute(
+            "ALTER TABLE leads ADD COLUMN ai_paused_reason TEXT DEFAULT ''"
+        )
+
+    if "ai_paused_at" not in existing_lead_columns:
+        conn.execute(
+            "ALTER TABLE leads ADD COLUMN ai_paused_at TIMESTAMP"
+        )
 
     # NOTE: also kept in sync with crm/opportunity_manager.py's
     # init_opportunities(), which creates the same table - see the note
@@ -150,6 +179,59 @@ def get_lead(customer_phone):
     return lead
 
 
+def pause_ai(customer_phone, reason):
+    """
+    Marks a customer's AI auto-replies as paused (human handoff) - see
+    api/webhook.py, which checks ai_paused before calling handle_rag() for
+    that customer's future incoming messages. Uses INSERT ... ON CONFLICT
+    rather than a plain UPDATE so this still works for a customer with no
+    existing leads row (e.g. their very first message is the one that
+    triggers an explicit handoff request).
+    """
+
+    conn = get_crm_connection()
+
+    conn.execute(
+        """
+        INSERT INTO leads (customer_phone, ai_paused, ai_paused_reason, ai_paused_at)
+        VALUES (?, 1, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(customer_phone) DO UPDATE SET
+            ai_paused = 1,
+            ai_paused_reason = excluded.ai_paused_reason,
+            ai_paused_at = CURRENT_TIMESTAMP
+        """,
+        (customer_phone, reason)
+    )
+
+    conn.commit()
+    conn.close()
+
+
+def resume_ai(customer_phone):
+    """
+    Clears a human handoff pause, so api/webhook.py resumes auto-replying
+    to this customer's messages. Called from the dashboard's Customer Info
+    panel once a team member has handled the conversation.
+    """
+
+    conn = get_crm_connection()
+
+    conn.execute(
+        """
+        UPDATE leads
+        SET
+            ai_paused = 0,
+            ai_paused_reason = '',
+            ai_paused_at = NULL
+        WHERE customer_phone = ?
+        """,
+        (customer_phone,)
+    )
+
+    conn.commit()
+    conn.close()
+
+
 def update_lead(
     customer_phone,
     status,
@@ -166,9 +248,20 @@ def update_lead(
 
     conn = get_crm_connection()
 
+    # BUG FIX: this used to be "INSERT OR REPLACE INTO leads (...7 columns)".
+    # INSERT OR REPLACE deletes the existing row and inserts a brand new one,
+    # so every column NOT in that 7-column list (intent, buying_stage,
+    # sentiment, objection, priority, probability, next_action,
+    # follow_up_days, ai_summary, tags, summary) silently fell back to its
+    # table DEFAULT every time this ran - i.e. every manual "Save Lead"
+    # click (POST /lead in api/customer.py) wiped out all AI-derived lead
+    # intelligence for that customer, even if the user only changed Status
+    # or Notes. ON CONFLICT DO UPDATE only touches the columns listed in
+    # SET, so the AI-derived fields survive a manual edit; a brand-new
+    # customer_phone still gets the normal column DEFAULTs on first INSERT.
     conn.execute(
         """
-        INSERT OR REPLACE INTO leads
+        INSERT INTO leads
         (
             customer_phone,
             status,
@@ -179,6 +272,13 @@ def update_lead(
             lead_score
         )
         VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(customer_phone) DO UPDATE SET
+            status=excluded.status,
+            notes=excluded.notes,
+            confidence=excluded.confidence,
+            reason=excluded.reason,
+            updated_by=excluded.updated_by,
+            lead_score=excluded.lead_score
         """,
         (
             customer_phone,
