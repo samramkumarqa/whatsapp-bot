@@ -40,10 +40,17 @@ def is_rate_limited(key: str, max_attempts: int, window_seconds: int) -> bool:
     now = time.monotonic()
 
     with _lock:
-        dq = _attempts[key]
+        dq = _attempts.get(key)
+
+        if dq is None:
+            return False
 
         while dq and now - dq[0] > window_seconds:
             dq.popleft()
+
+        if not dq:
+            del _attempts[key]
+            return False
 
         return len(dq) >= max_attempts
 

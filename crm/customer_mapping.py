@@ -74,6 +74,20 @@ def init_customer_mapping():
         "ON customer_mapping(business_phone)"
     )
 
+    # customer_numbers is queried by whatsapp_number on every incoming
+    # webhook message (get_customer_by_number()) and by whatsapp_number
+    # OR owner_whatsapp_number on every business-login attempt
+    # (get_business_by_login_number()) - both hot paths, and both were
+    # running full table scans with no index to support them.
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_customer_numbers_whatsapp_number "
+        "ON customer_numbers(whatsapp_number)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_customer_numbers_owner_whatsapp_number "
+        "ON customer_numbers(owner_whatsapp_number)"
+    )
+
     # customer_name existed in a schema created before this column was
     # added - patch it in for any database created by an older version.
     existing_columns = {

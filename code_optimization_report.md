@@ -106,3 +106,28 @@ Follow-up pass after the business-owner OTP login work (Phase 3 completion) — 
 - `python3 -m pytest tests/ -q` → 315 passed (44 new tests: `test_verify.py`'s 8 fake-Twilio-client tests, plus new coverage in `test_auth.py`, `test_businesses.py`, `test_tenant_isolation.py` for the login-number lookup, tenant-isolation retrofit, and async fixes).
 - `python3 -m py_compile` on every changed/added Python file → clean.
 - Live verification: user registered a new business (`+919962824442`), configured a real `TWILIO_VERIFY_SERVICE_SID`, and successfully logged in end-to-end through `/business-login` → SMS OTP → `/business-login/verify`.
+
+# Round 4 — August 9, 2026
+
+Pre-GitHub-push pass covering everything added since Round 3: the rate-limiting work (`rate_limit.py`, its wiring into `api/auth.py`'s three login-adjacent routes, and the new tests), `render.yaml`, and the env-var-driven DB/vector-store path overrides in `database/db.py` and `config.py`.
+
+## Fixes implemented
+
+**`rate_limit.py`'s `is_rate_limited()` auto-vivified a dict entry for every key it was ever asked about, and never removed expired/emptied ones.** Because it read via `_attempts[key]` (a `defaultdict(deque)`), simply *checking* whether a brand-new IP or phone number was rate-limited created a permanent empty-deque entry for it — and once a key's attempts all aged out of the window, the now-empty deque stayed in the dict forever. Over a long-lived process this grows `_attempts` by roughly one entry per unique visitor/phone number ever seen, unbounded. Fixed by switching to `_attempts.get(key)` (returning `False` immediately with no dict mutation if the key was never recorded), and deleting the dict entry once trimming leaves its deque empty. `record_attempt()` is unaffected — it only ever creates an entry for a key that just made a real attempt, so its growth is already bounded by actual usage, not lookups.
+
+**No index on `customer_numbers.whatsapp_number` / `owner_whatsapp_number`.** Round 3 flagged this same gap and left it on the grounds that the table is small (one row per business, not per customer) — still true, but the two queries that hit it are on genuinely hot paths (`get_customer_by_number()` on every inbound webhook message, `get_business_by_login_number()` on every business-login attempt, called twice per successful login), and the fix is a one-line, zero-risk addition. Added `idx_customer_numbers_whatsapp_number` and `idx_customer_numbers_owner_whatsapp_number` to `init_customer_mapping()`. Applies automatically on next server start (existing `CREATE INDEX IF NOT EXISTS` pattern — no migration script needed).
+
+## Checked and found clean
+
+- `render.yaml` cross-checked against every `os.getenv()` call in `config.py` — all required env vars present, secrets correctly marked `sync: false`, `SESSION_SECRET_KEY` correctly uses `generateValue: true` rather than being left for manual entry.
+- `database/db.py`'s `CRM_DB_PATH`/`CONVERSATION_DB_PATH` and `config.py`'s `CHROMA_DB_PATH` overrides default to the original hardcoded paths when unset, so local dev behavior is unchanged — verified no other code reads these paths independently (would have silently bypassed the override).
+- `api/auth.py`'s rate-limit wiring: all three routes check `is_rate_limited()` before the sensitive work and call `record_attempt()` only after a request that was actually let through, in both the success and failure branch — no path double-counts or skips recording.
+- `templates/login.html`, `templates/business_login.html`, `templates/business_login_verify.html` — all three use the same `{% if error == "ratelimited" %}` pattern with no leftover boolean-style error checks.
+- `tests/conftest.py`'s autouse `_reset_rate_limits` fixture correctly resets `rate_limit`'s module-level state before and after every test — confirmed no cross-test leakage by running the full suite in default (non-`-p no:randomly`) order.
+- No other module-level mutable dict/cache with unbounded-growth risk found elsewhere in the codebase (checked `automation/rule_stats.py`, `unread_manager.py`, and the connection pool in `database/db.py`, all of which key on a small, bounded set of business/customer IDs already present in the DB, not arbitrary attacker-controlled input like an IP or phone number).
+
+## Verification
+
+- `python3 -m pytest -q` → 325 passed, no regressions.
+- `python3 -m py_compile` on `rate_limit.py` and `crm/customer_mapping.py` → clean.
+- New indexes use the existing `CREATE INDEX IF NOT EXISTS` idempotent pattern already proven safe by every other index in this codebase — will apply automatically the next time the local server or production restarts, no manual migration step required.
