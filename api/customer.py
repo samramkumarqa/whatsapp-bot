@@ -1,6 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.concurrency import run_in_threadpool
 
+from auth import enforce_tenant_access, enforce_tenant_access_for_customer
 from analytics.analytics import (
     get_customer_stats,
     search_customers,
@@ -91,8 +92,11 @@ class ManualReplyRequest(BaseModel):
 
 @router.get("/customer-details/{user_id}")
 async def customer_details(
-    user_id: str
+    user_id: str,
+    request: Request
 ):
+
+    enforce_tenant_access(request, user_id)
 
     return {
         "status": "success",
@@ -105,8 +109,12 @@ async def customer_details(
 @router.get("/customer-search/{user_id}")
 async def customer_search(
     user_id: str,
+    request: Request,
     q: str = ""
 ):
+
+    enforce_tenant_access(request, user_id)
+
     # Matches phone number, customer name, or message content anywhere in
     # the conversation history - see analytics/customer_stats.py.
     customers = await run_in_threadpool(
@@ -125,8 +133,11 @@ async def customer_search(
 )
 async def conversation_view(
     user_id: str,
-    customer_phone: str
+    customer_phone: str,
+    request: Request
 ):
+
+    enforce_tenant_access(request, user_id)
 
     business_id = await run_in_threadpool(get_business_id, user_id)
 
@@ -150,7 +161,8 @@ async def conversation_view(
 async def send_manual_reply(
     user_id: str,
     customer_phone: str,
-    request: ManualReplyRequest
+    request: ManualReplyRequest,
+    http_request: Request
 ):
     """
     Sends a real WhatsApp message on the business's behalf from the
@@ -170,6 +182,8 @@ async def send_manual_reply(
     the AI explicitly via the Customer Info panel's "Resume AI" button
     when they're done.
     """
+
+    enforce_tenant_access(http_request, user_id)
 
     business_id = await run_in_threadpool(get_business_id, user_id)
 
@@ -206,8 +220,11 @@ async def send_manual_reply(
 
 @router.get("/lead/{customer_phone}")
 async def lead_details(
-    customer_phone: str
+    customer_phone: str,
+    request: Request
 ):
+
+    await enforce_tenant_access_for_customer(request, customer_phone)
 
     return {
         "status": "success",
@@ -219,7 +236,9 @@ async def lead_details(
 
 
 @router.get("/customer-profile/{user_id}/{customer_phone}")
-async def customer_profile(user_id: str, customer_phone: str):
+async def customer_profile(user_id: str, customer_phone: str, request: Request):
+
+    enforce_tenant_access(request, user_id)
 
     return {
         "status": "success",
@@ -231,7 +250,9 @@ async def customer_profile(user_id: str, customer_phone: str):
     }
 
 @router.post("/customer-name")
-async def save_customer_name(request: CustomerNameRequest):
+async def save_customer_name(request: CustomerNameRequest, http_request: Request):
+
+    await enforce_tenant_access_for_customer(http_request, request.customer_phone)
 
     name = request.name.strip()
 
@@ -247,7 +268,9 @@ async def save_customer_name(request: CustomerNameRequest):
     }
 
 @router.post("/lead")
-async def save_lead(request: LeadRequest):
+async def save_lead(request: LeadRequest, http_request: Request):
+
+    await enforce_tenant_access_for_customer(http_request, request.customer_phone)
 
     current_lead = await run_in_threadpool(get_lead, request.customer_phone)
 
@@ -283,7 +306,9 @@ async def save_lead(request: LeadRequest):
     }
 
 @router.post("/lead/{customer_phone}/resume-ai")
-async def resume_ai_route(customer_phone: str):
+async def resume_ai_route(customer_phone: str, request: Request):
+
+    await enforce_tenant_access_for_customer(request, customer_phone)
 
     # See crm/lead_manager.py's pause_ai()/resume_ai() and
     # ai/handoff.py - called from the Customer Info panel's "Resume AI"
@@ -296,7 +321,9 @@ async def resume_ai_route(customer_phone: str):
 
 
 @router.get("/lead-timeline/{customer_phone}")
-async def lead_timeline(customer_phone: str):
+async def lead_timeline(customer_phone: str, request: Request):
+
+    await enforce_tenant_access_for_customer(request, customer_phone)
 
     return {
         "status": "success",
@@ -305,7 +332,9 @@ async def lead_timeline(customer_phone: str):
 
 
 @router.get("/opportunities/{customer_phone}")
-async def opportunities(customer_phone: str):
+async def opportunities(customer_phone: str, request: Request):
+
+    await enforce_tenant_access_for_customer(request, customer_phone)
 
     return {
         "status": "success",
@@ -314,7 +343,9 @@ async def opportunities(customer_phone: str):
 
 @router.get("/activity/{customer_phone}")
 
-async def activity(customer_phone):
+async def activity(customer_phone, request: Request):
+
+    await enforce_tenant_access_for_customer(request, customer_phone)
 
     return {
 
@@ -324,7 +355,9 @@ async def activity(customer_phone):
     }
 
 @router.get("/customer-timeline/{customer_phone}")
-async def customer_timeline(customer_phone: str):
+async def customer_timeline(customer_phone: str, request: Request):
+
+    await enforce_tenant_access_for_customer(request, customer_phone)
 
     return {
         "status": "success",
@@ -335,7 +368,9 @@ async def customer_timeline(customer_phone: str):
     }
 
 @router.get("/activity-timeline/{customer_phone}")
-async def activity_timeline(customer_phone: str):
+async def activity_timeline(customer_phone: str, request: Request):
+
+    await enforce_tenant_access_for_customer(request, customer_phone)
 
     return {
         "status": "success",

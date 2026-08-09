@@ -76,3 +76,33 @@ Follow-up pass after the multi-tenancy (Phase 1), business registry (Phase 2), a
 - `python3 -m py_compile` on every changed Python file → clean.
 - `node --check` on every template's extracted script block → clean.
 - Live run against a throwaway copy of the real production databases: confirmed `get_customer_stats` is called exactly once per active business regardless of rule count, `register_business`/`set_business_status`/`delete_business` behave identically to before for both existing and missing `user_id`, and the app's admin/session config validates cleanly at import time.
+
+---
+
+# Round 3 — August 7, 2026
+
+Follow-up pass after the business-owner OTP login work (Phase 3 completion) — covering the new modules (`verify.py`), new routes (`api/auth.py`'s `/business-login` set), the tenant-isolation retrofit across 8 API files, and the two new templates (`business_login.html`, `business_login_verify.html`). Verified with `python3 -m py_compile` on every changed file, the full pytest suite (315 tests passing, up from 271), and a real login performed live by the user against a configured Twilio Verify Service SID.
+
+## Fixes implemented
+
+**Blocking DB calls not wrapped in `run_in_threadpool` — `auth.py`'s `enforce_tenant_access_for_customer()` and `resolve_dashboard_user_id()`.** Both ran a synchronous sqlite3 query directly inside a function called from `async def` route handlers, violating this codebase's own established convention (every other blocking DB call goes through `run_in_threadpool` — see e.g. `api/dashboard.py`'s module docstring). Left as-is, each of these would block FastAPI's event loop for the duration of the query on every customer-detail page load or dashboard/analytics/settings page render. Fixed by making both `async def` and wrapping their DB-touching branches in `await run_in_threadpool(...)`. `enforce_tenant_access_for_customer()`'s two sequential queries (business lookup, then customer lookup) were also combined into one via a new single-query JOIN, `get_owning_business_user_id()`. Updated all 13 call sites across `api/customer.py` (9), `api/ai.py` (1), and `api/misc.py` (3) to `await` the now-async functions.
+
+**Dead no-op JS in `settings.html`'s `window.onload`.** Read `#userId`'s value straight back out of the input and wrote it right back in — a leftover from before the field was server-rendered from the session. Harmless but confusing, and it shadowed the fact that `#userId` used to be hardcoded to the Sandbox number in this same handler (a real bug from an earlier round, already fixed). Removed, with a comment explaining where the value now comes from.
+
+## Flagged, not changed
+
+**No index on `customer_numbers.whatsapp_number` / `owner_whatsapp_number`.** `get_business_by_login_number()` (used on every business-login attempt) filters on both columns with a full table scan. Same reasoning as Round 2's note on this table: `customer_numbers` is sized by number of *businesses*, not customers, so it stays small even as the product scales — low priority.
+
+## Checked and found clean
+
+- `verify.py` and `api/auth.py`'s `/business-login` routes correctly wrap every Twilio call and DB lookup in `run_in_threadpool`; the OTP-pending phone number is tracked server-side in the session (not a client-supplied hidden field), so `/business-login/verify` can't be reached with a phone number that was never actually sent a code.
+- No unpooled `sqlite3.connect()` calls introduced anywhere this session — everything goes through `database/db.py`'s pool.
+- `templates/business_login.html` and `templates/business_login_verify.html` have no JS at all and no dead code.
+- `templates/businesses.html`'s new "View Dashboard" button and the removal of the old `updateOwnerNumberWarning()` warning banner (superseded by the SMS-only OTP design) left no orphaned CSS, functions, or call sites.
+- `twilio==9.10.9` (already in `requirements.txt`) covers the Verify API used by `verify.py` — no new dependency needed.
+
+## Verification
+
+- `python3 -m pytest tests/ -q` → 315 passed (44 new tests: `test_verify.py`'s 8 fake-Twilio-client tests, plus new coverage in `test_auth.py`, `test_businesses.py`, `test_tenant_isolation.py` for the login-number lookup, tenant-isolation retrofit, and async fixes).
+- `python3 -m py_compile` on every changed/added Python file → clean.
+- Live verification: user registered a new business (`+919962824442`), configured a real `TWILIO_VERIFY_SERVICE_SID`, and successfully logged in end-to-end through `/business-login` → SMS OTP → `/business-login/verify`.

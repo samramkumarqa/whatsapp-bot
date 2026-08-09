@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login - Website AI Assistant</title>
+    <title>Enter Code - WhatsPilot</title>
 
     <style>
 
@@ -102,7 +102,9 @@ input {
   border: 1px solid #d1d5db;
   border-radius: 10px;
   margin-top: 5px;
-  font-size: 14px;
+  font-size: 20px;
+  letter-spacing: 4px;
+  text-align: center;
 }
 
 button {
@@ -161,31 +163,37 @@ button:hover {
 <div class="login-card">
 
     <div class="login-brand">
-        <div class="logo-circle">🔒</div>
-        <div class="login-title">WhatsPilot Admin</div>
-        <div class="login-subtitle">Sign in to manage businesses and settings</div>
+        <div class="logo-circle">🔑</div>
+        <div class="login-title">Enter Your Code</div>
+        <div class="login-subtitle">We sent a code to {{ phone }}</div>
     </div>
 
-    <form method="post" action="/login">
+    <form method="post" action="/business-login/verify">
 
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" autocomplete="username" required autofocus>
+        <label for="code">Verification Code</label>
+        <input
+            type="text"
+            id="code"
+            name="code"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            maxlength="10"
+            required
+            autofocus
+        >
 
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" autocomplete="current-password" required>
-
-        <button type="submit">Sign In</button>
+        <button type="submit">Verify &amp; Sign In</button>
 
     </form>
 
     {% if error %}
     <div class="login-error">
-        Invalid username or password.
+        That code didn't work. Please check it and try again.
     </div>
     {% endif %}
 
     <div class="login-switch">
-        Business owner? <a href="/business-login">Log in with your WhatsApp number</a>
+        <a href="/business-login">Use a different number</a>
     </div>
 
 </div>

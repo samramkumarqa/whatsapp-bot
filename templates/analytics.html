@@ -459,7 +459,7 @@ body {
      field since loadDashboardAnalytics() below reads it via #userId,
      same as the home page's chart-loading code did before this page
      existed. -->
-<input type="hidden" id="userId" value="+14155238886">
+<input type="hidden" id="userId" value="{{ user_id or '' }}">
 
 <!-- ===================================================== -->
 <!-- DASHBOARD ANALYTICS -->

@@ -208,21 +208,6 @@ input.field-invalid {
   border-color: var(--color-danger);
 }
 
-.owner-number-warning {
-  margin-top: -4px;
-  margin-bottom: 10px;
-  padding: 10px 14px;
-  background: var(--color-warning-light);
-  border-radius: 8px;
-  color: var(--color-warning-dark);
-  font-size: 13px;
-  display: none;
-}
-
-.owner-number-warning.visible {
-  display: block;
-}
-
 #registerStatus {
   margin-top: 10px;
   color: var(--color-gray-600);
@@ -314,6 +299,14 @@ input.field-invalid {
   background: var(--color-danger-dark);
 }
 
+.view-btn {
+  background: var(--color-blue);
+}
+
+.view-btn:hover {
+  background: var(--color-primary-hover);
+}
+
 .business-list-empty {
   padding: 14px 0;
   color: var(--color-gray-600);
@@ -403,7 +396,8 @@ input.field-invalid {
 
     <label>Business WhatsApp Number</label>
     <div class="field-hint">
-        The Twilio-connected number customers message and the bot replies from.
+        The Twilio-connected number customers message and the bot
+        replies from - also where you'll receive your login OTP.
     </div>
     <input
         id="bizWhatsappNumber"
@@ -427,11 +421,14 @@ input.field-invalid {
     >
     <div id="bizUserIdError" class="field-error"></div>
 
-    <label>Owner's Personal WhatsApp Number (optional)</label>
+    <label>Owner's Personal WhatsApp Number (optional - rarely needed)</label>
     <div class="field-hint">
-        Used for login OTP delivery - must be a different number a real
-        person actually reads WhatsApp on, not the bot's own number
-        above.
+        Most businesses can leave this blank. By default the owner logs
+        in at <a href="/business-login">/business-login</a> with the
+        Business WhatsApp Number above - the login code is sent there by
+        SMS, not WhatsApp, so it doesn't matter that the number itself
+        can't receive normal WhatsApp messages. Only fill this in if the
+        owner should log in with a completely different number instead.
     </div>
     <input
         id="bizOwnerNumber"
@@ -441,12 +438,6 @@ input.field-invalid {
         oninput="sanitizePhoneField(this, 'bizOwnerNumber')"
     >
     <div id="bizOwnerNumberError" class="field-error"></div>
-    <div id="bizOwnerNumberWarning" class="owner-number-warning">
-        ⚠️ This matches the Business WhatsApp Number above - a WhatsApp
-        Business API number generally can't receive messages in a normal
-        WhatsApp client, so OTPs sent here may never arrive. Use the
-        owner's personal number instead.
-    </div>
 
     <button id="registerBtn" onclick="registerBusiness()">
         Add Business
@@ -456,12 +447,15 @@ input.field-invalid {
         <summary>ℹ️ What happens after I add a business?</summary>
         <p>
             A new business starts <strong>Inactive</strong> - it's
-            registered, but automation rules won't run for it and (once
-            login exists) its owner won't be able to sign in yet.
+            registered, but automation rules won't run for it and its
+            owner won't be able to sign in at
+            <a href="/business-login">/business-login</a> yet.
         </p>
         <p>
             Click <strong>Activate</strong> on the business below when
-            it's ready to go live.
+            it's ready to go live. By default the owner logs in with the
+            Business WhatsApp Number above - no separate personal number
+            needed - and their login code arrives there by SMS.
         </p>
     </details>
 
@@ -524,7 +518,6 @@ function sanitizePhoneField(el, fieldId) {
     el.value = (hasLeadingPlus ? "+" : "") + digits;
 
     clearFieldError(fieldId);
-    updateOwnerNumberWarning();
 }
 
 // Account ID: letters, numbers, and + - _ . - permissive since it's not
@@ -533,18 +526,6 @@ function sanitizePhoneField(el, fieldId) {
 function sanitizeUserIdField(el) {
     el.value = el.value.replace(/[^a-zA-Z0-9+\-_.]/g, "");
     clearFieldError("bizUserId");
-}
-
-function updateOwnerNumberWarning() {
-    const whatsappNumber = document.getElementById("bizWhatsappNumber").value.trim();
-    const ownerNumber = document.getElementById("bizOwnerNumber").value.trim();
-
-    const warning = document.getElementById("bizOwnerNumberWarning");
-
-    warning.classList.toggle(
-        "visible",
-        !!ownerNumber && ownerNumber === whatsappNumber
-    );
 }
 
 function validatePhone(value, label, required) {
@@ -628,7 +609,6 @@ async function registerBusiness() {
         document.getElementById("bizWhatsappNumber").value = "";
         document.getElementById("bizUserId").value = "";
         document.getElementById("bizOwnerNumber").value = "";
-        updateOwnerNumberWarning();
 
         await loadBusinesses();
 
@@ -710,6 +690,21 @@ function createBusinessRow(biz) {
     `;
 
     const actions = li.querySelector(".business-actions");
+
+    // Only active businesses have a working dashboard to view - the
+    // admin picks which business's dashboard/analytics/settings pages
+    // render via this ?business= param (see auth.py's
+    // resolve_dashboard_user_id()); inactive businesses aren't
+    // meaningful to view yet, same gate as business-owner login itself.
+    if (isActive) {
+        const viewBtn = document.createElement("button");
+        viewBtn.className = "view-btn";
+        viewBtn.textContent = "View Dashboard";
+        viewBtn.onclick = () => {
+            window.location.href = `/?business=${encodeURIComponent(biz.user_id)}`;
+        };
+        actions.appendChild(viewBtn);
+    }
 
     const toggleBtn = document.createElement("button");
     toggleBtn.className = isActive ? "deactivate-btn" : "activate-btn";

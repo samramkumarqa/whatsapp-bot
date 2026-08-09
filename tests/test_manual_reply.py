@@ -17,6 +17,9 @@ from analytics.customer_stats import get_conversation
 from crm.activity_manager import get_activity
 from crm.customer_mapping import save_customer_number
 from crm.lead_manager import get_lead, pause_ai
+from tests.conftest import FakeRequest
+
+_ADMIN = FakeRequest({"role": "admin"})
 
 
 def _mock_send(sent):
@@ -36,7 +39,8 @@ def test_manual_reply_sends_via_whatsapp(isolated_db, monkeypatch):
     result = asyncio.run(send_manual_reply(
         "u1",
         "+919962824442",
-        ManualReplyRequest(message="Hi, following up on your question.")
+        ManualReplyRequest(message="Hi, following up on your question."),
+        _ADMIN
     ))
 
     assert result["status"] == "success"
@@ -50,7 +54,7 @@ def test_manual_reply_saved_with_manual_sender(isolated_db, monkeypatch):
     save_customer_number("u1", "+10000000000", "biz1")
 
     asyncio.run(send_manual_reply(
-        "u1", "+919962824442", ManualReplyRequest(message="On it!")
+        "u1", "+919962824442", ManualReplyRequest(message="On it!"), _ADMIN
     ))
 
     messages = get_conversation("u1", "+919962824442")
@@ -68,7 +72,7 @@ def test_manual_reply_pauses_ai(isolated_db, monkeypatch):
     save_customer_number("u1", "+10000000000", "biz1")
 
     asyncio.run(send_manual_reply(
-        "u1", "+919962824442", ManualReplyRequest(message="I'll take it from here.")
+        "u1", "+919962824442", ManualReplyRequest(message="I'll take it from here."), _ADMIN
     ))
 
     lead = get_lead("+919962824442")
@@ -86,7 +90,7 @@ def test_manual_reply_repauses_even_if_already_paused_for_different_reason(isola
     pause_ai("+919962824442", "Customer asked for a human")
 
     asyncio.run(send_manual_reply(
-        "u1", "+919962824442", ManualReplyRequest(message="Hi, this is Sam from support.")
+        "u1", "+919962824442", ManualReplyRequest(message="Hi, this is Sam from support."), _ADMIN
     ))
 
     lead = get_lead("+919962824442")
@@ -102,7 +106,7 @@ def test_manual_reply_logs_activity(isolated_db, monkeypatch):
     save_customer_number("u1", "+10000000000", "biz1")
 
     asyncio.run(send_manual_reply(
-        "u1", "+919962824442", ManualReplyRequest(message="Sending you the quote now.")
+        "u1", "+919962824442", ManualReplyRequest(message="Sending you the quote now."), _ADMIN
     ))
 
     activity = get_activity("+919962824442")
@@ -124,7 +128,7 @@ def test_manual_reply_does_not_save_if_send_fails(isolated_db, monkeypatch):
 
     with pytest.raises(RuntimeError):
         asyncio.run(send_manual_reply(
-            "u1", "+919962824442", ManualReplyRequest(message="This should not be saved.")
+            "u1", "+919962824442", ManualReplyRequest(message="This should not be saved."), _ADMIN
         ))
 
     messages = get_conversation("u1", "+919962824442")

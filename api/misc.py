@@ -2,6 +2,7 @@ from fastapi import APIRouter, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.templating import Jinja2Templates
 
+from auth import enforce_tenant_access, resolve_dashboard_user_id
 from reminder_manager import get_reminders
 from crm.lead_manager import get_lead_categories
 from analytics.analytics import (
@@ -18,7 +19,10 @@ async def dashboard(request: Request):
 
     return templates.TemplateResponse(
         request=request,
-        name="dashboard.html"
+        name="dashboard.html",
+        context={
+            "user_id": await resolve_dashboard_user_id(request),
+        }
     )
 
 @router.get("/analytics")
@@ -26,7 +30,10 @@ async def analytics_page(request: Request):
 
     return templates.TemplateResponse(
         request=request,
-        name="analytics.html"
+        name="analytics.html",
+        context={
+            "user_id": await resolve_dashboard_user_id(request),
+        }
     )
 
 @router.get("/follow-ups")
@@ -42,7 +49,10 @@ async def settings_page(request: Request):
 
     return templates.TemplateResponse(
         request=request,
-        name="settings.html"
+        name="settings.html",
+        context={
+            "user_id": await resolve_dashboard_user_id(request),
+        }
     )
 
 @router.get("/businesses")
@@ -79,7 +89,9 @@ async def lead_categories():
     }
 
 @router.get("/opportunity-dashboard/{user_id}")
-async def opportunity_dashboard(user_id: str):
+async def opportunity_dashboard(user_id: str, request: Request):
+
+    enforce_tenant_access(request, user_id)
 
     return {
         "status": "success",
@@ -87,7 +99,9 @@ async def opportunity_dashboard(user_id: str):
     }
 
 @router.get("/reminder-dashboard/{user_id}")
-async def reminder_dashboard(user_id: str):
+async def reminder_dashboard(user_id: str, request: Request):
+
+    enforce_tenant_access(request, user_id)
 
     return {
         "status": "success",

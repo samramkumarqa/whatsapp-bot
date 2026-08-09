@@ -1,13 +1,19 @@
 """
-Global admin-session gate - see main.py for wiring and api/auth.py for
-the login/logout routes this depends on.
+Global session gate - see main.py for wiring and api/auth.py for the
+login/logout routes this depends on.
 
-There's no per-business login yet (see the ongoing multi-tenancy work in
-crm/customer_mapping.py, automation/*, api/businesses.py), so for now
-every page and API route requires the single shared admin account,
-except a small allowlist of endpoints that can't go through a login
-flow at all - Twilio's webhook (called by Twilio's servers, not a
-browser) and the health check.
+Two roles exist:
+  - "admin"          - the single shared admin account. Sees every page,
+                        including the Businesses registry.
+  - "business_owner" - a real per-business login via WhatsApp/SMS OTP
+                        (Twilio Verify - see verify.py). Scoped to their
+                        own business everywhere except the Businesses
+                        registry, which is admin-only.
+
+Everything except a small allowlist of endpoints that can't go through
+either login flow at all requires one of the two roles - Twilio's
+webhook (called by Twilio's servers, not a browser) and the health
+check.
 """
 
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -16,19 +22,53 @@ from starlette.responses import RedirectResponse, JSONResponse
 EXEMPT_PATHS = {
     "/login",
     "/logout",
+    "/business-login",
+    "/business-login/verify",
     "/webhook",
     "/health",
 }
+
+# Admin-only page/API prefixes - a business_owner session is redirected
+# away from these rather than getting a 403 page, since this is normal
+# navigation (e.g. a stale bookmark) rather than someone probing for
+# access.
+ADMIN_ONLY_PREFIXES = (
+    "/businesses",
+    "/business-registry",
+)
 
 
 class AdminAuthMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request, call_next):
 
-        if request.url.path in EXEMPT_PATHS:
+        path = request.url.path
+
+        if path in EXEMPT_PATHS:
             return await call_next(request)
 
-        if request.session.get("role") == "admin":
+        role = request.session.get("role")
+
+        if role == "admin":
+            return await call_next(request)
+
+        if role == "business_owner":
+
+            if path.startswith(ADMIN_ONLY_PREFIXES):
+
+                accept = request.headers.get("accept", "")
+
+                if "text/html" in accept:
+                    return RedirectResponse(url="/", status_code=302)
+
+                return JSONResponse(
+                    {
+                        "status": "error",
+                        "detail": "Not authorized for this page"
+                    },
+                    status_code=403
+                )
+
             return await call_next(request)
 
         # Not authenticated. A real browser navigating to a page sends

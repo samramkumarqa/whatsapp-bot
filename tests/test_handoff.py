@@ -163,11 +163,14 @@ def test_customer_stats_defaults_ai_paused_false(isolated_db):
 
 def test_resume_ai_route(isolated_db):
     from api.customer import resume_ai_route
+    from tests.conftest import FakeRequest
 
     pause_ai("+919900000005", "Customer asked for a human")
     assert get_lead("+919900000005")["ai_paused"] == 1
 
-    result = asyncio.run(resume_ai_route("+919900000005"))
+    result = asyncio.run(
+        resume_ai_route("+919900000005", FakeRequest({"role": "admin"}))
+    )
 
     assert result["status"] == "success"
     assert get_lead("+919900000005")["ai_paused"] == 0

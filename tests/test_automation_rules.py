@@ -23,6 +23,16 @@ from api.automation import (
 )
 from automation.manager import get_rule_count, delete_rule, MAX_AUTOMATION_RULES
 from crm.customer_mapping import save_customer_number
+from tests.conftest import FakeRequest
+
+# These tests call the route functions directly, bypassing the real
+# ASGI app/session middleware - an admin FakeRequest bypasses
+# enforce_tenant_access()'s business-ownership check the same way a
+# real admin session would, so it's not what these tests are about
+# (see test_business_cannot_edit_another_businesss_rule/
+# test_business_cannot_delete_another_businesss_rule below, which are
+# specifically about the business_id 404 check, not session auth).
+_ADMIN = FakeRequest({"role": "admin"})
 
 
 def _rule_payload(name="Rule", value=80):
@@ -38,7 +48,7 @@ def _rule_payload(name="Rule", value=80):
 
 def _create(user_id="u1", name="Rule", value=80):
     return asyncio.run(
-        create_automation_rule(user_id, _rule_payload(name, value))
+        create_automation_rule(user_id, _rule_payload(name, value), _ADMIN)
     )
 
 
@@ -98,7 +108,7 @@ def test_editing_an_existing_rule_is_unaffected_by_the_cap(isolated_db):
 
     result = asyncio.run(
         update_automation_rule(
-            "u1", ids[0], _rule_payload("Rule 0 - renamed")
+            "u1", ids[0], _rule_payload("Rule 0 - renamed"), _ADMIN
         )
     )
 
@@ -143,7 +153,7 @@ def test_business_cannot_edit_another_businesss_rule(isolated_db):
 
     with pytest.raises(HTTPException) as exc_info:
         asyncio.run(
-            update_automation_rule("u2", rule_id, _rule_payload("Hijacked"))
+            update_automation_rule("u2", rule_id, _rule_payload("Hijacked"), _ADMIN)
         )
 
     assert exc_info.value.status_code == 404
@@ -160,7 +170,7 @@ def test_business_cannot_delete_another_businesss_rule(isolated_db):
     rule_id = _create(user_id="u1", name="Biz1 Rule")["id"]
 
     with pytest.raises(HTTPException) as exc_info:
-        asyncio.run(delete_automation_rule("u2", rule_id))
+        asyncio.run(delete_automation_rule("u2", rule_id, _ADMIN))
 
     assert exc_info.value.status_code == 404
     assert get_rule_count("biz1") == 1

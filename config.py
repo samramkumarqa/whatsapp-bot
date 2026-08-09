@@ -31,6 +31,23 @@ ADMIN_PASSWORD_HASH = os.getenv("ADMIN_PASSWORD_HASH")
 SESSION_SECRET_KEY = os.getenv("SESSION_SECRET_KEY")
 
 # ----------------------------------------
+# Business-owner login (WhatsApp/SMS OTP via Twilio Verify)
+# ----------------------------------------
+# Optional, unlike the admin vars above - /business-login shows a clear
+# in-page error rather than crashing the app if TWILIO_VERIFY_SERVICE_SID
+# isn't set yet (see verify.py). Create a Verify Service at
+# https://console.twilio.com/us1/develop/verify/services and paste its
+# SID into .env once ready.
+#
+# OTP_CHANNEL defaults to "sms" because Twilio Verify's WhatsApp channel
+# requires a registered *production* WhatsApp sender (not available on
+# the Sandbox) plus Meta-approved Authentication Templates - see
+# verify.py's module docstring. Switch this to "whatsapp" once that
+# sender is approved; nothing else in the code needs to change.
+TWILIO_VERIFY_SERVICE_SID = os.getenv("TWILIO_VERIFY_SERVICE_SID")
+OTP_CHANNEL = os.getenv("OTP_CHANNEL", "sms")
+
+# ----------------------------------------
 # AI Providers
 # ----------------------------------------
 # NOTE: only Groq is actually used anywhere in this codebase. Removed
@@ -42,8 +59,10 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 # ----------------------------------------
 # Vector Database
 # ----------------------------------------
+# Overridable via CHROMA_DB_PATH so production can point this at a
+# persistent disk mount instead of the repo-relative default used locally.
 
-CHROMA_DB = "./chroma_db"
+CHROMA_DB = os.getenv("CHROMA_DB_PATH", "./chroma_db")
 
 # ----------------------------------------
 # Logging

@@ -1,11 +1,13 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
+from auth import enforce_tenant_access
 from database.db import get_conversation_connection
 from crm.customer_mapping import (
     save_business_settings,
     get_business_settings,
     save_customer_number,
+    get_business_id,
     get_business_phone_by_user,
     get_customers,
 )
@@ -46,8 +48,11 @@ class CustomerNumberRequest(
 
 @router.post("/business-settings")
 async def save_settings(
-    request: BusinessSettingsRequest
+    request: BusinessSettingsRequest,
+    http_request: Request
 ):
+
+    enforce_tenant_access(http_request, request.user_id)
 
     await run_in_threadpool(
         save_business_settings,
@@ -62,8 +67,11 @@ async def save_settings(
     }
 @router.get("/business-settings/{user_id}")
 async def get_settings(
-    user_id: str
+    user_id: str,
+    request: Request
 ):
+
+    enforce_tenant_access(request, user_id)
 
     return {
         "status": "success",
@@ -75,14 +83,27 @@ async def get_settings(
 
 @router.post("/customer-number")
 async def save_number(
-    request: CustomerNumberRequest
+    request: CustomerNumberRequest,
+    http_request: Request
 ):
+
+    enforce_tenant_access(http_request, request.user_id)
+
+    # BUG FIX: this used to hardcode "business_001" regardless of which
+    # business was actually saving its number - harmless for the one
+    # original business (whose business_id genuinely is business_001),
+    # but would have silently mislabeled every other registered
+    # business's customer_numbers row with the wrong business_id the
+    # first time they confirmed their WhatsApp number from Settings.
+    # Resolves the real business_id already assigned at registration
+    # (see crm/customer_mapping.py's register_business()) instead.
+    business_id = await run_in_threadpool(get_business_id, request.user_id)
 
     await run_in_threadpool(
         save_customer_number,
         request.user_id,
         request.whatsapp_number,
-        "business_001"
+        business_id
     )
 
     return {
@@ -91,8 +112,11 @@ async def save_number(
 
 @router.get("/customer-number/{user_id}")
 async def get_number(
-    user_id: str
+    user_id: str,
+    request: Request
 ):
+
+    enforce_tenant_access(request, user_id)
 
     number = await run_in_threadpool(
         get_business_phone_by_user,
@@ -107,14 +131,20 @@ async def get_number(
 
 
 @router.get("/customers/{user_id}")
-async def customers(user_id: str):
+async def customers(user_id: str, request: Request):
+
+    enforce_tenant_access(request, user_id)
+
     return {
         "status": "success",
         "customers": await run_in_threadpool(get_customers, user_id)
     }
 
 @router.get("/customers-last/{user_id}")
-async def customers_last(user_id: str):
+async def customers_last(user_id: str, request: Request):
+
+    enforce_tenant_access(request, user_id)
+
     return {
     "status": "success",
     "last_update": await run_in_threadpool(get_last_customer_update, user_id)
@@ -137,7 +167,9 @@ def _fetch_last_message(user_id: str, customer_phone: str):
     return row[0] or ""
 
 @router.get("/conversation-last/{user_id}/{customer_phone}")
-async def conversation_last(user_id: str, customer_phone: str):
+async def conversation_last(user_id: str, customer_phone: str, request: Request):
+
+    enforce_tenant_access(request, user_id)
 
     last_message = await run_in_threadpool(
         _fetch_last_message,

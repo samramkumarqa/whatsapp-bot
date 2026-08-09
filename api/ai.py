@@ -1,7 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 
+from auth import enforce_tenant_access, enforce_tenant_access_for_customer
 from ai.manager_assistant import ask_manager
 from followup_ai import generate_followup
 
@@ -25,8 +26,11 @@ class ManagerQuestion(BaseModel):
 @router.get("/generate-followup/{user_id}/{customer_phone}")
 async def generate_followup_message(
     user_id: str,
-    customer_phone: str
+    customer_phone: str,
+    request: Request
 ):
+
+    enforce_tenant_access(request, user_id)
 
     messages = await run_in_threadpool(
         get_conversation,
@@ -67,7 +71,9 @@ async def generate_followup_message(
     }
 
 @router.get("/followups/{customer_phone}")
-async def followups(customer_phone: str):
+async def followups(customer_phone: str, request: Request):
+
+    await enforce_tenant_access_for_customer(request, customer_phone)
 
     return {
         "status": "success",
@@ -76,7 +82,9 @@ async def followups(customer_phone: str):
 
 
 @router.get("/executive-dashboard/{user_id}")
-async def executive_dashboard(user_id: str):
+async def executive_dashboard(user_id: str, request: Request):
+
+    enforce_tenant_access(request, user_id)
 
     return {
         "status": "success",
@@ -84,7 +92,9 @@ async def executive_dashboard(user_id: str):
     }
 
 @router.post("/manager-assistant")
-def manager_assistant(question: ManagerQuestion):
+def manager_assistant(question: ManagerQuestion, request: Request):
+
+    enforce_tenant_access(request, question.user_id)
 
     answer = ask_manager(
         question.user_id,

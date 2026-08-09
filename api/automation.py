@@ -1,9 +1,10 @@
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field, field_validator
 
+from auth import enforce_tenant_access
 from automation.manager import (
     get_rules,
     get_rule,
@@ -19,17 +20,23 @@ from crm.customer_mapping import get_business_id
 router = APIRouter(tags=["Automation"])
 
 
-async def _resolve_business_id(user_id: str) -> str:
+async def _resolve_business_id(request: Request, user_id: str) -> str:
     """
-    Every route below is scoped to one business's rules - resolving
-    business_id server-side from the path's user_id (rather than trusting
-    a client-supplied business_id) is what actually stops one business
-    from listing/editing/deleting another business's automation rules.
-    A user_id that isn't registered in customer_numbers (see
+    Every route below is scoped to one business's rules. Two checks
+    happen here, both required: enforce_tenant_access() confirms the
+    *session* is allowed to act as user_id at all (admin, or a
+    business_owner whose own login resolved to this exact user_id) -
+    without it, a logged-in business owner could edit another
+    business's rules just by changing the user_id in the URL. Then
+    resolving business_id server-side (rather than trusting a
+    client-supplied one) is what the rule CRUD functions actually filter
+    by. A user_id that isn't registered in customer_numbers (see
     crm/customer_mapping.py) has no rules to manage, so it's a 404 here
     rather than silently falling back to the old global/unscoped
     behavior.
     """
+
+    enforce_tenant_access(request, user_id)
 
     business_id = await run_in_threadpool(get_business_id, user_id)
 
@@ -210,9 +217,9 @@ class EnableRuleRequest(BaseModel):
 # --------------------------------------------------------
 
 @router.get("/automation/rules/{user_id}")
-async def list_rules(user_id: str):
+async def list_rules(user_id: str, request: Request):
 
-    business_id = await _resolve_business_id(user_id)
+    business_id = await _resolve_business_id(request, user_id)
 
     return {
 
@@ -228,9 +235,9 @@ async def list_rules(user_id: str):
 # --------------------------------------------------------
 
 @router.get("/automation/rules/{user_id}/{rule_id}")
-async def get_automation_rule(user_id: str, rule_id: int):
+async def get_automation_rule(user_id: str, rule_id: int, request: Request):
 
-    business_id = await _resolve_business_id(user_id)
+    business_id = await _resolve_business_id(request, user_id)
 
     rule = await run_in_threadpool(get_rule, rule_id, business_id)
 
@@ -255,9 +262,13 @@ async def get_automation_rule(user_id: str, rule_id: int):
 # --------------------------------------------------------
 
 @router.post("/automation/rules/{user_id}")
-async def create_automation_rule(user_id: str, request: AutomationRuleRequest):
+async def create_automation_rule(
+    user_id: str,
+    request: AutomationRuleRequest,
+    http_request: Request
+):
 
-    business_id = await _resolve_business_id(user_id)
+    business_id = await _resolve_business_id(http_request, user_id)
 
     existing_count = await run_in_threadpool(get_rule_count, business_id)
 
@@ -296,10 +307,11 @@ async def create_automation_rule(user_id: str, request: AutomationRuleRequest):
 async def update_automation_rule(
     user_id: str,
     rule_id: int,
-    request: AutomationRuleRequest
+    request: AutomationRuleRequest,
+    http_request: Request
 ):
 
-    business_id = await _resolve_business_id(user_id)
+    business_id = await _resolve_business_id(http_request, user_id)
 
     if await run_in_threadpool(get_rule, rule_id, business_id) is None:
 
@@ -339,10 +351,11 @@ async def update_automation_rule(
 async def toggle_rule_enabled(
     user_id: str,
     rule_id: int,
-    request: EnableRuleRequest
+    request: EnableRuleRequest,
+    http_request: Request
 ):
 
-    business_id = await _resolve_business_id(user_id)
+    business_id = await _resolve_business_id(http_request, user_id)
 
     if await run_in_threadpool(get_rule, rule_id, business_id) is None:
 
@@ -370,9 +383,9 @@ async def toggle_rule_enabled(
 # --------------------------------------------------------
 
 @router.delete("/automation/rules/{user_id}/{rule_id}")
-async def delete_automation_rule(user_id: str, rule_id: int):
+async def delete_automation_rule(user_id: str, rule_id: int, request: Request):
 
-    business_id = await _resolve_business_id(user_id)
+    business_id = await _resolve_business_id(request, user_id)
 
     if await run_in_threadpool(get_rule, rule_id, business_id) is None:
 

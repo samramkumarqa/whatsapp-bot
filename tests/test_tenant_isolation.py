@@ -213,3 +213,99 @@ def test_runner_fetches_customer_stats_once_per_business_not_per_rule(isolated_d
     run_automation()
 
     assert call_count["n"] == 1
+
+
+# ---------------------------------------------------------------------
+# Phase 3 - session-level isolation via enforce_tenant_access()
+# ---------------------------------------------------------------------
+# Phase 1 above proved the *data layer* scopes correctly by business_id.
+# These tests prove the *route layer* actually enforces who's allowed to
+# ask for which business_id in the first place - a logged-in business
+# owner hitting another business's user_id in the URL (e.g. by editing
+# the hidden #userId field or hand-crafting a request) must be rejected
+# before any of the Phase 1 scoping even runs. See auth.py's
+# enforce_tenant_access() and api/dashboard.py, api/customer.py,
+# api/automation.py's routes that call it.
+
+import asyncio as _asyncio
+
+import pytest
+from fastapi import HTTPException
+
+from tests.conftest import FakeRequest
+
+
+def _owner_request(user_id):
+    return FakeRequest({"role": "business_owner", "user_id": user_id})
+
+
+def test_dashboard_route_blocks_business_owner_for_another_business(isolated_db):
+    from api.dashboard import dashboard as dashboard_route
+
+    _register_business("u1", "bizA", "+10000000001")
+    _register_business("u2", "bizB", "+10000000002")
+
+    # Their own business's dashboard works.
+    result = _asyncio.run(dashboard_route("u1", _owner_request("u1")))
+    assert result["status"] == "success"
+
+    # Another business's dashboard does not.
+    with pytest.raises(HTTPException) as exc_info:
+        _asyncio.run(dashboard_route("u2", _owner_request("u1")))
+    assert exc_info.value.status_code == 403
+
+
+def test_stats_route_blocks_business_owner_for_another_business(isolated_db):
+    from api.dashboard import stats as stats_route
+
+    _register_business("u1", "bizA", "+10000000001")
+    _register_business("u2", "bizB", "+10000000002")
+
+    result = _asyncio.run(stats_route("u1", _owner_request("u1")))
+    assert result["status"] == "success"
+
+    with pytest.raises(HTTPException) as exc_info:
+        _asyncio.run(stats_route("u2", _owner_request("u1")))
+    assert exc_info.value.status_code == 403
+
+
+def test_customer_details_route_blocks_business_owner_for_another_business(isolated_db):
+    from api.customer import customer_details
+
+    _register_business("u1", "bizA", "+10000000001")
+    _register_business("u2", "bizB", "+10000000002")
+
+    result = _asyncio.run(customer_details("u1", _owner_request("u1")))
+    assert result["status"] == "success"
+
+    with pytest.raises(HTTPException) as exc_info:
+        _asyncio.run(customer_details("u2", _owner_request("u1")))
+    assert exc_info.value.status_code == 403
+
+
+def test_automation_list_rules_blocks_business_owner_for_another_business(isolated_db):
+    from api.automation import list_rules
+
+    _register_business("u1", "bizA", "+10000000001")
+    _register_business("u2", "bizB", "+10000000002")
+
+    result = _asyncio.run(list_rules("u1", _owner_request("u1")))
+    assert result["status"] == "success"
+
+    with pytest.raises(HTTPException) as exc_info:
+        _asyncio.run(list_rules("u2", _owner_request("u1")))
+    assert exc_info.value.status_code == 403
+
+
+def test_admin_session_bypasses_tenant_check_on_all_of_the_above(isolated_db):
+    from api.dashboard import dashboard as dashboard_route
+    from api.customer import customer_details
+    from api.automation import list_rules
+
+    _register_business("u1", "bizA", "+10000000001")
+
+    admin = FakeRequest({"role": "admin"})
+
+    assert _asyncio.run(dashboard_route("u1", admin))["status"] == "success"
+    assert _asyncio.run(customer_details("u1", admin))["status"] == "success"
+    assert _asyncio.run(list_rules("u1", admin))["status"] == "success"

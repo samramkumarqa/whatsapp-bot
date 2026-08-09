@@ -4861,7 +4861,7 @@ textarea.field-invalid {
      document.getElementById("userId").value, so this hidden field keeps
      them working. Hardcoded default set in window.onload below, same
      convention as settings.html/analytics.html. -->
-<input type="hidden" id="userId" value="+14155238886">
+<input type="hidden" id="userId" value="{{ user_id or '' }}">
 
 <!-- ===================================================== -->
 <!-- AUTOMATION RULES -->

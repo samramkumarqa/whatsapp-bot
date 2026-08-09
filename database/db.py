@@ -1,10 +1,20 @@
+import os
 import sqlite3
 import queue
 import threading
 
-CRM_DB = "data/app.db"
+# Overridable via env vars so production (Render, etc.) can point these at
+# a persistent disk mount - e.g. CRM_DB_PATH=/var/data/app.db - instead of
+# the repo-relative paths used for local dev. Falls back to the original
+# relative paths when the env vars aren't set, so local dev is unchanged.
+CRM_DB = os.getenv("CRM_DB_PATH", "data/app.db")
 
-CONVERSATION_DB = "conversations.db"
+CONVERSATION_DB = os.getenv("CONVERSATION_DB_PATH", "conversations.db")
+
+for _path in (CRM_DB, CONVERSATION_DB):
+    _dir = os.path.dirname(_path)
+    if _dir:
+        os.makedirs(_dir, exist_ok=True)
 
 _POOL_SIZE = 5
 

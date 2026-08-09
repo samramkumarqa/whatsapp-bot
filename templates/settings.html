@@ -507,6 +507,7 @@ textarea.field-invalid {
 
     <input
         id="userId"
+        value="{{ user_id or '' }}"
         placeholder="+14155238886"
         maxlength="16"
         inputmode="tel"
@@ -1250,7 +1251,12 @@ async function loadBusinessSettings(){
 
 window.onload = async function () {
 
-    document.getElementById("userId").value = "+14155238886";
+    // #userId's value is server-rendered from the logged-in session
+    // (see api/misc.py's /settings route and this file's #userId input
+    // above) - no JS needed to set it here anymore. Was previously
+    // hardcoded to the Sandbox number in this handler, which meant the
+    // field reset to the wrong business's number on every page load
+    // once more than one business existed.
 
     try { await loadWebsites(); }
     catch(e){ console.error("Websites", e); }

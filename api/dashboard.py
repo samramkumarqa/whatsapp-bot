@@ -1,6 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.concurrency import run_in_threadpool
 router = APIRouter()
+from auth import enforce_tenant_access
 from database.db import fetchall_crm, fetchall_conversation
 from website_manager import get_websites
 from analytics.analytics import (
@@ -19,7 +20,9 @@ from crm.customer_mapping import get_business_id, get_business_phone_by_user
 # via run_in_threadpool moves that work onto a worker thread instead.
 
 @router.get("/dashboard/{user_id}")
-async def dashboard(user_id: str):
+async def dashboard(user_id: str, request: Request):
+
+    enforce_tenant_access(request, user_id)
 
     return {
         "status": "success",
@@ -27,7 +30,9 @@ async def dashboard(user_id: str):
     }
 
 @router.get("/stats/{user_id}")
-async def stats(user_id: str):
+async def stats(user_id: str, request: Request):
+
+    enforce_tenant_access(request, user_id)
 
     websites = len(
         await run_in_threadpool(get_websites, user_id)
@@ -42,7 +47,9 @@ async def stats(user_id: str):
     }
 
 @router.get("/dashboard-metrics/{user_id}")
-async def dashboard_metrics(user_id: str):
+async def dashboard_metrics(user_id: str, request: Request):
+
+    enforce_tenant_access(request, user_id)
 
     from analytics.analytics import get_dashboard_metrics
 
@@ -54,7 +61,9 @@ async def dashboard_metrics(user_id: str):
     }
 
 @router.get("/sales-funnel/{user_id}")
-async def sales_funnel(user_id: str):
+async def sales_funnel(user_id: str, request: Request):
+
+    enforce_tenant_access(request, user_id)
 
     funnel = await run_in_threadpool(get_sales_funnel, user_id)
 
@@ -64,7 +73,9 @@ async def sales_funnel(user_id: str):
     }
 
 @router.get("/lead-score-dashboard/{user_id}")
-async def lead_score_dashboard(user_id: str):
+async def lead_score_dashboard(user_id: str, request: Request):
+
+    enforce_tenant_access(request, user_id)
 
     lead_score = await run_in_threadpool(get_lead_score_dashboard, user_id)
 
@@ -74,7 +85,9 @@ async def lead_score_dashboard(user_id: str):
     }
 
 @router.get("/dashboard/analytics/{user_id}")
-async def dashboard_analytics(user_id: str):
+async def dashboard_analytics(user_id: str, request: Request):
+
+    enforce_tenant_access(request, user_id)
 
     # This route used to be a plain `def` doing blocking sqlite3 calls
     # directly on FastAPI's event loop - every other route in this file

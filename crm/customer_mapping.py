@@ -243,6 +243,60 @@ def list_businesses():
     ]
 
 
+def get_business_by_login_number(phone: str):
+    """
+    Resolves a business-owner login attempt (see api/auth.py's
+    /business-login routes): given the phone number an owner entered,
+    finds the *active* business it belongs to. A number matches either
+    of two columns - whatsapp_number (the Twilio-connected bot number
+    itself) or owner_whatsapp_number (a separate personal number, for
+    businesses that want OTPs to go somewhere other than the bot's own
+    number - see register_business()'s owner_whatsapp_number param).
+
+    Login doesn't require a separate personal number to be registered:
+    a solo owner running the bot from their own everyday WhatsApp
+    number just logs in with that same number, and
+    owner_whatsapp_number can be left blank at registration. It only
+    needs to be set when the bot's number is a WhatsApp Business API
+    number that can't itself receive normal WhatsApp app messages (only
+    matters once OTP_CHANNEL is "whatsapp" - see config.py - since SMS
+    OTPs can reach either kind of number).
+
+    Only 'active' businesses can log in - a newly registered business
+    stays inactive until an admin activates it from the Businesses
+    page, same gate that controls whether automation runs for it (see
+    get_active_businesses()). Returns None if there's no match, which
+    the login route treats as "no business found for this number"
+    without revealing whether the number belongs to an inactive/unknown
+    business.
+    """
+
+    conn = get_crm_connection()
+
+    cursor = conn.execute(
+        """
+        SELECT user_id, business_id, whatsapp_number
+        FROM customer_numbers
+        WHERE (whatsapp_number = ? OR owner_whatsapp_number = ?)
+          AND status = 'active'
+        """,
+        (phone, phone)
+    )
+
+    row = cursor.fetchone()
+
+    conn.close()
+
+    if not row:
+        return None
+
+    return {
+        "user_id": row[0],
+        "business_id": row[1],
+        "whatsapp_number": row[2],
+    }
+
+
 def _generate_business_id(conn):
     """
     "business_001", "business_002", ... - matches the naming the one real
@@ -490,6 +544,39 @@ def save_mapping(
 
     conn.commit()
     conn.close()
+
+
+def get_owning_business_user_id(customer_phone: str):
+    """
+    Which business's user_id a given customer_phone belongs to, in one
+    query - used by auth.py's enforce_tenant_access_for_customer() to
+    check whether a business_owner session is allowed to reach a
+    customer's lead/activity/timeline/opportunities data. Replaces what
+    used to be two separate calls (get_business_phone_by_customer() then
+    get_customer_by_number()) with a single JOIN, since this now runs on
+    every one of those customer-detail routes for every business_owner
+    request. Returns None for an unknown customer_phone, same as the
+    two-call version did.
+    """
+
+    conn = get_crm_connection()
+
+    cursor = conn.execute(
+        """
+        SELECT customer_numbers.user_id
+        FROM customer_mapping
+        JOIN customer_numbers
+            ON customer_numbers.whatsapp_number = customer_mapping.business_phone
+        WHERE customer_mapping.customer_phone = ?
+        """,
+        (customer_phone,)
+    )
+
+    row = cursor.fetchone()
+
+    conn.close()
+
+    return row[0] if row else None
 
 
 def set_customer_name(

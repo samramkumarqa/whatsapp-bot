@@ -1,9 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 import asyncio
 import logging
 
+from auth import enforce_tenant_access
 from incremental_ingest import incremental_ingest
 from site_discovery import MAX_PAGES_PER_SITE
 from doc_tracker import get_indexed_pages, clear_registry
@@ -49,7 +50,9 @@ def schedule_reindex(user_id: str):
     )
 
 @router.post("/reindex/{user_id}")
-async def reindex(user_id: str):
+async def reindex(user_id: str, request: Request):
+
+    enforce_tenant_access(request, user_id)
 
     try:
         await asyncio.to_thread(
@@ -85,7 +88,9 @@ async def websites():
 
 
 @router.post("/website")
-async def add_site(request: WebsiteRequest):
+async def add_site(request: WebsiteRequest, http_request: Request):
+
+    enforce_tenant_access(http_request, request.user_id)
 
     try:
 
@@ -168,8 +173,11 @@ async def add_site(request: WebsiteRequest):
 
 @router.delete("/website")
 async def remove_site(
-    request: WebsiteRequest
+    request: WebsiteRequest,
+    http_request: Request
 ):
+
+    enforce_tenant_access(http_request, request.user_id)
 
     try:
 
@@ -238,7 +246,9 @@ async def remove_site(
         }
 
 @router.get("/websites/{user_id}")
-async def list_websites(user_id: str):
+async def list_websites(user_id: str, request: Request):
+
+    enforce_tenant_access(request, user_id)
 
     websites = await run_in_threadpool(get_websites, user_id)
 
@@ -250,7 +260,9 @@ async def list_websites(user_id: str):
 
 
 @router.get("/indexed-pages/{user_id}")
-async def indexed_pages(user_id: str):
+async def indexed_pages(user_id: str, request: Request):
+
+    enforce_tenant_access(request, user_id)
 
     pages = await run_in_threadpool(get_indexed_pages, user_id)
 
