@@ -50,7 +50,7 @@ class AdminAuthMiddleware(BaseHTTPMiddleware):
         role = request.session.get("role")
 
         if role == "admin":
-            return await call_next(request)
+            return _no_store(await call_next(request))
 
         if role == "business_owner":
 
@@ -69,7 +69,7 @@ class AdminAuthMiddleware(BaseHTTPMiddleware):
                     status_code=403
                 )
 
-            return await call_next(request)
+            return _no_store(await call_next(request))
 
         # Not authenticated. A real browser navigating to a page sends
         # "text/html" in Accept; the dashboard/settings/businesses pages'
@@ -95,3 +95,27 @@ class AdminAuthMiddleware(BaseHTTPMiddleware):
             },
             status_code=401
         )
+
+
+def _no_store(response):
+    """
+    Every authenticated page ("/", /settings, /follow-ups, /analytics,
+    /businesses...) is rendered per-session, with a business's own id
+    baked directly into the HTML (see e.g. dashboard.html's hidden
+    #userId input). Without an explicit no-store, the browser is free to
+    keep a cached copy of that HTML and replay it after the session
+    changes - e.g. an admin switches which business they're viewing, or
+    someone logs out and a different business owner logs in on the same
+    browser - showing (and, worse, having page JS fetch data scoped to)
+    a business the *current* session no longer has access to. This
+    reproduced live as an "automation/rules/<old business>" call
+    returning 403 against a freshly-authenticated session, because the
+    HTML shell itself was served stale with the previous session's
+    business id already baked in. Applied here rather than per-route so
+    every session-scoped page is covered by construction, not by
+    remembering to add a header to each new route.
+    """
+
+    response.headers["Cache-Control"] = "no-store"
+
+    return response

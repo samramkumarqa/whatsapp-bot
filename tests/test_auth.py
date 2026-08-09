@@ -567,3 +567,50 @@ def test_business_login_also_works_with_the_business_whatsapp_number(client, bus
 
     protected = client.get("/protected-page")
     assert protected.status_code == 200
+
+
+# ---------------------------------------------------------------------
+# middleware.py - Cache-Control: no-store on every authenticated response
+#
+# Regression: session-scoped pages (dashboard, settings, follow-ups...)
+# bake the current session's business id directly into the HTML (e.g.
+# dashboard.html's hidden #userId input). Without no-store, a browser can
+# replay a cached copy of that HTML after the session changes - an admin
+# switches which business they're viewing, or a different business owner
+# logs in on the same browser - so the page's own JS ends up calling
+# APIs scoped to a business the *current* session doesn't own. This
+# reproduced live as automation/rules/<stale business id> returning 403
+# right after a fresh, correct login, because the HTML shell itself was
+# served from cache with the previous session's id already baked in.
+# ---------------------------------------------------------------------
+
+def test_admin_authenticated_response_is_not_cached(client):
+    client.post(
+        "/login",
+        data={"username": "testadmin", "password": "correct-horse"}
+    )
+
+    response = client.get("/protected-page")
+    assert response.status_code == 200
+    assert response.headers["cache-control"] == "no-store"
+
+
+def test_business_owner_authenticated_response_is_not_cached(client, business, monkeypatch):
+    monkeypatch.setattr(
+        "api.auth.send_otp", lambda phone, channel=None: True
+    )
+    monkeypatch.setattr("api.auth.check_otp", lambda phone, code: True)
+
+    client.post("/business-login", data={"phone": business["phone"]})
+    client.post("/business-login/verify", data={"code": "123456"})
+
+    response = client.get("/protected-page")
+    assert response.status_code == 200
+    assert response.headers["cache-control"] == "no-store"
+
+
+def test_unauthenticated_response_has_no_forced_cache_header(client):
+    # /login itself is on the exempt list (no session to scope it by),
+    # so no-store isn't applied there - nothing session-specific to leak.
+    response = client.get("/login")
+    assert "cache-control" not in {k.lower() for k in response.headers.keys()}
