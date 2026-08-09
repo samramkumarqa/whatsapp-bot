@@ -1,9 +1,6 @@
 import os
 import logging
 
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_chroma import Chroma
-
 logger = logging.getLogger(__name__)
 
 
@@ -12,8 +9,20 @@ _embeddings = None
 
 
 def get_embeddings():
+    """
+    langchain_huggingface pulls in sentence-transformers -> torch, which
+    alone commonly needs several hundred MB just to import - deferring
+    the import to here (instead of module level) means a plain app boot
+    (auth, dashboard, webhook receiving, CRM, automation - everything
+    that doesn't touch the website-RAG feature) doesn't pay that cost.
+    This matters concretely on Render's free/Starter tier (512MB RAM):
+    the app OOM'd on startup before this change, purely from importing
+    main.py's dependency chain, before a single request was served.
+    """
+
     global _embeddings
     if _embeddings is None:
+        from langchain_huggingface import HuggingFaceEmbeddings
         _embeddings = HuggingFaceEmbeddings(
             model_name="all-MiniLM-L6-v2"
         )
@@ -21,6 +30,8 @@ def get_embeddings():
 
 
 def get_user_vectorstore(user_id: str):
+
+    from langchain_chroma import Chroma
 
     persist_dir = f"chroma_db/{user_id}"
 
