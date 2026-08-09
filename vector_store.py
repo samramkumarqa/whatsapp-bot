@@ -1,6 +1,8 @@
 import os
 import logging
 
+from config import CHROMA_DB
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,7 +35,12 @@ def get_user_vectorstore(user_id: str):
 
     from langchain_chroma import Chroma
 
-    persist_dir = f"chroma_db/{user_id}"
+    # CHROMA_DB defaults to "./chroma_db" (see config.py) but is
+    # overridable via CHROMA_DB_PATH - this was previously ignored here
+    # (hardcoded to "chroma_db/{user_id}"), so setting that env var in
+    # production silently did nothing. Wired through now so pointing it
+    # at a persistent disk mount (once one is attached) actually works.
+    persist_dir = os.path.join(CHROMA_DB, user_id)
 
     os.makedirs(persist_dir, exist_ok=True)
 
