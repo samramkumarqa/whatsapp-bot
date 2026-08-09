@@ -4,7 +4,16 @@ services:
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    # --proxy-headers + --forwarded-allow-ips="*" matter beyond just
+    # logging: rate_limit.py's admin-login limiter keys on
+    # request.client.host, and Render sits in front of the app as a
+    # proxy - without these flags every visitor would show up as
+    # Render's internal proxy IP, making the rate limit apply globally
+    # across all visitors instead of per-visitor (one bad actor could
+    # then lock out the real admin, since they'd share the same
+    # apparent "IP"). These flags tell uvicorn to trust Render's
+    # X-Forwarded-For header and use the real client IP instead.
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
     healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION

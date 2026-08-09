@@ -188,6 +188,31 @@ def test_login_with_correct_credentials_grants_access(client):
     assert protected.json()["secret"] == "dashboard data"
 
 
+def test_login_rate_limited_after_too_many_failed_attempts(client):
+    for _ in range(5):
+        response = client.post(
+            "/login",
+            data={"username": "testadmin", "password": "wrong"},
+            follow_redirects=False
+        )
+        assert response.headers["location"] == "/login?error=1"
+
+    # The 6th attempt is rejected on the rate limit, even with the
+    # *correct* password - proves the check runs before
+    # verify_admin_login(), not just after N failures specifically.
+    response = client.post(
+        "/login",
+        data={"username": "testadmin", "password": "correct-horse"},
+        follow_redirects=False
+    )
+    assert response.headers["location"] == "/login?error=ratelimited"
+
+    protected = client.get(
+        "/protected-page", headers={"accept": "application/json"}
+    )
+    assert protected.status_code == 401
+
+
 def test_logout_clears_the_session(client):
     client.post(
         "/login",
@@ -394,6 +419,47 @@ def test_business_login_sends_otp_for_registered_active_business(client, busines
     assert response.status_code == 303
     assert response.headers["location"] == "/business-login/verify"
     assert sent == [business["phone"]]
+
+
+def test_business_login_otp_send_rate_limited_after_too_many_requests(client, business, monkeypatch):
+    sent = []
+    monkeypatch.setattr(
+        "api.auth.send_otp",
+        lambda phone, channel=None: sent.append(phone) or True
+    )
+
+    for _ in range(3):
+        client.post("/business-login", data={"phone": business["phone"]})
+
+    response = client.post(
+        "/business-login",
+        data={"phone": business["phone"]},
+        follow_redirects=False
+    )
+    assert response.headers["location"] == "/business-login?error=ratelimited"
+    assert len(sent) == 3  # the 4th request never reached send_otp
+
+
+def test_business_login_verify_rate_limited_after_too_many_wrong_codes(client, business, monkeypatch):
+    monkeypatch.setattr("api.auth.send_otp", lambda phone, channel=None: True)
+    monkeypatch.setattr("api.auth.check_otp", lambda phone, code: False)
+
+    client.post("/business-login", data={"phone": business["phone"]})
+
+    for _ in range(5):
+        response = client.post(
+            "/business-login/verify",
+            data={"code": "000000"},
+            follow_redirects=False
+        )
+        assert "error=1" in response.headers["location"]
+
+    response = client.post(
+        "/business-login/verify",
+        data={"code": "000000"},
+        follow_redirects=False
+    )
+    assert response.headers["location"] == "/business-login/verify?error=ratelimited"
 
 
 def test_business_login_verify_page_redirects_without_a_pending_login(client, business):

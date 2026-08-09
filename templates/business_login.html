@@ -206,6 +206,10 @@ button:hover {
     <div class="login-error">
         We couldn't send a code to that number. Please try again.
     </div>
+    {% elif error == "ratelimited" %}
+    <div class="login-error">
+        Too many codes requested for that number. Please wait a few minutes and try again.
+    </div>
     {% endif %}
 
     <div class="login-switch">

@@ -7,6 +7,7 @@ from fastapi.templating import Jinja2Templates
 
 from auth import verify_admin_login
 from crm.customer_mapping import get_business_by_login_number
+from rate_limit import is_rate_limited, record_attempt
 from verify import VerifyNotConfigured, check_otp, send_otp
 
 logger = logging.getLogger(__name__)
@@ -22,18 +23,39 @@ async def login_page(request: Request):
     # AdminAuthMiddleware redirects here with ?error=1 after a failed
     # attempt (PRG pattern - the POST below redirects rather than
     # rendering directly, so refreshing the page after a failed login
-    # doesn't resubmit the credentials).
+    # doesn't resubmit the credentials). error is passed through as the
+    # raw query string value (rather than collapsed to a bool) so the
+    # template can show a distinct message for ?error=ratelimited vs.
+    # the generic ?error=1 bad-credentials case.
     return templates.TemplateResponse(
         request=request,
         name="login.html",
         context={
-            "error": request.query_params.get("error") == "1"
+            "error": request.query_params.get("error")
         }
     )
 
 
 @router.post("/login")
 async def login_submit(request: Request):
+
+    ip = request.client.host if request.client else "unknown"
+    rate_key = f"admin_login:{ip}"
+
+    # Checked (and recorded) before touching verify_admin_login at all -
+    # a scripted brute-force loop gets rejected outright once it's over
+    # the limit, rather than paying the bcrypt cost (~100-300ms) on every
+    # attempt, which is throttling in itself but not a substitute for an
+    # actual cap. 5 attempts / 5 minutes per IP - generous enough that a
+    # real admin mistyping their password a couple of times never hits
+    # it, tight enough to make a brute-force loop impractical.
+    if is_rate_limited(rate_key, max_attempts=5, window_seconds=300):
+        return RedirectResponse(
+            url="/login?error=ratelimited",
+            status_code=303
+        )
+
+    record_attempt(rate_key)
 
     form = await request.form()
 
@@ -101,6 +123,22 @@ async def business_login_submit(request: Request):
             status_code=303
         )
 
+    # Keyed by phone (not IP) - the thing worth limiting here is how many
+    # OTP SMS messages a given number can be sent, since that's real cost
+    # and a spam vector regardless of which IP is requesting it. 3 sends
+    # / 10 minutes is well above what a real owner needs (one send, maybe
+    # a resend if it didn't arrive) but stops a number from being
+    # hammered with codes.
+    rate_key = f"otp_send:{phone}"
+
+    if is_rate_limited(rate_key, max_attempts=3, window_seconds=600):
+        return RedirectResponse(
+            url="/business-login?error=ratelimited",
+            status_code=303
+        )
+
+    record_attempt(rate_key)
+
     business = await run_in_threadpool(get_business_by_login_number, phone)
 
     if not business:
@@ -143,7 +181,7 @@ async def business_login_verify_page(request: Request):
         name="business_login_verify.html",
         context={
             "phone": request.session["otp_pending_phone"],
-            "error": request.query_params.get("error") == "1",
+            "error": request.query_params.get("error"),
         }
     )
 
@@ -156,6 +194,21 @@ async def business_login_verify_submit(request: Request):
 
     if not phone or not user_id:
         return RedirectResponse(url="/business-login", status_code=303)
+
+    # Defense in depth on top of Twilio Verify's own attempt limit/expiry
+    # (see verify.py) - keyed by phone rather than session, since the
+    # session's otp_pending_phone is exactly what's being guessed against
+    # and a determined attacker could otherwise just start a fresh
+    # session per batch of guesses.
+    rate_key = f"otp_verify:{phone}"
+
+    if is_rate_limited(rate_key, max_attempts=5, window_seconds=600):
+        return RedirectResponse(
+            url="/business-login/verify?error=ratelimited",
+            status_code=303
+        )
+
+    record_attempt(rate_key)
 
     form = await request.form()
     code = (form.get("code") or "").strip()

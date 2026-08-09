@@ -186,7 +186,11 @@ button:hover {
 
     </form>
 
-    {% if error %}
+    {% if error == "ratelimited" %}
+    <div class="login-error">
+        Too many attempts. Please wait a few minutes and try again.
+    </div>
+    {% elif error %}
     <div class="login-error">
         That code didn't work. Please check it and try again.
     </div>

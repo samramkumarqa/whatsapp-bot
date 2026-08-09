@@ -8,6 +8,23 @@ if PROJECT_ROOT not in sys.path:
 import pytest
 
 import database.db as db
+import rate_limit
+
+
+@pytest.fixture(autouse=True)
+def _reset_rate_limits():
+    """
+    rate_limit._attempts is process-wide module state (see rate_limit.py),
+    not per-test-app state - without this, login/OTP tests in different
+    files would share counters across the whole pytest run just because
+    they all hit the same rate-limited routes under the TestClient's
+    fixed default host, and could trip the limit purely from test count/
+    order rather than anything the test itself does.
+    """
+
+    rate_limit.clear_all()
+    yield
+    rate_limit.clear_all()
 
 
 @pytest.fixture
