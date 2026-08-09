@@ -54,6 +54,27 @@ def init_reminders():
     conn.commit()
     conn.close()
 
+def get_reminder_customer_phone(reminder_id):
+    """
+    Which customer_phone a reminder id belongs to, or None if it doesn't
+    exist. Used by api/reminders.py's POST /reminders/{id}/complete to
+    authorize the request (via auth.enforce_tenant_access_for_customer())
+    before mutating a reminder - a reminder id alone doesn't say which
+    business owns it, so this resolves that first.
+    """
+
+    conn = get_crm_connection()
+
+    row = conn.execute(
+        "SELECT customer_phone FROM reminders WHERE id = ?",
+        (reminder_id,)
+    ).fetchone()
+
+    conn.close()
+
+    return row[0] if row else None
+
+
 def complete_reminder(reminder_id):
     """
     Marks a single reminder done (completed=1) by id - not by
@@ -115,32 +136,63 @@ def create_reminder(
     conn.close()
 
 
-def get_reminders():
+def get_reminders(business_phone=None):
     """
-    Active (not yet marked done) reminders only - this backs the global
-    /reminders list (Follow-ups page) and the dashboard bell badge's
-    overdue count. Without the completed=0 filter, a reminder the user has
-    already handled via "Mark Done" would keep showing up here and keep
-    counting toward the overdue badge forever.
+    Active (not yet marked done) reminders only. Without the completed=0
+    filter, a reminder the user has already handled via "Mark Done" would
+    keep showing up here and keep counting toward the overdue badge
+    forever.
+
+    business_phone=None (the default) returns reminders for every
+    business - this is only safe for the internal, system-wide
+    automation/jobs.py:send_due_reminders() scheduled job, which has to
+    dispatch WhatsApp reminders across all tenants. Every HTTP-facing
+    caller (api/misc.py's GET /reminders, backing the Follow-ups page)
+    MUST pass a business_phone - leaving it unset there is what let one
+    logged-in business see every other business's customer reminders.
     """
 
     conn = get_crm_connection()
 
-    cursor = conn.execute(
-        """
-        SELECT
-            id,
-            customer_phone,
-            reminder_text,
-            due_date,
-            status,
-            source_rule_id,
-            source_rule_name
-        FROM reminders
-        WHERE completed = 0
-        ORDER BY due_date ASC
-        """
-    )
+    if business_phone is None:
+
+        cursor = conn.execute(
+            """
+            SELECT
+                id,
+                customer_phone,
+                reminder_text,
+                due_date,
+                status,
+                source_rule_id,
+                source_rule_name
+            FROM reminders
+            WHERE completed = 0
+            ORDER BY due_date ASC
+            """
+        )
+
+    else:
+
+        cursor = conn.execute(
+            """
+            SELECT
+                r.id,
+                r.customer_phone,
+                r.reminder_text,
+                r.due_date,
+                r.status,
+                r.source_rule_id,
+                r.source_rule_name
+            FROM reminders r
+            INNER JOIN customer_mapping cm
+                ON r.customer_phone = cm.customer_phone
+            WHERE r.completed = 0
+            AND cm.business_phone = ?
+            ORDER BY r.due_date ASC
+            """,
+            (business_phone,)
+        )
 
     rows = cursor.fetchall()
 
@@ -308,7 +360,7 @@ def _current_create_reminder_texts(rule_row):
     }
 
 
-def find_stale_reminders():
+def find_stale_reminders(business_phone=None):
     """
     A reminder is "stale" once it no longer reflects what its originating
     rule would currently produce:
@@ -325,18 +377,39 @@ def find_stale_reminders():
     automation_rules lives in conversations.db while reminders lives in
     data/app.db (see database/db.py), so this pulls both and compares in
     Python rather than a single cross-database SQL query.
+
+    business_phone=None returns stale reminders across every business -
+    every HTTP-facing caller (api/reminders.py's /reminders/stale) MUST
+    pass one, same reasoning as get_reminders() above.
     """
 
     crm_conn = get_crm_connection()
 
-    reminders = crm_conn.execute(
-        """
-        SELECT id, customer_phone, reminder_text, source_rule_id, source_rule_name
-        FROM reminders
-        WHERE completed = 0
-        AND source_rule_id IS NOT NULL
-        """
-    ).fetchall()
+    if business_phone is None:
+
+        reminders = crm_conn.execute(
+            """
+            SELECT id, customer_phone, reminder_text, source_rule_id, source_rule_name
+            FROM reminders
+            WHERE completed = 0
+            AND source_rule_id IS NOT NULL
+            """
+        ).fetchall()
+
+    else:
+
+        reminders = crm_conn.execute(
+            """
+            SELECT r.id, r.customer_phone, r.reminder_text, r.source_rule_id, r.source_rule_name
+            FROM reminders r
+            INNER JOIN customer_mapping cm
+                ON r.customer_phone = cm.customer_phone
+            WHERE r.completed = 0
+            AND r.source_rule_id IS NOT NULL
+            AND cm.business_phone = ?
+            """,
+            (business_phone,)
+        ).fetchall()
 
     crm_conn.close()
 
@@ -396,13 +469,14 @@ def find_stale_reminders():
     return stale
 
 
-def delete_stale_reminders():
+def delete_stale_reminders(business_phone=None):
     """
     Deletes every reminder find_stale_reminders() currently flags, and
-    returns how many were removed.
+    returns how many were removed. business_phone scopes the deletion to
+    one business - see find_stale_reminders() above.
     """
 
-    stale = find_stale_reminders()
+    stale = find_stale_reminders(business_phone)
 
     if not stale:
         return 0

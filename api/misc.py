@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.templating import Jinja2Templates
 
 from auth import enforce_tenant_access, resolve_dashboard_user_id
 from reminder_manager import get_reminders
+from crm.customer_mapping import get_business_phone_by_user
 from crm.lead_manager import get_lead_categories
 from analytics.analytics import (
     get_opportunity_dashboard,
@@ -41,7 +42,10 @@ async def followups_page(request: Request):
 
     return templates.TemplateResponse(
         request=request,
-        name="followups.html"
+        name="followups.html",
+        context={
+            "user_id": await resolve_dashboard_user_id(request),
+        }
     )
 
 @router.get("/settings")
@@ -71,11 +75,28 @@ async def health_check():
     }
 
 @router.get("/reminders")
-async def reminders():
+async def reminders(user_id: str, request: Request):
+    """
+    Backs the Follow-ups page's global reminder list. Requires user_id
+    (the business whose reminders are being requested) and checks it
+    against the session via enforce_tenant_access() - previously this had
+    no user_id/authorization at all and returned every business's
+    reminders to any logged-in business owner.
+    """
+
+    enforce_tenant_access(request, user_id)
+
+    business_phone = await run_in_threadpool(get_business_phone_by_user, user_id)
+
+    if not business_phone:
+        return {
+            "status": "success",
+            "reminders": []
+        }
 
     return {
         "status": "success",
-        "reminders": await run_in_threadpool(get_reminders)
+        "reminders": await run_in_threadpool(get_reminders, business_phone)
     }
 
 @router.get("/lead-categories")

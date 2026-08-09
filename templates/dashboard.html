@@ -8932,7 +8932,13 @@ async function loadBellBadge() {
 
     try {
 
-        const response = await fetch("/reminders");
+        const userId = document.getElementById("userId").value;
+
+        if (!userId) return;
+
+        const response = await fetch(
+            `/reminders?user_id=${encodeURIComponent(userId)}`
+        );
         const data = await response.json();
         const reminders = data.reminders || [];
 

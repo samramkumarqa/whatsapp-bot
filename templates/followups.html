@@ -458,6 +458,14 @@ body {
 
 </div>
 
+<!-- Which business's reminders to load - see templates/dashboard.html's
+     #userId hidden input for the same pattern. Server-rendered from the
+     session (resolve_dashboard_user_id()), never client-editable in a
+     way that changes what the session is actually allowed to see -
+     api/misc.py's GET /reminders re-checks this against the session on
+     every request regardless of what's sent here. -->
+<input type="hidden" id="userId" value="{{ user_id or '' }}">
+
 <script>
 
 // Escapes text before it's inserted via innerHTML - see
@@ -475,8 +483,12 @@ function escapeHtml(text) {
 
 async function loadAllReminders() {
 
+    const userId = document.getElementById("userId").value;
+
+    if (!userId) return;
+
     const response =
-        await fetch("/reminders");
+        await fetch(`/reminders?user_id=${encodeURIComponent(userId)}`);
 
     const data =
         await response.json();
@@ -488,7 +500,9 @@ async function loadAllReminders() {
 
     try {
 
-        const staleResponse = await fetch("/reminders/stale");
+        const staleResponse = await fetch(
+            `/reminders/stale?user_id=${encodeURIComponent(userId)}`
+        );
         const staleData = await staleResponse.json();
 
         allRemindersStaleCount = (staleData.stale || []).length;
@@ -716,9 +730,12 @@ async function clearStaleReminders() {
 
     try {
 
-        const response = await fetch("/reminders/stale", {
-            method: "DELETE"
-        });
+        const userId = document.getElementById("userId").value;
+
+        const response = await fetch(
+            `/reminders/stale?user_id=${encodeURIComponent(userId)}`,
+            { method: "DELETE" }
+        );
 
         const data = await response.json();
 

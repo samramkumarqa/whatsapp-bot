@@ -1,10 +1,14 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.concurrency import run_in_threadpool
 
+from auth import enforce_tenant_access, enforce_tenant_access_for_customer
+from crm.customer_mapping import get_business_phone_by_user
 from database.db import get_crm_connection
 from reminder_manager import (
     find_stale_reminders,
     delete_stale_reminders,
     complete_reminder,
+    get_reminder_customer_phone,
 )
 
 router = APIRouter()
@@ -33,24 +37,50 @@ def get_connection():
 # customer named "stale") instead of reaching these.
 # =====================================================
 
+async def _business_phone_for(user_id: str, request: Request) -> str | None:
+    """
+    Shared by the /reminders/stale routes below: verifies the session is
+    allowed to see `user_id`'s data, then resolves it to a business_phone
+    for scoping the reminders query.
+    """
+
+    enforce_tenant_access(request, user_id)
+
+    return await run_in_threadpool(get_business_phone_by_user, user_id)
+
+
 @router.get("/reminders/stale")
-def preview_stale_reminders():
+async def preview_stale_reminders(user_id: str, request: Request):
     """
     Reminders whose originating rule has since been deleted, no longer
     has a Create Reminder action, or now says something different - i.e.
     the reminder text on screen no longer reflects the rule's real,
-    current configuration.
+    current configuration. Scoped to the requesting business - requires
+    user_id and checks it against the session first.
     """
 
+    business_phone = await _business_phone_for(user_id, request)
+
+    if not business_phone:
+        return {"stale": []}
+
     return {
-        "stale": find_stale_reminders()
+        "stale": await run_in_threadpool(find_stale_reminders, business_phone)
     }
 
 
 @router.delete("/reminders/stale")
-def clear_stale_reminders():
+async def clear_stale_reminders(user_id: str, request: Request):
 
-    deleted = delete_stale_reminders()
+    business_phone = await _business_phone_for(user_id, request)
+
+    if not business_phone:
+        return {
+            "status": "success",
+            "deleted": 0
+        }
+
+    deleted = await run_in_threadpool(delete_stale_reminders, business_phone)
 
     return {
         "status": "success",
@@ -66,9 +96,23 @@ def clear_stale_reminders():
 # =====================================================
 
 @router.post("/reminders/{reminder_id}/complete")
-def mark_reminder_complete(reminder_id: int):
+async def mark_reminder_complete(reminder_id: int, request: Request):
+    """
+    A reminder id alone doesn't say which business owns it, so this looks
+    up the owning customer_phone first and checks it against the session
+    via enforce_tenant_access_for_customer() - previously any logged-in
+    business owner could mark any other business's reminder complete by
+    guessing/incrementing ids.
+    """
 
-    complete_reminder(reminder_id)
+    customer_phone = await run_in_threadpool(get_reminder_customer_phone, reminder_id)
+
+    if customer_phone is None:
+        raise HTTPException(status_code=404, detail="Reminder not found")
+
+    await enforce_tenant_access_for_customer(request, customer_phone)
+
+    await run_in_threadpool(complete_reminder, reminder_id)
 
     return {
         "status": "success"
@@ -78,8 +122,7 @@ def mark_reminder_complete(reminder_id: int):
 # GET REMINDERS FOR ONE CUSTOMER
 # =====================================================
 
-@router.get("/reminders/{customer_phone}")
-def get_customer_reminders(customer_phone: str):
+def _fetch_customer_reminders(customer_phone: str):
 
     conn = get_connection()
 
@@ -104,6 +147,16 @@ def get_customer_reminders(customer_phone: str):
     ]
 
     conn.close()
+
+    return reminders
+
+
+@router.get("/reminders/{customer_phone}")
+async def get_customer_reminders(customer_phone: str, request: Request):
+
+    await enforce_tenant_access_for_customer(request, customer_phone)
+
+    reminders = await run_in_threadpool(_fetch_customer_reminders, customer_phone)
 
     return {
         "reminders": reminders
