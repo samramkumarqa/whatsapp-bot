@@ -4442,7 +4442,9 @@ textarea.field-invalid {
 
         <a href="/settings" class="header-btn" title="Settings">⚙️</a>
 
+        {% if is_admin %}
         <a href="/businesses" class="header-btn" title="Businesses">🏢</a>
+        {% endif %}
 
         <a href="/logout" class="header-link-btn" title="Logout">
             Logout

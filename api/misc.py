@@ -23,6 +23,12 @@ async def dashboard(request: Request):
         name="dashboard.html",
         context={
             "user_id": await resolve_dashboard_user_id(request),
+            # The header's Businesses icon links to an admin-only page
+            # (see middleware.py's ADMIN_ONLY_PREFIXES) - a business_owner
+            # session was still shown the icon and just got redirected
+            # away on click, which both looks like a bug and reveals a
+            # feature that isn't theirs. Gate it here instead.
+            "is_admin": request.session.get("role") == "admin",
         }
     )
 
