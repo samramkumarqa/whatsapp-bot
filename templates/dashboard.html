@@ -8970,7 +8970,15 @@ async function loadBellBadge() {
 
 window.onload = async function () {
 
-    document.getElementById("userId").value = "+14155238886";
+    // #userId is server-rendered from the logged-in session (see
+    // api/misc.py's "/" route -> resolve_dashboard_user_id()) - it must
+    // NOT be overwritten here. A leftover hardcoded assignment to the
+    // Twilio sandbox number used to sit on this line from early
+    // single-tenant development; it silently clobbered every other
+    // business's real user_id on every page load, so every business
+    // *except* +14155238886 had its automation rules, reminders, and
+    // bell badge all querying the wrong business's data (or 403'ing,
+    // since the session was never actually authorized for +14155238886).
 
     try { await loadCustomers(); }
     catch(e){ console.error("Customers", e); }
