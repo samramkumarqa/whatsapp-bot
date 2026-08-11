@@ -8,7 +8,7 @@ def init_followups():
     conn.execute("""
     CREATE TABLE IF NOT EXISTS ai_followups(
 
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
 
         customer_phone TEXT,
 

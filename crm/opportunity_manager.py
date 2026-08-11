@@ -12,7 +12,7 @@ def init_opportunities():
     # ordering ever changes or the DB is recreated fresh.
     conn.execute("""
     CREATE TABLE IF NOT EXISTS opportunities (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         customer_phone TEXT,
         opportunity_type TEXT,
         confidence INTEGER,

@@ -58,12 +58,13 @@ def save_tags(customer_phone, tags):
 
         conn.execute(
             """
-            INSERT OR IGNORE INTO customer_tags
+            INSERT INTO customer_tags
             (
                 customer_phone,
                 tag
             )
             VALUES (?, ?)
+            ON CONFLICT (customer_phone, tag) DO NOTHING
             """,
             (
                 customer_phone,
@@ -102,12 +103,13 @@ def add_tag(customer_phone, tag):
 
     conn.execute(
         """
-        INSERT OR IGNORE INTO customer_tags
+        INSERT INTO customer_tags
         (
             customer_phone,
             tag
         )
         VALUES (?, ?)
+        ON CONFLICT (customer_phone, tag) DO NOTHING
         """,
         (
             customer_phone,

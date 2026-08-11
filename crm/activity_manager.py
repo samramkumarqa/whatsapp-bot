@@ -10,7 +10,7 @@ def init_activity():
     conn.execute("""
     CREATE TABLE IF NOT EXISTS ai_activity(
 
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
 
         customer_phone TEXT,
 

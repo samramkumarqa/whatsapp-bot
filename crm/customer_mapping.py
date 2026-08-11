@@ -40,8 +40,11 @@ def init_customer_mapping():
     #                          number instead.
     #   created_at          - when this business was registered.
     existing_business_columns = {
-        row[1] for row in
-        conn.execute("PRAGMA table_info(customer_numbers)").fetchall()
+        row[0] for row in
+        conn.execute(
+            "SELECT column_name FROM information_schema.columns "
+            "WHERE table_schema = current_schema() AND table_name = 'customer_numbers'"
+        ).fetchall()
     }
 
     if "status" not in existing_business_columns:
@@ -91,9 +94,10 @@ def init_customer_mapping():
     # customer_name existed in a schema created before this column was
     # added - patch it in for any database created by an older version.
     existing_columns = {
-        row[1]
+        row[0]
         for row in conn.execute(
-            "PRAGMA table_info(customer_mapping)"
+            "SELECT column_name FROM information_schema.columns "
+            "WHERE table_schema = current_schema() AND table_name = 'customer_mapping'"
         ).fetchall()
     }
 
@@ -459,13 +463,16 @@ def save_customer_number(
 
     conn.execute(
         """
-        INSERT OR REPLACE INTO customer_numbers
+        INSERT INTO customer_numbers
         (
             user_id,
             whatsapp_number,
             business_id
         )
         VALUES (?, ?, ?)
+        ON CONFLICT(user_id) DO UPDATE SET
+            whatsapp_number = excluded.whatsapp_number,
+            business_id = excluded.business_id
         """,
         (
             user_id,
@@ -719,7 +726,7 @@ def save_business_settings(
 
     conn.execute(
         """
-        INSERT OR REPLACE INTO business_settings
+        INSERT INTO business_settings
         (
             user_id,
             business_name,
@@ -730,6 +737,13 @@ def save_business_settings(
             website
         )
         VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(user_id) DO UPDATE SET
+            business_name = excluded.business_name,
+            welcome_message = excluded.welcome_message,
+            ai_instructions = excluded.ai_instructions,
+            phone = excluded.phone,
+            email = excluded.email,
+            website = excluded.website
         """,
         (
             user_id,

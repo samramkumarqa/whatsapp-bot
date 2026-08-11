@@ -395,11 +395,11 @@ def test_get_customers_returns_its_connection_to_the_pool(isolated_db):
     """
     Regression test: get_customers() used to have `conn.close()` written
     after its `return` statement, making it unreachable - every call
-    permanently checked a connection out of database/db.py's
-    5-connection pool and never returned it. Calling it more times than
-    the pool size used to deadlock on the 6th call (_ConnectionPool.get()
-    blocks once every connection is checked out and none are free) - if
-    this test hangs, the leak is back.
+    permanently checked a connection out of database/db.py's pooled
+    connections (max 10, see _pg_pool in database/db.py) and never
+    returned it. Calling it more times than the pool size used to
+    deadlock once every connection was checked out and none were free -
+    if this test hangs, the leak is back.
     """
 
     save_customer_number("biz1", "+10000000001", "biz1")

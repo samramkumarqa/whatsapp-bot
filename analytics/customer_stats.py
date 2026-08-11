@@ -47,15 +47,17 @@ def get_stats(user_id):
 
 def get_customer_stats(user_id):
 
-    conv_conn = get_conversation_connection()
-    crm_conn = get_crm_connection()
-
+    # business_id resolves through its own self-contained crm connection
+    # (crm/customer_mapping.get_business_id()) - looked up before opening
+    # the connection below so this function never holds a conversation-db
+    # and a crm-db connection open at the same time (each is opened, used,
+    # and closed in its own sequential block instead).
     business_id = get_business_id(user_id)
 
     if not business_id:
-        conv_conn.close()
-        crm_conn.close()
         return []
+
+    conv_conn = get_conversation_connection()
 
     cursor = conv_conn.execute(
         """
@@ -88,6 +90,34 @@ def get_customer_stats(user_id):
         r[0]: r[1] for r in unread_cursor.fetchall()
     }
 
+    # Batch-fetch each customer's single latest message in one query -
+    # MAX(id) is used as "latest" (an autoincrement id only ever grows with
+    # insert order, so it's equivalent to ORDER BY created_at DESC LIMIT 1
+    # here but doesn't need a per-row subquery) instead of one query per
+    # customer inside the loop below (was also an N+1 pattern). Done here,
+    # still on conv_conn, before it's closed below - crm_conn (for the
+    # name/lead lookups that follow) isn't opened until after that.
+    last_message_cursor = conv_conn.execute(
+        """
+        SELECT c.phone, c.content
+        FROM conversations c
+        INNER JOIN (
+            SELECT phone, MAX(id) as max_id
+            FROM conversations
+            WHERE phone LIKE ?
+            GROUP BY phone
+        ) latest
+        ON c.phone = latest.phone AND c.id = latest.max_id
+        """,
+        (f"{business_id}:%",)
+    )
+
+    last_message_by_conversation = {
+        r[0]: r[1] for r in last_message_cursor.fetchall()
+    }
+
+    conv_conn.close()
+
     # Batch-fetch customer names (auto-captured from WhatsApp ProfileName,
     # or manually set) for exactly the customers in this business, instead
     # of one query per customer.
@@ -104,6 +134,8 @@ def get_customer_stats(user_id):
     lead_by_phone = {}
 
     if customer_phones:
+
+        crm_conn = get_crm_connection()
 
         placeholders = ",".join("?" for _ in customer_phones)
 
@@ -147,29 +179,7 @@ def get_customer_stats(user_id):
             r[0]: r for r in lead_cursor.fetchall()
         }
 
-    # Batch-fetch each customer's single latest message in one query -
-    # MAX(id) is used as "latest" (an autoincrement id only ever grows with
-    # insert order, so it's equivalent to ORDER BY created_at DESC LIMIT 1
-    # here but doesn't need a per-row subquery) instead of one query per
-    # customer inside the loop below (was also an N+1 pattern).
-    last_message_cursor = conv_conn.execute(
-        """
-        SELECT c.phone, c.content
-        FROM conversations c
-        INNER JOIN (
-            SELECT phone, MAX(id) as max_id
-            FROM conversations
-            WHERE phone LIKE ?
-            GROUP BY phone
-        ) latest
-        ON c.phone = latest.phone AND c.id = latest.max_id
-        """,
-        (f"{business_id}:%",)
-    )
-
-    last_message_by_conversation = {
-        r[0]: r[1] for r in last_message_cursor.fetchall()
-    }
+        crm_conn.close()
 
     customers = []
 
@@ -262,9 +272,6 @@ def get_customer_stats(user_id):
             "ai_paused": ai_paused,
 
         })
-
-    conv_conn.close()
-    crm_conn.close()
 
     return customers
 
@@ -446,7 +453,7 @@ def get_dashboard_metrics(user_id):
         SELECT COUNT(*)
         FROM conversations
         WHERE phone LIKE ?
-        AND DATE(created_at)=DATE('now')
+        AND DATE(created_at) = CURRENT_DATE
         """,
         (f"{business_id}:%",)
     ).fetchone()[0]
@@ -488,12 +495,19 @@ def get_dashboard_metrics(user_id):
 
 def get_customer_profile(user_id, customer_phone):
 
-    conn = get_conversation_connection()
-
+    # Resolved before opening the conversation connection below, for two
+    # reasons: it means this function never holds a conversation-db and a
+    # crm-db connection open at once (get_business_id() opens/closes its
+    # own crm connection internally), and it fixes a connection leak this
+    # used to have - the early return below previously ran before `conn`
+    # was ever opened, but used to sit *after* conn = get_conversation_connection(),
+    # so a business_id lookup miss leaked a pooled connection every time.
     business_id = get_business_id(user_id)
 
     if not business_id:
         return {}
+
+    conn = get_conversation_connection()
 
     cursor = conn.execute(
         """

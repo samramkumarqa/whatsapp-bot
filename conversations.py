@@ -11,7 +11,7 @@ def init_db():
 
     conn.execute("""
     CREATE TABLE IF NOT EXISTS conversations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         phone TEXT,
         role TEXT,
         content TEXT,
@@ -28,8 +28,11 @@ def init_db():
     # turns), so the dashboard's chat view uses this column instead to
     # show "You" vs "AI Assistant" on each bubble.
     existing_columns = {
-        row[1] for row in
-        conn.execute("PRAGMA table_info(conversations)").fetchall()
+        row[0] for row in
+        conn.execute(
+            "SELECT column_name FROM information_schema.columns "
+            "WHERE table_schema = current_schema() AND table_name = 'conversations'"
+        ).fetchall()
     }
 
     if "sender" not in existing_columns:

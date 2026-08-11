@@ -62,6 +62,7 @@ def create_rule(data, business_id=None):
             business_id
         )
         VALUES (?, ?, ?, ?, ?, ?, ?)
+        RETURNING id
         """,
         (
             data["name"],
@@ -74,9 +75,11 @@ def create_rule(data, business_id=None):
         )
     )
 
-    conn.commit()
+    # psycopg2 cursors have no .lastrowid (sqlite3-only) - RETURNING id
+    # is the Postgres equivalent, same reasoning as automation/database.py.
+    rule_id = cursor.fetchone()[0]
 
-    rule_id = cursor.lastrowid
+    conn.commit()
 
     conn.close()
 

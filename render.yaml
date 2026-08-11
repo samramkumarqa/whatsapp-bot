@@ -38,3 +38,11 @@ services:
         sync: false
       - key: OTP_CHANNEL
         value: sms
+      # Required now that database/db.py runs on Postgres instead of the
+      # two local SQLite files - paste in the Render Postgres instance's
+      # Internal Database URL (Render dashboard -> your Postgres ->
+      # Internal Database URL). sync: false means it's entered manually
+      # in the Render dashboard, same as the secrets above, never pulled
+      # from a local .env.
+      - key: DATABASE_URL
+        sync: false

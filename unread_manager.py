@@ -42,7 +42,7 @@ def increment_unread(conversation_id):
 
         DO UPDATE SET
         unread_count =
-        unread_count + 1
+        unread_messages.unread_count + 1
         """,
         (conversation_id,)
     )

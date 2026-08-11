@@ -14,7 +14,7 @@ def init_reminders():
     # would fail on the very first call to any of them.
     conn.execute("""
     CREATE TABLE IF NOT EXISTS reminders (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         customer_phone TEXT,
         reminder_text TEXT,
         due_date TEXT,
@@ -32,8 +32,11 @@ def init_reminders():
     # Snapshotting the name rather than only the id means the label still
     # makes sense even if the rule gets renamed or deleted afterward.
     existing_columns = {
-        row[1] for row in
-        conn.execute("PRAGMA table_info(reminders)").fetchall()
+        row[0] for row in
+        conn.execute(
+            "SELECT column_name FROM information_schema.columns "
+            "WHERE table_schema = current_schema() AND table_name = 'reminders'"
+        ).fetchall()
     }
 
     if "source_rule_id" not in existing_columns:

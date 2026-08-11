@@ -27,7 +27,7 @@ def init_rule_executions():
 
     conn.execute("""
     CREATE TABLE IF NOT EXISTS automation_rule_executions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         rule_id INTEGER NOT NULL,
         rule_name TEXT,
         customer_phone TEXT NOT NULL,
@@ -45,9 +45,11 @@ def init_rule_executions():
     # business_id is added purely so get_rule_performance() can filter/query
     # per business without a join back to automation_rules for every row.
     existing_columns = {
-        row[1] for row in
+        row[0] for row in
         conn.execute(
-            "PRAGMA table_info(automation_rule_executions)"
+            "SELECT column_name FROM information_schema.columns "
+            "WHERE table_schema = current_schema() "
+            "AND table_name = 'automation_rule_executions'"
         ).fetchall()
     }
 
@@ -88,7 +90,7 @@ def record_rule_execution(rule_id, rule_name, business_id, customer_phone):
         VALUES (?, ?, ?, ?)
         ON CONFLICT(rule_id, customer_phone) DO UPDATE SET
             last_fired_at = CURRENT_TIMESTAMP,
-            fire_count = fire_count + 1,
+            fire_count = automation_rule_executions.fire_count + 1,
             rule_name = excluded.rule_name,
             business_id = excluded.business_id
         """,

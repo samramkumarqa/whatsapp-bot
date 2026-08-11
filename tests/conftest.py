@@ -1,5 +1,6 @@
 import os
 import sys
+import uuid
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
@@ -28,40 +29,37 @@ def _reset_rate_limits():
 
 
 @pytest.fixture
-def isolated_db(tmp_path, monkeypatch):
+def isolated_db(monkeypatch):
     """
-    Every CRM/automation function in this codebase resolves its DB path
-    relative to the process's current working directory (e.g. "data/app.db",
-    "conversations.db" in database/db.py). This fixture chdir's into a
-    throwaway directory per test and resets the connection pools in
-    database/db.py so no pooled connection from a previous test - or from
-    the real project directory - leaks into the test. It then runs the
-    actual schema-init functions from each module, so tests exercise the
-    real schema rather than a hand-rolled mock one.
+    Gives each test its own throwaway Postgres schema, created fresh and
+    dropped afterward, so tests don't see each other's rows - the Postgres
+    equivalent of the old "fresh SQLite file per test" approach (before
+    the Postgres migration, this chdir'd into a tmp_path and pointed
+    database/db.py's SQLite connection pools at it instead).
+
+    Requires DATABASE_URL to point at a real Postgres instance before
+    running pytest (see database/db.py) - e.g.:
+
+        DATABASE_URL=postgresql://user:pass@host/db pytest
+
+    Isolation works via Postgres's per-session search_path rather than a
+    second connection pool or a schema-qualifying every query: database/db.py's
+    get_crm_connection()/get_conversation_connection() check a
+    module-level `_test_schema` hook (unset in normal operation) and, when
+    set, run `SET search_path TO "<schema>", public` on every connection
+    they hand out - so every unqualified table name in the ~22 CRM/
+    automation modules transparently resolves inside the test's own
+    schema without any of those modules needing to know tests exist.
     """
 
-    monkeypatch.chdir(tmp_path)
-    os.makedirs("data", exist_ok=True)
+    schema = f"test_{uuid.uuid4().hex[:16]}"
 
-    # Jinja2Templates(directory="templates") (api/auth.py, api/misc.py,
-    # etc.) resolves that path relative to cwd at render time, not at
-    # import time - symlinking the real templates/ dir into the
-    # throwaway cwd lets tests that render a page (e.g. business-login)
-    # still find it after the chdir above, without duplicating the
-    # actual template files anywhere.
-    if not os.path.exists("templates"):
-        os.symlink(
-            os.path.join(PROJECT_ROOT, "templates"),
-            "templates"
-        )
+    conn = db.get_crm_connection()
+    conn.execute(f'CREATE SCHEMA "{schema}"')
+    conn.commit()
+    conn.close()
 
-    # Fresh pools pointing at the new cwd. The pools created at import time
-    # (in the real project directory) may already hold open connections to
-    # a totally different set of files.
-    monkeypatch.setattr(db, "_crm_pool", db._ConnectionPool(db.CRM_DB))
-    monkeypatch.setattr(
-        db, "_conversation_pool", db._ConnectionPool(db.CONVERSATION_DB)
-    )
+    monkeypatch.setattr(db, "_test_schema", schema)
 
     from crm.customer_mapping import (
         init_customer_mapping,
@@ -92,6 +90,16 @@ def isolated_db(tmp_path, monkeypatch):
     init_rule_executions()
 
     yield
+
+    # Drop the throwaway schema so test schemas don't accumulate in the
+    # shared Postgres instance across a whole pytest run. _test_schema is
+    # cleared first so this cleanup connection itself isn't pointed at
+    # the schema it's about to drop.
+    monkeypatch.setattr(db, "_test_schema", None)
+    conn = db.get_crm_connection()
+    conn.execute(f'DROP SCHEMA IF EXISTS "{schema}" CASCADE')
+    conn.commit()
+    conn.close()
 
 
 class FakeRequest:

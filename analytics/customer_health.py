@@ -18,12 +18,18 @@ def get_last_seen_days(
     most recent conversation.
     """
 
-    conn = get_conversation_connection()
-
+    # Resolved before opening the conversation connection below - avoids
+    # holding a conversation-db connection open at the same time as
+    # get_business_id()'s own self-contained crm connection, and avoids a
+    # connection leak this used to have (the early return below used to
+    # run after conn was already opened, so a missing business_id leaked
+    # a pooled connection every time).
     business_id = get_business_id(user_id)
 
     if not business_id:
         return 999
+
+    conn = get_conversation_connection()
 
     conversation_id = (
         f"{business_id}:{customer_phone}"

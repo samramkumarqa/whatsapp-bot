@@ -87,8 +87,11 @@ def init_leads():
     # auto-replying to that customer's future messages until a human
     # resumes AI from the dashboard (see pause_ai()/resume_ai() below).
     existing_lead_columns = {
-        row[1] for row in
-        conn.execute("PRAGMA table_info(leads)").fetchall()
+        row[0] for row in
+        conn.execute(
+            "SELECT column_name FROM information_schema.columns "
+            "WHERE table_schema = current_schema() AND table_name = 'leads'"
+        ).fetchall()
     }
 
     if "ai_paused" not in existing_lead_columns:
@@ -113,7 +116,7 @@ def init_leads():
     conn.execute("""
         CREATE TABLE IF NOT EXISTS opportunities (
 
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
 
             customer_phone TEXT,
 
@@ -132,7 +135,7 @@ def init_leads():
 
     conn.execute("""
     CREATE TABLE IF NOT EXISTS lead_history (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         customer_phone TEXT,
         status TEXT,
         confidence INTEGER,

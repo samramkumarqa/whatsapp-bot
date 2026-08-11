@@ -21,7 +21,7 @@ def init_automation_db():
     conn.execute("""
     CREATE TABLE IF NOT EXISTS automation_rules (
 
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
 
         name TEXT NOT NULL,
 
@@ -47,17 +47,19 @@ def init_automation_db():
     # column lets rules be scoped per business (see automation/manager.py,
     # which the create/list/update/delete API routes actually use).
     existing_columns = {
-        row[1] for row in
-        conn.execute("PRAGMA table_info(automation_rules)").fetchall()
+        row[0] for row in
+        conn.execute(
+            "SELECT column_name FROM information_schema.columns "
+            "WHERE table_schema = current_schema() AND table_name = 'automation_rules'"
+        ).fetchall()
     }
 
-    if "business_id" not in existing_columns:
+    needs_backfill = "business_id" not in existing_columns
 
+    if needs_backfill:
         conn.execute(
             "ALTER TABLE automation_rules ADD COLUMN business_id TEXT"
         )
-
-        _backfill_business_id(conn)
 
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_automation_rules_business_id "
@@ -67,18 +69,24 @@ def init_automation_db():
     conn.commit()
     conn.close()
 
+    # Deliberately opened *after* the conversation-db connection above is
+    # closed, rather than while it's still open - Postgres itself handles
+    # concurrent connections fine, but there's no reason for this one-time
+    # backfill to hold two connections open at once when a short sequential
+    # crm-db call, then a separate conversation-db call, does the same job.
+    if needs_backfill:
+        _backfill_business_id()
 
-def _backfill_business_id(conn):
+
+def _backfill_business_id():
     """
     One-time backfill for rules created before business_id existed (every
     rule in the live database as of this migration). Only backfills when
     there's exactly one distinct, known business_id registered in
-    customer_numbers (data/app.db - a different database file, hence the
-    separate connection/query rather than a SQL subquery) - with more than
-    one candidate there's no way to know which business pre-existing rules
-    actually belong to, so they're left NULL (invisible to every business
-    rather than silently misattributed to the wrong one) and logged for
-    manual follow-up.
+    customer_numbers - with more than one candidate there's no way to know
+    which business pre-existing rules actually belong to, so they're left
+    NULL (invisible to every business rather than silently misattributed
+    to the wrong one) and logged for manual follow-up.
     """
 
     crm_conn = get_crm_connection()
@@ -92,11 +100,14 @@ def _backfill_business_id(conn):
 
     crm_conn.close()
 
+    conn = get_connection()
+
     orphaned_count = conn.execute(
         "SELECT COUNT(*) FROM automation_rules WHERE business_id IS NULL"
     ).fetchone()[0]
 
     if orphaned_count == 0:
+        conn.close()
         return
 
     if len(business_ids) != 1:
@@ -106,6 +117,7 @@ def _backfill_business_id(conn):
             "customer_numbers (need exactly 1 to backfill safely).",
             orphaned_count, len(business_ids)
         )
+        conn.close()
         return
 
     only_business_id = next(iter(business_ids))
@@ -114,6 +126,9 @@ def _backfill_business_id(conn):
         "UPDATE automation_rules SET business_id = ? WHERE business_id IS NULL",
         (only_business_id,)
     )
+
+    conn.commit()
+    conn.close()
 
     logger.info(
         "Backfilled %d automation_rules row(s) to business_id=%r",
@@ -208,6 +223,7 @@ def save_rule(
         )
         VALUES
         (?, ?, ?, ?, ?, ?, ?)
+        RETURNING id
         """,
         (
             name,
@@ -220,9 +236,12 @@ def save_rule(
         )
     )
 
-    conn.commit()
+    # psycopg2 cursors have no .lastrowid (sqlite3-only attribute) - the
+    # RETURNING id clause above is Postgres's equivalent, fetched before
+    # commit() same as lastrowid would have been read before close().
+    rule_id = cursor.fetchone()[0]
 
-    rule_id = cursor.lastrowid
+    conn.commit()
 
     conn.close()
 
@@ -247,6 +266,7 @@ def create_rule(rule: dict):
             business_id
         )
         VALUES (?, ?, ?, ?, ?, ?, ?)
+        RETURNING id
         """,
         (
             rule["name"],
@@ -259,9 +279,11 @@ def create_rule(rule: dict):
         )
     )
 
-    conn.commit()
+    # See save_rule() above - psycopg2 has no .lastrowid, RETURNING id
+    # is the Postgres equivalent.
+    rule_id = cursor.fetchone()[0]
 
-    rule_id = cursor.lastrowid
+    conn.commit()
 
     conn.close()
 
